@@ -1,0 +1,17 @@
+.\.venv-wsgi\Scripts\python.exe : test_28_dead_connection_returns_503_then_recovers 
+(tests.test_wsgi.MigrationTests.test_28_dead_connection_returns_503_then_recovers) ... Base de datos temporalmente no 
+disponible: OperationalError
+En línea: 2 Carácter: 36
++ ... _DB='true'; .\.venv-wsgi\Scripts\python.exe -m unittest tests.test_ws ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (test_28_dead_co...perationalError:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+ok
+test_29_pet_edit_preserves_inactive_owner (tests.test_wsgi.MigrationTests.test_29_pet_edit_preserves_inactive_owner) 
+... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 12.728s
+
+OK

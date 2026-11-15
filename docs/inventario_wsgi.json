@@ -1,0 +1,770 @@
+{
+  "backup": "vetcare_20261115_024535.json.gz",
+  "tablas": {
+    "administrador": {
+      "columnas": [
+        "id_administrador",
+        "telefono"
+      ],
+      "registros": 0,
+      "claves_foraneas": [
+        "FOREIGN KEY (`id_administrador`) REFERENCES `auth_user` (`id`)"
+      ]
+    },
+    "adopcion": {
+      "columnas": [
+        "id",
+        "estado",
+        "activa",
+        "motivo",
+        "observaciones",
+        "observaciones_adopcion",
+        "fecha_registro",
+        "fecha_adopcion",
+        "fecha_cierre",
+        "cerrado_por_id",
+        "cliente_adoptante_id",
+        "cliente_origen_id",
+        "creado_por_id",
+        "mascota_id",
+        "responsable_id",
+        "evaluacion_aprobada_id"
+      ],
+      "registros": 0,
+      "claves_foraneas": [
+        "FOREIGN KEY (`cerrado_por_id`) REFERENCES `auth_user` (`id`),",
+        "FOREIGN KEY (`cliente_adoptante_id`) REFERENCES `cliente` (`id_cliente`),",
+        "FOREIGN KEY (`cliente_origen_id`) REFERENCES `cliente` (`id_cliente`),",
+        "FOREIGN KEY (`creado_por_id`) REFERENCES `auth_user` (`id`),",
+        "FOREIGN KEY (`evaluacion_aprobada_id`) REFERENCES `evaluacion_adopcion` (`id`),",
+        "FOREIGN KEY (`mascota_id`) REFERENCES `mascota` (`id_mascota`),",
+        "FOREIGN KEY (`responsable_id`) REFERENCES `empleado` (`id_empleado`),"
+      ]
+    },
+    "adopciones_criterio": {
+      "columnas": [
+        "id",
+        "nombre",
+        "peso",
+        "recomendacion",
+        "orden",
+        "cuestionario_id"
+      ],
+      "registros": 8,
+      "claves_foraneas": [
+        "FOREIGN KEY (`cuestionario_id`) REFERENCES `adopciones_cuestionario` (`id`),"
+      ]
+    },
+    "adopciones_cuestionario": {
+      "columnas": [
+        "id",
+        "nombre",
+        "activa",
+        "creada"
+      ],
+      "registros": 1,
+      "claves_foraneas": []
+    },
+    "adopciones_entrega": {
+      "columnas": [
+        "id",
+        "fecha",
+        "notas",
+        "responsable_id",
+        "mascota_id",
+        "solicitud_id"
+      ],
+      "registros": 0,
+      "claves_foraneas": [
+        "FOREIGN KEY (`mascota_id`) REFERENCES `adopciones_mascotaadopcion` (`id`),",
+        "FOREIGN KEY (`responsable_id`) REFERENCES `auth_user` (`id`),",
+        "FOREIGN KEY (`solicitud_id`) REFERENCES `adopciones_solicitud` (`id`)"
+      ]
+    },
+    "adopciones_mascotaadopcion": {
+      "columnas": [
+        "id",
+        "nombre",
+        "especie",
+        "raza",
+        "sexo",
+        "edad_aproximada",
+        "peso",
+        "fotografia",
+        "descripcion",
+        "personalidad",
+        "salud",
+        "vacunacion",
+        "esterilizada",
+        "necesidades",
+        "ingreso",
+        "estado",
+        "actualizada",
+        "paciente_id"
+      ],
+      "registros": 0,
+      "claves_foraneas": [
+        "FOREIGN KEY (`paciente_id`) REFERENCES `mascota` (`id_mascota`)"
+      ]
+    },
+    "adopciones_opcion": {
+      "columnas": [
+        "id",
+        "texto",
+        "valor",
+        "alerta",
+        "orden",
+        "pregunta_id"
+      ],
+      "registros": 65,
+      "claves_foraneas": [
+        "FOREIGN KEY (`pregunta_id`) REFERENCES `adopciones_pregunta` (`id`),"
+      ]
+    },
+    "adopciones_pregunta": {
+      "columnas": [
+        "id",
+        "texto",
+        "orden",
+        "criterio_id"
+      ],
+      "registros": 21,
+      "claves_foraneas": [
+        "FOREIGN KEY (`criterio_id`) REFERENCES `adopciones_criterio` (`id`),"
+      ]
+    },
+    "adopciones_respuesta": {
+      "columnas": [
+        "id",
+        "original",
+        "opcion_id",
+        "pregunta_id",
+        "solicitud_id"
+      ],
+      "registros": 0,
+      "claves_foraneas": [
+        "FOREIGN KEY (`opcion_id`) REFERENCES `adopciones_opcion` (`id`),",
+        "FOREIGN KEY (`pregunta_id`) REFERENCES `adopciones_pregunta` (`id`),",
+        "FOREIGN KEY (`solicitud_id`) REFERENCES `adopciones_solicitud` (`id`)"
+      ]
+    },
+    "adopciones_revision": {
+      "columnas": [
+        "id",
+        "accion",
+        "notas",
+        "bienestar_verificado",
+        "fecha",
+        "responsable_id",
+        "solicitud_id"
+      ],
+      "registros": 0,
+      "claves_foraneas": [
+        "FOREIGN KEY (`responsable_id`) REFERENCES `auth_user` (`id`),",
+        "FOREIGN KEY (`solicitud_id`) REFERENCES `adopciones_solicitud` (`id`)"
+      ]
+    },
+    "adopciones_solicitud": {
+      "columnas": [
+        "id",
+        "codigo",
+        "nombre",
+        "documento",
+        "edad",
+        "telefono",
+        "email",
+        "direccion",
+        "ocupacion",
+        "ingreso_aproximado",
+        "presupuesto_cop",
+        "porcentaje",
+        "aprobada",
+        "evaluacion",
+        "alertas",
+        "recomendaciones",
+        "estado",
+        "clave",
+        "huella",
+        "propietario_sesion",
+        "creada",
+        "cuestionario_id",
+        "mascota_id",
+        "tenencia_vivienda",
+        "tipo_vivienda"
+      ],
+      "registros": 0,
+      "claves_foraneas": [
+        "FOREIGN KEY (`cuestionario_id`) REFERENCES `adopciones_cuestionario` (`id`),",
+        "FOREIGN KEY (`mascota_id`) REFERENCES `adopciones_mascotaadopcion` (`id`),"
+      ]
+    },
+    "auth_group": {
+      "columnas": [
+        "id",
+        "name"
+      ],
+      "registros": 0,
+      "claves_foraneas": []
+    },
+    "auth_group_permissions": {
+      "columnas": [
+        "id",
+        "group_id",
+        "permission_id"
+      ],
+      "registros": 0,
+      "claves_foraneas": [
+        "FOREIGN KEY (`permission_id`) REFERENCES `auth_permission` (`id`),",
+        "FOREIGN KEY (`group_id`) REFERENCES `auth_group` (`id`)"
+      ]
+    },
+    "auth_permission": {
+      "columnas": [
+        "id",
+        "name",
+        "content_type_id",
+        "codename"
+      ],
+      "registros": 116,
+      "claves_foraneas": [
+        "FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`)"
+      ]
+    },
+    "auth_user": {
+      "columnas": [
+        "id",
+        "password",
+        "last_login",
+        "is_superuser",
+        "username",
+        "first_name",
+        "last_name",
+        "email",
+        "is_staff",
+        "is_active",
+        "date_joined"
+      ],
+      "registros": 1,
+      "claves_foraneas": []
+    },
+    "auth_user_groups": {
+      "columnas": [
+        "id",
+        "user_id",
+        "group_id"
+      ],
+      "registros": 0,
+      "claves_foraneas": [
+        "FOREIGN KEY (`group_id`) REFERENCES `auth_group` (`id`),",
+        "FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`)"
+      ]
+    },
+    "auth_user_user_permissions": {
+      "columnas": [
+        "id",
+        "user_id",
+        "permission_id"
+      ],
+      "registros": 0,
+      "claves_foraneas": [
+        "FOREIGN KEY (`permission_id`) REFERENCES `auth_permission` (`id`),",
+        "FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`)"
+      ]
+    },
+    "cita": {
+      "columnas": [
+        "id_cita",
+        "fecha",
+        "hora",
+        "motivo",
+        "estado",
+        "mascota_id",
+        "veterinario_id",
+        "cliente_id",
+        "duracion_minutos",
+        "observaciones"
+      ],
+      "registros": 4,
+      "claves_foraneas": [
+        "FOREIGN KEY (`cliente_id`) REFERENCES `cliente` (`id_cliente`),",
+        "FOREIGN KEY (`mascota_id`) REFERENCES `mascota` (`id_mascota`),",
+        "FOREIGN KEY (`veterinario_id`) REFERENCES `veterinario` (`id_veterinario`),"
+      ]
+    },
+    "cliente": {
+      "columnas": [
+        "id_cliente",
+        "nombre",
+        "apellido",
+        "telefono",
+        "direccion",
+        "email",
+        "estado",
+        "documento"
+      ],
+      "registros": 2,
+      "claves_foraneas": []
+    },
+    "django_admin_log": {
+      "columnas": [
+        "id",
+        "action_time",
+        "object_id",
+        "object_repr",
+        "action_flag",
+        "change_message",
+        "content_type_id",
+        "user_id"
+      ],
+      "registros": 0,
+      "claves_foraneas": [
+        "FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`),",
+        "FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`),"
+      ]
+    },
+    "django_content_type": {
+      "columnas": [
+        "id",
+        "app_label",
+        "model"
+      ],
+      "registros": 29,
+      "claves_foraneas": []
+    },
+    "django_migrations": {
+      "columnas": [
+        "id",
+        "app",
+        "name",
+        "applied"
+      ],
+      "registros": 42,
+      "claves_foraneas": []
+    },
+    "django_session": {
+      "columnas": [
+        "session_key",
+        "session_data",
+        "expire_date"
+      ],
+      "registros": 9,
+      "claves_foraneas": []
+    },
+    "empleado": {
+      "columnas": [
+        "id_empleado",
+        "nombre",
+        "apellido",
+        "telefono",
+        "cargo"
+      ],
+      "registros": 4,
+      "claves_foraneas": []
+    },
+    "evaluacion_adopcion": {
+      "columnas": [
+        "id",
+        "respuestas",
+        "desglose",
+        "puntaje",
+        "aprobada",
+        "version",
+        "fecha",
+        "adopcion_id",
+        "cliente_id",
+        "evaluado_por_id"
+      ],
+      "registros": 0,
+      "claves_foraneas": [
+        "FOREIGN KEY (`adopcion_id`) REFERENCES `adopcion` (`id`),",
+        "FOREIGN KEY (`cliente_id`) REFERENCES `cliente` (`id_cliente`),",
+        "FOREIGN KEY (`evaluado_por_id`) REFERENCES `auth_user` (`id`),"
+      ]
+    },
+    "factura": {
+      "columnas": [
+        "id_factura",
+        "fecha_emision",
+        "monto_total",
+        "estado_pago",
+        "administrador_id",
+        "cita_id",
+        "cliente_id",
+        "descuento",
+        "impuesto",
+        "metodo_pago"
+      ],
+      "registros": 3,
+      "claves_foraneas": [
+        "FOREIGN KEY (`administrador_id`) REFERENCES `auth_user` (`id`),",
+        "FOREIGN KEY (`cita_id`) REFERENCES `cita` (`id_cita`),",
+        "FOREIGN KEY (`cliente_id`) REFERENCES `cliente` (`id_cliente`)"
+      ]
+    },
+    "factura_detallefactura": {
+      "columnas": [
+        "id",
+        "servicio",
+        "cantidad",
+        "precio_unitario",
+        "factura_id"
+      ],
+      "registros": 0,
+      "claves_foraneas": [
+        "FOREIGN KEY (`factura_id`) REFERENCES `factura` (`id_factura`),"
+      ]
+    },
+    "historial_de_vacunas": {
+      "columnas": [
+        "id_vacuna",
+        "nombre_vacuna",
+        "fecha_aplic",
+        "fecha_venc",
+        "lote",
+        "mascota_id"
+      ],
+      "registros": 0,
+      "claves_foraneas": [
+        "FOREIGN KEY (`mascota_id`) REFERENCES `mascota` (`id_mascota`)"
+      ]
+    },
+    "mascota": {
+      "columnas": [
+        "id_mascota",
+        "nombre",
+        "especie",
+        "raza",
+        "edad",
+        "peso",
+        "cliente_id",
+        "observaciones",
+        "sexo"
+      ],
+      "registros": 2,
+      "claves_foraneas": [
+        "FOREIGN KEY (`cliente_id`) REFERENCES `cliente` (`id_cliente`)"
+      ]
+    },
+    "pagInicio_notificacion": {
+      "columnas": [
+        "id",
+        "revision",
+        "destinatario",
+        "asunto",
+        "contexto",
+        "estado",
+        "intentos",
+        "error",
+        "creada",
+        "enviada",
+        "cita_id"
+      ],
+      "registros": 0,
+      "claves_foraneas": [
+        "FOREIGN KEY (`cita_id`) REFERENCES `cita` (`id_cita`),"
+      ]
+    },
+    "pagInicio_operacion": {
+      "columnas": [
+        "id",
+        "clave",
+        "huella",
+        "respuesta",
+        "codigo",
+        "creada",
+        "usuario_id"
+      ],
+      "registros": 0,
+      "claves_foraneas": [
+        "FOREIGN KEY (`usuario_id`) REFERENCES `auth_user` (`id`),"
+      ]
+    },
+    "tratamiento": {
+      "columnas": [
+        "id_tratamiento",
+        "descripcion",
+        "medicamento",
+        "dosis",
+        "duracion",
+        "fecha_inicio",
+        "cita_id"
+      ],
+      "registros": 0,
+      "claves_foraneas": [
+        "FOREIGN KEY (`cita_id`) REFERENCES `cita` (`id_cita`)"
+      ]
+    },
+    "veterinario": {
+      "columnas": [
+        "id_veterinario",
+        "especialidad"
+      ],
+      "registros": 3,
+      "claves_foraneas": [
+        "FOREIGN KEY (`id_veterinario`) REFERENCES `empleado` (`id_empleado`)"
+      ]
+    }
+  },
+  "rutas": [
+    {
+      "modulo": "veterinaria",
+      "ruta": "health/live/",
+      "vista": "live"
+    },
+    {
+      "modulo": "veterinaria",
+      "ruta": "health/ready/",
+      "vista": "ready"
+    },
+    {
+      "modulo": "veterinaria",
+      "ruta": "adopciones/",
+      "vista": "include('adopciones.urls')"
+    },
+    {
+      "modulo": "veterinaria",
+      "ruta": "",
+      "vista": "include('login.urls')"
+    },
+    {
+      "modulo": "veterinaria",
+      "ruta": "admin/",
+      "vista": "admin.site.urls"
+    },
+    {
+      "modulo": "veterinaria",
+      "ruta": "inicio/",
+      "vista": "include('pagInicio.urls')"
+    },
+    {
+      "modulo": "pagInicio",
+      "ruta": "api/dashboard/",
+      "vista": "views.dashboard"
+    },
+    {
+      "modulo": "pagInicio",
+      "ruta": "api/clientes/",
+      "vista": "views.clientes"
+    },
+    {
+      "modulo": "pagInicio",
+      "ruta": "api/clientes/<int:cliente_id>/mascotas/",
+      "vista": "views.mascotas_cliente"
+    },
+    {
+      "modulo": "pagInicio",
+      "ruta": "api/clientes/<int:cliente_id>/agregar-mascota/",
+      "vista": "views.agregar_mascota"
+    },
+    {
+      "modulo": "pagInicio",
+      "ruta": "api/citas/",
+      "vista": "views.listar_citas"
+    },
+    {
+      "modulo": "pagInicio",
+      "ruta": "api/citas/<int:cita_id>/",
+      "vista": "views.detalle_cita"
+    },
+    {
+      "modulo": "pagInicio",
+      "ruta": "api/citas/<int:cita_id>/editar/",
+      "vista": "views.editar_cita"
+    },
+    {
+      "modulo": "pagInicio",
+      "ruta": "api/veterinarios/guardar/",
+      "vista": "views.guardar_veterinario"
+    },
+    {
+      "modulo": "pagInicio",
+      "ruta": "api/facturas/<int:factura_id>/pdf/",
+      "vista": "views.factura_pdf"
+    },
+    {
+      "modulo": "pagInicio",
+      "ruta": "api/notificaciones/",
+      "vista": "views.notificaciones"
+    },
+    {
+      "modulo": "pagInicio",
+      "ruta": "api/notificaciones/<int:notificacion_id>/reintentar/",
+      "vista": "views.reintentar_correo"
+    },
+    {
+      "modulo": "pagInicio",
+      "ruta": "",
+      "vista": "views.home"
+    },
+    {
+      "modulo": "pagInicio",
+      "ruta": "api/mascotas/",
+      "vista": "views.api_mascotas"
+    },
+    {
+      "modulo": "pagInicio",
+      "ruta": "api/registrar/cliente-mascota/",
+      "vista": "views.registrar_cliente"
+    },
+    {
+      "modulo": "pagInicio",
+      "ruta": "api/registrar/cita/",
+      "vista": "views.registrar_citas"
+    },
+    {
+      "modulo": "pagInicio",
+      "ruta": "api/cargar-datos-agenda/",
+      "vista": "views.cargar_datos"
+    },
+    {
+      "modulo": "pagInicio",
+      "ruta": "api/detalle-mascota/<int:mascota_id>/",
+      "vista": "views.detalle_mascota"
+    },
+    {
+      "modulo": "pagInicio",
+      "ruta": "api/editar-registro/",
+      "vista": "views.editar_registro"
+    },
+    {
+      "modulo": "pagInicio",
+      "ruta": "api/eliminar-registro/<int:mascota_id>/",
+      "vista": "views.eliminar_registro"
+    },
+    {
+      "modulo": "pagInicio",
+      "ruta": "api/mascotas-selector/",
+      "vista": "views.api_mascotas_selector"
+    },
+    {
+      "modulo": "pagInicio",
+      "ruta": "api/vacunas-mascota/<int:mascota_id>/",
+      "vista": "views.api_vacunas_mascota"
+    },
+    {
+      "modulo": "pagInicio",
+      "ruta": "api/tratamientos-mascota/<int:mascota_id>/",
+      "vista": "views.api_tratamientos_mascota"
+    },
+    {
+      "modulo": "pagInicio",
+      "ruta": "api/registrar-vacuna/",
+      "vista": "views.registrar_vacuna"
+    },
+    {
+      "modulo": "pagInicio",
+      "ruta": "api/registrar-tratamiento/",
+      "vista": "views.registrar_tratamiento"
+    },
+    {
+      "modulo": "pagInicio",
+      "ruta": "api/resumen-facturas/",
+      "vista": "views.api_resumen_facturas"
+    },
+    {
+      "modulo": "pagInicio",
+      "ruta": "api/listar-facturas/",
+      "vista": "views.api_listar_facturas"
+    },
+    {
+      "modulo": "pagInicio",
+      "ruta": "api/detalle-factura/<int:factura_id>/",
+      "vista": "views.api_detalle_factura"
+    },
+    {
+      "modulo": "pagInicio",
+      "ruta": "api/registrar-factura/",
+      "vista": "views.registrar_factura"
+    },
+    {
+      "modulo": "pagInicio",
+      "ruta": "api/actualizar-estado-factura/",
+      "vista": "views.actualizar_estado_factura"
+    },
+    {
+      "modulo": "pagInicio",
+      "ruta": "api/datos-factura/",
+      "vista": "views.api_datos_factura"
+    },
+    {
+      "modulo": "pagInicio",
+      "ruta": "api/citas-mascota/<int:mascota_id>/",
+      "vista": "views.citas_mascota"
+    },
+    {
+      "modulo": "adopciones",
+      "ruta": "api/admin/cuestionario/pesos/",
+      "vista": "views.new_weights"
+    },
+    {
+      "modulo": "adopciones",
+      "ruta": "",
+      "vista": "views.catalog"
+    },
+    {
+      "modulo": "adopciones",
+      "ruta": "api/catalogo/",
+      "vista": "views.catalog_data"
+    },
+    {
+      "modulo": "adopciones",
+      "ruta": "api/cuestionario/",
+      "vista": "views.schema"
+    },
+    {
+      "modulo": "adopciones",
+      "ruta": "api/mascotas/<int:pet_id>/solicitar/",
+      "vista": "views.apply"
+    },
+    {
+      "modulo": "adopciones",
+      "ruta": "solicitud/<uuid:code>/",
+      "vista": "views.my_application"
+    },
+    {
+      "modulo": "adopciones",
+      "ruta": "fotos/<int:pet_id>/",
+      "vista": "views.photo"
+    },
+    {
+      "modulo": "adopciones",
+      "ruta": "api/admin/mascotas/",
+      "vista": "views.admin_pets"
+    },
+    {
+      "modulo": "adopciones",
+      "ruta": "api/admin/mascotas/guardar/",
+      "vista": "views.save_pet"
+    },
+    {
+      "modulo": "adopciones",
+      "ruta": "api/admin/mascotas/<int:pet_id>/foto/",
+      "vista": "views.upload_photo"
+    },
+    {
+      "modulo": "adopciones",
+      "ruta": "api/admin/solicitudes/",
+      "vista": "views.admin_applications"
+    },
+    {
+      "modulo": "adopciones",
+      "ruta": "api/admin/solicitudes/<int:application_id>/",
+      "vista": "views.application_detail"
+    },
+    {
+      "modulo": "adopciones",
+      "ruta": "api/admin/solicitudes/<int:application_id>/revisar/",
+      "vista": "views.review"
+    },
+    {
+      "modulo": "login",
+      "ruta": "salir/",
+      "vista": "views.logout_view"
+    },
+    {
+      "modulo": "login",
+      "ruta": "",
+      "vista": "views.login_view"
+    }
+  ]
+}

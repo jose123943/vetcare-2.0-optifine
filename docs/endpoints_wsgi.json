@@ -1,0 +1,1052 @@
+[
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/",
+    "servicio": "vetcare.application.<lambda>",
+    "staff": false,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "POST"
+    ],
+    "ruta": "/",
+    "servicio": "vetcare.security.login",
+    "staff": false,
+    "csrf": true,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "POST"
+    ],
+    "ruta": "/api/auth/login",
+    "servicio": "vetcare.security.login",
+    "staff": false,
+    "csrf": true,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/inicio/",
+    "servicio": "vetcare.application.dashboard_html",
+    "staff": false,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/admin/",
+    "servicio": "vetcare.application.<lambda>",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "POST"
+    ],
+    "ruta": "/salir/",
+    "servicio": "vetcare.application.<lambda>",
+    "staff": false,
+    "csrf": true,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "POST"
+    ],
+    "ruta": "/api/auth/logout",
+    "servicio": "vetcare.security.logout",
+    "staff": false,
+    "csrf": true,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/api/session",
+    "servicio": "vetcare.application.session",
+    "staff": false,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/static/<path:path>",
+    "servicio": "vetcare.application.asset",
+    "staff": false,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/health/live/",
+    "servicio": "vetcare.application.<lambda>",
+    "staff": false,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/health/ready/",
+    "servicio": "vetcare.application.ready",
+    "staff": false,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/adopciones/",
+    "servicio": "vetcare.application.<lambda>",
+    "staff": false,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/adopciones/solicitud/<uuid:code>/",
+    "servicio": "vetcare.application.own_html",
+    "staff": false,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/adopciones/fotos/<int:pet_id>/",
+    "servicio": "vetcare.application.photo",
+    "staff": false,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/inicio/api/dashboard/",
+    "servicio": "vetcare.services.clinic.dashboard",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/inicio/api/mascotas/",
+    "servicio": "vetcare.services.clinic.pets",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/inicio/api/mascotas-selector/",
+    "servicio": "vetcare.services.clinic.pets",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/inicio/api/clientes/",
+    "servicio": "vetcare.services.clinic.customers",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/inicio/api/clientes/<int:customer_id>/mascotas/",
+    "servicio": "vetcare.services.clinic.pets",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/inicio/api/detalle-mascota/<int:pet_id>/",
+    "servicio": "vetcare.services.clinic.pet_detail",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/inicio/api/cargar-datos-agenda/",
+    "servicio": "vetcare.services.clinic.vets",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/inicio/api/citas/",
+    "servicio": "vetcare.services.clinic.appointment_list",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/inicio/api/citas/pendientes/",
+    "servicio": "vetcare.application.<lambda>",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/inicio/api/citas/<int:appointment_id>/",
+    "servicio": "vetcare.services.clinic.appointment_detail",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/inicio/api/citas-mascota/<int:pet_id>/",
+    "servicio": "vetcare.services.clinic.appointment_list",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/inicio/api/vacunas-mascota/<int:pet_id>/",
+    "servicio": "vetcare.services.clinic.vaccines",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/inicio/api/tratamientos-mascota/<int:pet_id>/",
+    "servicio": "vetcare.services.clinic.treatments",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/inicio/api/resumen-facturas/",
+    "servicio": "vetcare.services.billing.summary",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/inicio/api/listar-facturas/",
+    "servicio": "vetcare.services.billing.list_invoices",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/inicio/api/detalle-factura/<int:invoice_id>/",
+    "servicio": "vetcare.services.billing.detail",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/inicio/api/datos-factura/",
+    "servicio": "vetcare.services.billing.options",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/inicio/api/facturas/<int:invoice_id>/pdf/",
+    "servicio": "vetcare.application.invoice_pdf",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/inicio/api/notificaciones/",
+    "servicio": "vetcare.services.mail.list_messages",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "POST"
+    ],
+    "ruta": "/inicio/api/registrar/cliente-mascota/",
+    "servicio": "vetcare.services.clinic.register_family",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "POST"
+    ],
+    "ruta": "/inicio/api/clientes/<int:customer_id>/agregar-mascota/",
+    "servicio": "vetcare.services.clinic.add_pet",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "POST"
+    ],
+    "ruta": "/inicio/api/editar-registro/",
+    "servicio": "vetcare.services.clinic.edit_record",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "DELETE"
+    ],
+    "ruta": "/inicio/api/eliminar-registro/<int:pet_id>/",
+    "servicio": "vetcare.services.clinic.delete_pet",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "POST"
+    ],
+    "ruta": "/inicio/api/veterinarios/guardar/",
+    "servicio": "vetcare.services.clinic.save_vet",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "DELETE"
+    ],
+    "ruta": "/inicio/api/veterinarios/<int:vet_id>/",
+    "servicio": "vetcare.services.clinic.delete_vet",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "POST"
+    ],
+    "ruta": "/inicio/api/registrar/cita/",
+    "servicio": "vetcare.services.clinic.save_appointment",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "POST"
+    ],
+    "ruta": "/inicio/api/citas/<int:appointment_id>/editar/",
+    "servicio": "vetcare.services.clinic.save_appointment",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "POST"
+    ],
+    "ruta": "/inicio/api/registrar-vacuna/",
+    "servicio": "vetcare.services.clinic.save_vaccine",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "POST"
+    ],
+    "ruta": "/inicio/api/registrar-tratamiento/",
+    "servicio": "vetcare.services.clinic.save_treatment",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "POST"
+    ],
+    "ruta": "/inicio/api/registrar-factura/",
+    "servicio": "vetcare.services.billing.save",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "POST"
+    ],
+    "ruta": "/inicio/api/actualizar-estado-factura/",
+    "servicio": "vetcare.services.billing.change_state",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "POST"
+    ],
+    "ruta": "/inicio/api/notificaciones/<int:message_id>/reintentar/",
+    "servicio": "vetcare.services.mail.retry",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/api/clientes",
+    "servicio": "vetcare.services.clinic.customers",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/api/clientes/<int:customer_id>",
+    "servicio": "vetcare.services.clinic.customers",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/api/clientes/<int:customer_id>/mascotas",
+    "servicio": "vetcare.services.clinic.pets",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/api/mascotas",
+    "servicio": "vetcare.services.clinic.pets",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/api/mascotas/<int:pet_id>",
+    "servicio": "vetcare.services.clinic.pet_detail",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/api/veterinarios",
+    "servicio": "vetcare.services.clinic.vets",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/api/citas",
+    "servicio": "vetcare.services.clinic.appointment_list",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/api/citas/pendientes",
+    "servicio": "vetcare.application.<lambda>",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/api/citas/<int:appointment_id>",
+    "servicio": "vetcare.services.clinic.appointment_detail",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/api/facturas",
+    "servicio": "vetcare.services.billing.list_invoices",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/api/facturas/<int:invoice_id>",
+    "servicio": "vetcare.services.billing.detail",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/api/facturas/<int:invoice_id>/pdf",
+    "servicio": "vetcare.application.invoice_pdf",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "POST"
+    ],
+    "ruta": "/api/clientes",
+    "servicio": "vetcare.services.clinic.register_family",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "PUT"
+    ],
+    "ruta": "/api/clientes/<int:customer_id>",
+    "servicio": "vetcare.services.clinic.edit_customer",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "DELETE"
+    ],
+    "ruta": "/api/clientes/<int:customer_id>",
+    "servicio": "vetcare.services.clinic.delete_customer",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "POST"
+    ],
+    "ruta": "/api/clientes/<int:customer_id>/mascotas",
+    "servicio": "vetcare.services.clinic.add_pet",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "DELETE"
+    ],
+    "ruta": "/api/mascotas/<int:pet_id>",
+    "servicio": "vetcare.services.clinic.delete_pet",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "POST"
+    ],
+    "ruta": "/api/veterinarios",
+    "servicio": "vetcare.services.clinic.save_vet",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "PUT"
+    ],
+    "ruta": "/api/veterinarios",
+    "servicio": "vetcare.services.clinic.save_vet",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "POST"
+    ],
+    "ruta": "/api/citas",
+    "servicio": "vetcare.services.clinic.save_appointment",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "PUT"
+    ],
+    "ruta": "/api/citas/<int:appointment_id>",
+    "servicio": "vetcare.services.clinic.save_appointment",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "POST"
+    ],
+    "ruta": "/api/vacunas",
+    "servicio": "vetcare.services.clinic.save_vaccine",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "POST"
+    ],
+    "ruta": "/api/tratamientos",
+    "servicio": "vetcare.services.clinic.save_treatment",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "POST"
+    ],
+    "ruta": "/api/facturas",
+    "servicio": "vetcare.services.billing.save",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/adopciones/api/catalogo/",
+    "servicio": "vetcare.services.adoptions.catalog",
+    "staff": false,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/adopciones/api/cuestionario/",
+    "servicio": "vetcare.services.adoptions.schema",
+    "staff": false,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "POST"
+    ],
+    "ruta": "/adopciones/api/mascotas/<int:pet_id>/solicitar/",
+    "servicio": "vetcare.services.adoptions.apply",
+    "staff": false,
+    "csrf": true,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/adopciones/api/solicitud/<uuid:code>/",
+    "servicio": "vetcare.services.adoptions.own_result",
+    "staff": false,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/adopciones/api/admin/mascotas/",
+    "servicio": "vetcare.application.<lambda>",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/adopciones/api/admin/solicitudes/",
+    "servicio": "vetcare.services.adoptions.applications",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/adopciones/api/admin/solicitudes/<int:application_id>/",
+    "servicio": "vetcare.services.adoptions.detail",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "POST"
+    ],
+    "ruta": "/adopciones/api/admin/mascotas/guardar/",
+    "servicio": "vetcare.services.adoptions.save_pet",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "POST"
+    ],
+    "ruta": "/adopciones/api/admin/mascotas/<int:pet_id>/foto/",
+    "servicio": "vetcare.application.upload",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "POST"
+    ],
+    "ruta": "/adopciones/api/admin/solicitudes/<int:application_id>/revisar/",
+    "servicio": "vetcare.services.adoptions.review",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "POST"
+    ],
+    "ruta": "/adopciones/api/admin/cuestionario/pesos/",
+    "servicio": "vetcare.services.adoptions.clone_questionnaire",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/adopciones/api/admin/cuestionarios/",
+    "servicio": "vetcare.application.<lambda>",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/adopciones/api/admin/cuestionarios/<int:qid>/",
+    "servicio": "vetcare.application.<lambda>",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "PUT"
+    ],
+    "ruta": "/adopciones/api/admin/cuestionarios/<int:qid>/",
+    "servicio": "vetcare.services.adoptions.edit_draft",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "POST"
+    ],
+    "ruta": "/adopciones/api/admin/cuestionarios/<int:qid>/publicar/",
+    "servicio": "vetcare.services.adoptions.publish",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/api/adopciones/catalogo/",
+    "servicio": "vetcare.services.adoptions.catalog",
+    "staff": false,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/api/adopciones/cuestionario/",
+    "servicio": "vetcare.services.adoptions.schema",
+    "staff": false,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "POST"
+    ],
+    "ruta": "/api/adopciones/mascotas/<int:pet_id>/solicitar/",
+    "servicio": "vetcare.services.adoptions.apply",
+    "staff": false,
+    "csrf": true,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/api/adopciones/solicitud/<uuid:code>/",
+    "servicio": "vetcare.services.adoptions.own_result",
+    "staff": false,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/api/adopciones/admin/mascotas/",
+    "servicio": "vetcare.application.<lambda>",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/api/adopciones/admin/solicitudes/",
+    "servicio": "vetcare.services.adoptions.applications",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/api/adopciones/admin/solicitudes/<int:application_id>/",
+    "servicio": "vetcare.services.adoptions.detail",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "POST"
+    ],
+    "ruta": "/api/adopciones/admin/mascotas/guardar/",
+    "servicio": "vetcare.services.adoptions.save_pet",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "POST"
+    ],
+    "ruta": "/api/adopciones/admin/mascotas/<int:pet_id>/foto/",
+    "servicio": "vetcare.application.upload",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "POST"
+    ],
+    "ruta": "/api/adopciones/admin/solicitudes/<int:application_id>/revisar/",
+    "servicio": "vetcare.services.adoptions.review",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "POST"
+    ],
+    "ruta": "/api/adopciones/admin/cuestionario/pesos/",
+    "servicio": "vetcare.services.adoptions.clone_questionnaire",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/api/adopciones/admin/cuestionarios/",
+    "servicio": "vetcare.application.<lambda>",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/api/adopciones/admin/cuestionarios/<int:qid>/",
+    "servicio": "vetcare.application.<lambda>",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "PUT"
+    ],
+    "ruta": "/api/adopciones/admin/cuestionarios/<int:qid>/",
+    "servicio": "vetcare.services.adoptions.edit_draft",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "POST"
+    ],
+    "ruta": "/api/adopciones/admin/cuestionarios/<int:qid>/publicar/",
+    "servicio": "vetcare.services.adoptions.publish",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/api/admin/usuarios",
+    "servicio": "vetcare.services.accounts.list_users",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/api/admin/historico/adopciones",
+    "servicio": "vetcare.services.history.adoptions",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/api/admin/historico/adopciones/<int:adoption_id>",
+    "servicio": "vetcare.services.history.detail",
+    "staff": true,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "POST"
+    ],
+    "ruta": "/api/admin/usuarios",
+    "servicio": "vetcare.services.accounts.save",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "PUT"
+    ],
+    "ruta": "/api/admin/usuarios/<int:user_id>",
+    "servicio": "vetcare.services.accounts.save",
+    "staff": true,
+    "csrf": true,
+    "idempotencia_transaccional": true
+  }
+]

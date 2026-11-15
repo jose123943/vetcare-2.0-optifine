@@ -1,0 +1,1 @@
+Navegador: editar/eliminar cliente con protección de historiales, alta/edición/baja de veterinario y alta de mascota en adopción con foto: OK.

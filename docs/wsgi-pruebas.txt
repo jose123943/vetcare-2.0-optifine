@@ -1,0 +1,35 @@
+test_01_no_framework_and_start (tests.test_wsgi.MigrationTests.test_01_no_framework_and_start) ... ok
+test_02_legacy_password_hash_upgrades_after_login (tests.test_wsgi.MigrationTests.test_02_legacy_password_hash_upgrades_after_login) ... ok
+test_03_private_routes_csrf_methods_and_expiration (tests.test_wsgi.MigrationTests.test_03_private_routes_csrf_methods_and_expiration) ... ok
+test_04_login_throttle_and_logout (tests.test_wsgi.MigrationTests.test_04_login_throttle_and_logout) ... ok
+test_05_family_three_pets_and_idempotency (tests.test_wsgi.MigrationTests.test_05_family_three_pets_and_idempotency) ... ok
+test_06_invalid_child_rolls_back_parent (tests.test_wsgi.MigrationTests.test_06_invalid_child_rolls_back_parent) ... ok
+test_07_concurrent_same_key_only_one_family (tests.test_wsgi.MigrationTests.test_07_concurrent_same_key_only_one_family) ... ok
+test_08_unique_document_and_sql_injection (tests.test_wsgi.MigrationTests.test_08_unique_document_and_sql_injection) ... ok
+test_09_edit_pet_and_existing_owner_and_deletion_rules (tests.test_wsgi.MigrationTests.test_09_edit_pet_and_existing_owner_and_deletion_rules) ... ok
+test_10_appointment_owner_overlap_adjacent_and_cancel (tests.test_wsgi.MigrationTests.test_10_appointment_owner_overlap_adjacent_and_cancel) ... ok
+test_11_concurrent_appointment_conflict (tests.test_wsgi.MigrationTests.test_11_concurrent_appointment_conflict) ... ok
+test_12_vaccine_treatment_history_and_protected_delete (tests.test_wsgi.MigrationTests.test_12_vaccine_treatment_history_and_protected_delete) ... ok
+test_13_invoice_decimal_pdf_and_replay (tests.test_wsgi.MigrationTests.test_13_invoice_decimal_pdf_and_replay) ... ok
+test_14_outbox_transaction_and_delivery (tests.test_wsgi.MigrationTests.test_14_outbox_transaction_and_delivery) ... ok
+test_15_email_failure_does_not_lose_appointment (tests.test_wsgi.MigrationTests.test_15_email_failure_does_not_lose_appointment) ... ok
+test_16_exact_adoption_threshold (tests.test_wsgi.MigrationTests.test_16_exact_adoption_threshold) ... ok
+test_17_adoption_submit_privacy_and_replay (tests.test_wsgi.MigrationTests.test_17_adoption_submit_privacy_and_replay) ... ok
+test_18_adoption_review_single_delivery_and_immutable_versions (tests.test_wsgi.MigrationTests.test_18_adoption_review_single_delivery_and_immutable_versions) ... ok
+test_19_questionnaire_clone_edit_publish (tests.test_wsgi.MigrationTests.test_19_questionnaire_clone_edit_publish) ... ok
+test_20_photo_reencoded_and_safe_static (tests.test_wsgi.MigrationTests.test_20_photo_reencoded_and_safe_static) ... ok
+test_21_accounts_permissions_and_session_revocation (tests.test_wsgi.MigrationTests.test_21_accounts_permissions_and_session_revocation) ... ok
+test_22_legacy_visitor_signature_compatibility (tests.test_wsgi.MigrationTests.test_22_legacy_visitor_signature_compatibility) ... ok
+test_23_paginated_tables_and_canonical_gets (tests.test_wsgi.MigrationTests.test_23_paginated_tables_and_canonical_gets) ... ok
+test_24_production_headers_host_https_and_secure_cookie (tests.test_wsgi.MigrationTests.test_24_production_headers_host_https_and_secure_cookie) ... ok
+test_25_old_visitor_can_still_read_private_result (tests.test_wsgi.MigrationTests.test_25_old_visitor_can_still_read_private_result) ... ok
+test_26_malformed_payload_no_internal_error (tests.test_wsgi.MigrationTests.test_26_malformed_payload_no_internal_error) ... ok
+test_27_archived_history_permissions_and_no_framework_imports (tests.test_wsgi.MigrationTests.test_27_archived_history_permissions_and_no_framework_imports) ... ok
+test_28_dead_connection_returns_503_then_recovers (tests.test_wsgi.MigrationTests.test_28_dead_connection_returns_503_then_recovers) ... ok
+test_29_pet_edit_preserves_inactive_owner (tests.test_wsgi.MigrationTests.test_29_pet_edit_preserves_inactive_owner) ... ok
+test_real_smtp_transport_on_loopback (tests.test_smtp.SMTPTests.test_real_smtp_transport_on_loopback) ... ok
+
+----------------------------------------------------------------------
+Ran 30 tests in 178.888s
+
+OK

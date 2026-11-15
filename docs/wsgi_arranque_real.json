@@ -1,0 +1,26 @@
+{
+  "/": {
+    "status": 200,
+    "tipo": "text/html"
+  },
+  "/health/live/": {
+    "status": 200,
+    "tipo": "application/json"
+  },
+  "/health/ready/": {
+    "status": 200,
+    "tipo": "application/json"
+  },
+  "/api/session": {
+    "status": 200,
+    "tipo": "application/json"
+  },
+  "/adopciones/": {
+    "status": 200,
+    "tipo": "text/html"
+  },
+  "/static/bootstrap.js": {
+    "status": 200,
+    "tipo": "text/javascript"
+  }
+}

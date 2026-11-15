@@ -1,0 +1,15 @@
+.\.venv-wsgi\Scripts\python.exe : test_22_legacy_visitor_signature_compatibility 
+(tests.test_wsgi.MigrationTests.test_22_legacy_visitor_signature_compatibility) ... ok
+En línea: 18 Carácter: 36
++ ... _DB='true'; .\.venv-wsgi\Scripts\python.exe -m unittest tests.test_ws ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (test_22_legacy_...ibility) ... ok:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+test_25_old_visitor_can_still_read_private_result 
+(tests.test_wsgi.MigrationTests.test_25_old_visitor_can_still_read_private_result) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 10.816s
+
+OK

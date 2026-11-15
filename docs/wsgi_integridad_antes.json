@@ -1,0 +1,42 @@
+{
+  "cliente": {
+    "registros": 2,
+    "sha256": "87e890df829db7117ac52b121bbf60c3bb6c6927d5ca76a103a7f364d011e91e"
+  },
+  "mascota": {
+    "registros": 2,
+    "sha256": "c8de7279891642893d0ac2e2b3d72a74d9a63cf5cc2c1953b02f8e80d592bc76"
+  },
+  "cita": {
+    "registros": 4,
+    "sha256": "b85312fd1c741b1c6736070801c3a99db01b36bb436deacf7dda47b77c230003"
+  },
+  "veterinario": {
+    "registros": 3,
+    "sha256": "1898af15db3ce69432d4daf4175012f57460ba49eba25db732d25cb858a7eb49"
+  },
+  "empleado": {
+    "registros": 4,
+    "sha256": "e071f0f0147970de881c015cfd914c64bdb63ae44dc6faf4d5a532ee7dc717a3"
+  },
+  "factura": {
+    "registros": 3,
+    "sha256": "aafcd176ee01e0b25751b33dfe5f4ce835e3c6990b39e2218804034fd0979d4a"
+  },
+  "historial_de_vacunas": {
+    "registros": 0,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "tratamiento": {
+    "registros": 0,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "auth_user": {
+    "registros": 1,
+    "sha256": "94740c99a88d03650917d138f4cf7a65ee859263c1abb0cfb2d8bdbcc30afebe"
+  },
+  "administrador": {
+    "registros": 0,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "smtp_socket_real": {
+    "ejecutadas": 1,
+    "errores": 0,
+    "fallos": 0
+  },
+  "conexion_interrumpida_y_estado_cliente": {
+    "ejecutadas": 2,
+    "errores": 0,
+    "fallos": 0
+  },
+  "total_comprobado_junto_con_suite_principal": 30
+}

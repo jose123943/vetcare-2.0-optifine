@@ -1,0 +1,6 @@
+test_real_smtp_transport_on_loopback (tests.test_smtp.SMTPTests.test_real_smtp_transport_on_loopback) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.524s
+
+OK

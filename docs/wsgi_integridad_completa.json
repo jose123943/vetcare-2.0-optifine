@@ -1,0 +1,167 @@
+{
+  "administrador": {
+    "registros_antes": 0,
+    "registros_despues": 0,
+    "identica": true
+  },
+  "adopcion": {
+    "registros_antes": 0,
+    "registros_despues": 0,
+    "identica": true
+  },
+  "adopciones_criterio": {
+    "registros_antes": 8,
+    "registros_despues": 8,
+    "identica": true
+  },
+  "adopciones_cuestionario": {
+    "registros_antes": 1,
+    "registros_despues": 1,
+    "identica": true
+  },
+  "adopciones_entrega": {
+    "registros_antes": 0,
+    "registros_despues": 0,
+    "identica": true
+  },
+  "adopciones_mascotaadopcion": {
+    "registros_antes": 0,
+    "registros_despues": 0,
+    "identica": true
+  },
+  "adopciones_opcion": {
+    "registros_antes": 65,
+    "registros_despues": 65,
+    "identica": true
+  },
+  "adopciones_pregunta": {
+    "registros_antes": 21,
+    "registros_despues": 21,
+    "identica": true
+  },
+  "adopciones_respuesta": {
+    "registros_antes": 0,
+    "registros_despues": 0,
+    "identica": true
+  },
+  "adopciones_revision": {
+    "registros_antes": 0,
+    "registros_despues": 0,
+    "identica": true
+  },
+  "adopciones_solicitud": {
+    "registros_antes": 0,
+    "registros_despues": 0,
+    "identica": true
+  },
+  "auth_group": {
+    "registros_antes": 0,
+    "registros_despues": 0,
+    "identica": true
+  },
+  "auth_group_permissions": {
+    "registros_antes": 0,
+    "registros_despues": 0,
+    "identica": true
+  },
+  "auth_permission": {
+    "registros_antes": 116,
+    "registros_despues": 116,
+    "identica": true
+  },
+  "auth_user": {
+    "registros_antes": 1,
+    "registros_despues": 1,
+    "identica": true
+  },
+  "auth_user_groups": {
+    "registros_antes": 0,
+    "registros_despues": 0,
+    "identica": true
+  },
+  "auth_user_user_permissions": {
+    "registros_antes": 0,
+    "registros_despues": 0,
+    "identica": true
+  },
+  "cita": {
+    "registros_antes": 4,
+    "registros_despues": 4,
+    "identica": true
+  },
+  "cliente": {
+    "registros_antes": 2,
+    "registros_despues": 2,
+    "identica": true
+  },
+  "django_admin_log": {
+    "registros_antes": 0,
+    "registros_despues": 0,
+    "identica": true
+  },
+  "django_content_type": {
+    "registros_antes": 29,
+    "registros_despues": 29,
+    "identica": true
+  },
+  "django_migrations": {
+    "registros_antes": 42,
+    "registros_despues": 42,
+    "identica": true
+  },
+  "django_session": {
+    "registros_antes": 9,
+    "registros_despues": 9,
+    "identica": true
+  },
+  "empleado": {
+    "registros_antes": 4,
+    "registros_despues": 4,
+    "identica": true
+  },
+  "evaluacion_adopcion": {
+    "registros_antes": 0,
+    "registros_despues": 0,
+    "identica": true
+  },
+  "factura": {
+    "registros_antes": 3,
+    "registros_despues": 3,
+    "identica": true
+  },
+  "factura_detallefactura": {
+    "registros_antes": 0,
+    "registros_despues": 0,
+    "identica": true
+  },
+  "historial_de_vacunas": {
+    "registros_antes": 0,
+    "registros_despues": 0,
+    "identica": true
+  },
+  "mascota": {
+    "registros_antes": 2,
+    "registros_despues": 2,
+    "identica": true
+  },
+  "pagInicio_notificacion": {
+    "registros_antes": 0,
+    "registros_despues": 0,
+    "identica": true
+  },
+  "pagInicio_operacion": {
+    "registros_antes": 0,
+    "registros_despues": 0,
+    "identica": true
+  },
+  "tratamiento": {
+    "registros_antes": 0,
+    "registros_despues": 0,
+    "identica": true
+  },
+  "veterinario": {
+    "registros_antes": 3,
+    "registros_despues": 3,
+    "identica": true
+  }
+}

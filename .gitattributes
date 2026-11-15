@@ -1,0 +1,2 @@
+# Los checksums SQL deben ser idénticos en Windows y Linux.
+sql/*.sql -text

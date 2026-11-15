@@ -1,0 +1,13 @@
+{
+  "clientes": 2,
+  "mascotas": 2,
+  "citas": 4,
+  "facturas": 3,
+  "adopciones_anteriores": 0,
+  "migraciones_sql": [
+    "000_esquema_existente.sql",
+    "001_wsgi.sql"
+  ],
+  "pdf_historicos_generados": 3,
+  "version_mysql": "8.4.13"
+}

@@ -1,2 +1,13 @@
+# Mantener los textos estables al clonar en Windows y Linux.
+* text=auto eol=lf
+
+# No convertir saltos de línea dentro de documentos e imágenes.
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.zip binary
+
 # Los checksums SQL deben ser idénticos en Windows y Linux.
 sql/*.sql -text

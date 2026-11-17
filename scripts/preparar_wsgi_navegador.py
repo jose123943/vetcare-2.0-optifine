@@ -14,6 +14,7 @@ info = Path(tempfile.gettempdir()) / "vetcare_wsgi_test_database.json"
 data = json.loads(info.read_text())
 config = Config.load(database=data["database"], testing=True)
 config.media = Path(data["media"])
+config.session_run_id = data.get("session_run_id", config.session_run_id)
 app = create_app(config)
 c = client(app)
 with app.database.lease() as db:

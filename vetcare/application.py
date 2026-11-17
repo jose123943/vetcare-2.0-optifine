@@ -326,9 +326,15 @@ class Application:
         ctx.db.one("SELECT 1 AS ok")
         return {"status": "ok"}
 
+    def login_html(self, ctx):
+        account = security.user(ctx)
+        if account and account["is_staff"]:
+            return redirect("/inicio/", 303)
+        return self.html(ctx, "login")
+
     def register_routes(self):
         add = self.add
-        add("GET", "/", lambda ctx: self.html(ctx, "login"))
+        add("GET", "/", self.login_html)
         add("POST", "/", security.login)
         add("POST", "/api/auth/login", security.login)
         add("GET", "/inicio/", self.dashboard_html)
@@ -431,6 +437,7 @@ class Application:
         ]:
             add(method, "/api/" + path, fn, admin=True, write=True)
         for prefix in ["/adopciones/api/", "/api/adopciones/"]:
+            add("GET", prefix + "mascotas/<int:pet_id>/", adoptions.public_pet)
             add("GET", prefix + "catalogo/", adoptions.catalog)
             add("GET", prefix + "cuestionario/", adoptions.schema)
             add("POST", prefix + "mascotas/<int:pet_id>/solicitar/", adoptions.apply)

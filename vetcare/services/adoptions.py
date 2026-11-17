@@ -67,6 +67,16 @@ def catalog(ctx, private=False):
     )
 
 
+def public_pet(ctx, pet_id):
+    pet = found(
+        ctx.db.one(
+            "SELECT * FROM adopciones_mascotaadopcion WHERE id=%s AND estado='Disponible'",
+            (pet_id,),
+        )
+    )
+    return {"status": "ok", "mascota": pet_data(pet)}
+
+
 def questionnaire(ctx, qid=None):
     q = (
         ctx.db.one("SELECT * FROM adopciones_cuestionario WHERE id=%s", (qid,))

@@ -4,7 +4,7 @@
       "GET"
     ],
     "ruta": "/",
-    "servicio": "vetcare.application.<lambda>",
+    "servicio": "vetcare.application.Application.login_html",
     "staff": false,
     "csrf": false,
     "idempotencia_transaccional": false
@@ -34,7 +34,7 @@
       "GET"
     ],
     "ruta": "/inicio/",
-    "servicio": "vetcare.application.dashboard_html",
+    "servicio": "vetcare.application.Application.dashboard_html",
     "staff": false,
     "csrf": false,
     "idempotencia_transaccional": false
@@ -44,7 +44,7 @@
       "GET"
     ],
     "ruta": "/admin/",
-    "servicio": "vetcare.application.<lambda>",
+    "servicio": "vetcare.application.Application.register_routes.<locals>.<lambda>",
     "staff": true,
     "csrf": false,
     "idempotencia_transaccional": false
@@ -54,7 +54,7 @@
       "POST"
     ],
     "ruta": "/salir/",
-    "servicio": "vetcare.application.<lambda>",
+    "servicio": "vetcare.application.Application.register_routes.<locals>.<lambda>",
     "staff": false,
     "csrf": true,
     "idempotencia_transaccional": false
@@ -74,7 +74,7 @@
       "GET"
     ],
     "ruta": "/api/session",
-    "servicio": "vetcare.application.session",
+    "servicio": "vetcare.application.Application.session",
     "staff": false,
     "csrf": false,
     "idempotencia_transaccional": false
@@ -84,7 +84,7 @@
       "GET"
     ],
     "ruta": "/static/<path:path>",
-    "servicio": "vetcare.application.asset",
+    "servicio": "vetcare.application.Application.asset",
     "staff": false,
     "csrf": false,
     "idempotencia_transaccional": false
@@ -94,7 +94,7 @@
       "GET"
     ],
     "ruta": "/health/live/",
-    "servicio": "vetcare.application.<lambda>",
+    "servicio": "vetcare.application.Application.register_routes.<locals>.<lambda>",
     "staff": false,
     "csrf": false,
     "idempotencia_transaccional": false
@@ -104,7 +104,7 @@
       "GET"
     ],
     "ruta": "/health/ready/",
-    "servicio": "vetcare.application.ready",
+    "servicio": "vetcare.application.Application.ready",
     "staff": false,
     "csrf": false,
     "idempotencia_transaccional": false
@@ -114,7 +114,7 @@
       "GET"
     ],
     "ruta": "/adopciones/",
-    "servicio": "vetcare.application.<lambda>",
+    "servicio": "vetcare.application.Application.register_routes.<locals>.<lambda>",
     "staff": false,
     "csrf": false,
     "idempotencia_transaccional": false
@@ -124,7 +124,7 @@
       "GET"
     ],
     "ruta": "/adopciones/solicitud/<uuid:code>/",
-    "servicio": "vetcare.application.own_html",
+    "servicio": "vetcare.application.Application.own_html",
     "staff": false,
     "csrf": false,
     "idempotencia_transaccional": false
@@ -134,7 +134,7 @@
       "GET"
     ],
     "ruta": "/adopciones/fotos/<int:pet_id>/",
-    "servicio": "vetcare.application.photo",
+    "servicio": "vetcare.application.Application.photo",
     "staff": false,
     "csrf": false,
     "idempotencia_transaccional": false
@@ -224,7 +224,7 @@
       "GET"
     ],
     "ruta": "/inicio/api/citas/pendientes/",
-    "servicio": "vetcare.application.<lambda>",
+    "servicio": "vetcare.application.Application.register_routes.<locals>.<lambda>",
     "staff": true,
     "csrf": false,
     "idempotencia_transaccional": false
@@ -314,7 +314,7 @@
       "GET"
     ],
     "ruta": "/inicio/api/facturas/<int:invoice_id>/pdf/",
-    "servicio": "vetcare.application.invoice_pdf",
+    "servicio": "vetcare.application.Application.invoice_pdf",
     "staff": true,
     "csrf": false,
     "idempotencia_transaccional": false
@@ -534,7 +534,7 @@
       "GET"
     ],
     "ruta": "/api/citas/pendientes",
-    "servicio": "vetcare.application.<lambda>",
+    "servicio": "vetcare.application.Application.register_routes.<locals>.<lambda>",
     "staff": true,
     "csrf": false,
     "idempotencia_transaccional": false
@@ -574,7 +574,7 @@
       "GET"
     ],
     "ruta": "/api/facturas/<int:invoice_id>/pdf",
-    "servicio": "vetcare.application.invoice_pdf",
+    "servicio": "vetcare.application.Application.invoice_pdf",
     "staff": true,
     "csrf": false,
     "idempotencia_transaccional": false
@@ -703,6 +703,16 @@
     "metodos": [
       "GET"
     ],
+    "ruta": "/adopciones/api/mascotas/<int:pet_id>/",
+    "servicio": "vetcare.services.adoptions.public_pet",
+    "staff": false,
+    "csrf": false,
+    "idempotencia_transaccional": false
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
     "ruta": "/adopciones/api/catalogo/",
     "servicio": "vetcare.services.adoptions.catalog",
     "staff": false,
@@ -744,7 +754,7 @@
       "GET"
     ],
     "ruta": "/adopciones/api/admin/mascotas/",
-    "servicio": "vetcare.application.<lambda>",
+    "servicio": "vetcare.application.Application.register_routes.<locals>.<lambda>",
     "staff": true,
     "csrf": false,
     "idempotencia_transaccional": false
@@ -784,7 +794,7 @@
       "POST"
     ],
     "ruta": "/adopciones/api/admin/mascotas/<int:pet_id>/foto/",
-    "servicio": "vetcare.application.upload",
+    "servicio": "vetcare.application.Application.upload",
     "staff": true,
     "csrf": true,
     "idempotencia_transaccional": true
@@ -814,7 +824,7 @@
       "GET"
     ],
     "ruta": "/adopciones/api/admin/cuestionarios/",
-    "servicio": "vetcare.application.<lambda>",
+    "servicio": "vetcare.application.Application.register_routes.<locals>.<lambda>",
     "staff": true,
     "csrf": false,
     "idempotencia_transaccional": false
@@ -824,7 +834,7 @@
       "GET"
     ],
     "ruta": "/adopciones/api/admin/cuestionarios/<int:qid>/",
-    "servicio": "vetcare.application.<lambda>",
+    "servicio": "vetcare.application.Application.register_routes.<locals>.<lambda>",
     "staff": true,
     "csrf": false,
     "idempotencia_transaccional": false
@@ -848,6 +858,16 @@
     "staff": true,
     "csrf": true,
     "idempotencia_transaccional": true
+  },
+  {
+    "metodos": [
+      "GET"
+    ],
+    "ruta": "/api/adopciones/mascotas/<int:pet_id>/",
+    "servicio": "vetcare.services.adoptions.public_pet",
+    "staff": false,
+    "csrf": false,
+    "idempotencia_transaccional": false
   },
   {
     "metodos": [
@@ -894,7 +914,7 @@
       "GET"
     ],
     "ruta": "/api/adopciones/admin/mascotas/",
-    "servicio": "vetcare.application.<lambda>",
+    "servicio": "vetcare.application.Application.register_routes.<locals>.<lambda>",
     "staff": true,
     "csrf": false,
     "idempotencia_transaccional": false
@@ -934,7 +954,7 @@
       "POST"
     ],
     "ruta": "/api/adopciones/admin/mascotas/<int:pet_id>/foto/",
-    "servicio": "vetcare.application.upload",
+    "servicio": "vetcare.application.Application.upload",
     "staff": true,
     "csrf": true,
     "idempotencia_transaccional": true
@@ -964,7 +984,7 @@
       "GET"
     ],
     "ruta": "/api/adopciones/admin/cuestionarios/",
-    "servicio": "vetcare.application.<lambda>",
+    "servicio": "vetcare.application.Application.register_routes.<locals>.<lambda>",
     "staff": true,
     "csrf": false,
     "idempotencia_transaccional": false
@@ -974,7 +994,7 @@
       "GET"
     ],
     "ruta": "/api/adopciones/admin/cuestionarios/<int:qid>/",
-    "servicio": "vetcare.application.<lambda>",
+    "servicio": "vetcare.application.Application.register_routes.<locals>.<lambda>",
     "staff": true,
     "csrf": false,
     "idempotencia_transaccional": false

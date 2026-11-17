@@ -56,7 +56,12 @@ def provision(name=None):
         )
     (Path(tempfile.gettempdir()) / "vetcare_wsgi_test_database.json").write_text(
         json.dumps(
-            {"database": config.database, "uid": uid, "media": str(config.media)}
+            {
+                "database": config.database,
+                "uid": uid,
+                "media": str(config.media),
+                "session_run_id": config.session_run_id,
+            }
         ),
         encoding="utf-8",
     )
@@ -95,7 +100,7 @@ def family(document=None, count=3):
         documento=document or uuid.uuid4().hex[:25],
         telefono="3000000000",
         direccion="Datos sintéticos",
-        email="test@example.invalid",
+        email="test@example.test",
         mascotas=[
             dict(
                 nombre="Paciente " + str(i),

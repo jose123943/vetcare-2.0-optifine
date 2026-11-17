@@ -1,0 +1,15 @@
+.\.venv-wsgi\Scripts\python.exe : test_14_outbox_transaction_and_delivery 
+(tests.test_wsgi.MigrationTests.test_14_outbox_transaction_and_delivery) ... ok
+En línea: 2 Carácter: 36
++ ... _DB='true'; .\.venv-wsgi\Scripts\python.exe -m unittest tests.test_ws ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (test_14_outbox_...elivery) ... ok:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+test_15_email_failure_does_not_lose_appointment 
+(tests.test_wsgi.MigrationTests.test_15_email_failure_does_not_lose_appointment) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 19.055s
+
+OK

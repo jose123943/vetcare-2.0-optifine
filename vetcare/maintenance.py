@@ -61,7 +61,21 @@ def snapshot(database, backup=False):
                 ensure_ascii=False,
                 default=encode,
             )
-        print("Copia SQL privada creada:", target)
+        with gzip.open(target, "rt", encoding="utf-8") as stream:
+            recovered = json.load(stream)
+        if set(recovered["tables"]) != set(tables):
+            raise RuntimeError(
+                "El respaldo no contiene todas las tablas; no continuar con la limpieza."
+            )
+        for name, table in recovered["tables"].items():
+            digest = hashlib.sha256(
+                json.dumps(table["rows"], ensure_ascii=False).encode()
+            ).hexdigest()
+            if digest != output[name]["sha256"]:
+                raise RuntimeError(
+                    "El respaldo no coincide con la tabla " + name + "; no continuar."
+                )
+        print("Copia SQL privada creada y verificada:", target)
     else:
         target = database.config.root / "docs" / ("integridad_wsgi_" + stamp + ".json")
         target.parent.mkdir(exist_ok=True)

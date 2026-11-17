@@ -100,8 +100,9 @@ def main():
         seed(database)
         print("Migraciones SQL aditivas verificadas. Datos existentes conservados.")
     elif args.command == "worker":
-        from vetcare.services.mail import deliver_one
+        from vetcare.services.mail import deliver_one, smtp_settings
 
+        smtp_settings()
         print("Worker de notificaciones iniciado.", flush=True)
         while True:
             try:
@@ -161,6 +162,7 @@ def main():
                 "factura",
                 "auth_user",
                 "vc_session",
+                "vc_session_scope",
                 "vc_login_bucket",
             } - tables
             if missing:

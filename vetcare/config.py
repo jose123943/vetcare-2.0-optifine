@@ -1,10 +1,21 @@
+import hashlib
 import os
-from dataclasses import dataclass
+import secrets
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from dotenv import load_dotenv
 
 ROOT = Path(__file__).resolve().parent.parent
+
+
+def session_run_id():
+    """Identidad compartida por los workers de una misma ejecución/despliegue."""
+    if os.getenv("RAILWAY_DEPLOYMENT_ID"):
+        return hashlib.sha256(
+            ("railway:" + os.environ["RAILWAY_DEPLOYMENT_ID"]).encode()
+        ).hexdigest()
+    return os.getenv("_VETCARE_SESSION_RUN_ID") or secrets.token_hex(32)
 
 
 @dataclass
@@ -17,6 +28,7 @@ class Config:
     pool_size: int = 8
     session_hours: int = 8
     testing: bool = False
+    session_run_id: str = field(default_factory=session_run_id)
 
     @classmethod
     def load(cls, database=None, testing=False):

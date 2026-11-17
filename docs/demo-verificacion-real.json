@@ -1,0 +1,73 @@
+{
+  "fecha_base": "2026-11-17",
+  "respaldo_privado": "vetcare_sql_20261117_053809.json.gz",
+  "superusuarios_filas_completas_identicas": true,
+  "tablas_configuracion_identicas": 10,
+  "conteos": {
+    "administrador": 0,
+    "adopcion": 0,
+    "adopciones_criterio": 8,
+    "adopciones_cuestionario": 1,
+    "adopciones_entrega": 0,
+    "adopciones_mascotaadopcion": 5,
+    "adopciones_opcion": 65,
+    "adopciones_pregunta": 21,
+    "adopciones_respuesta": 105,
+    "adopciones_revision": 0,
+    "adopciones_solicitud": 5,
+    "auth_group": 0,
+    "auth_group_permissions": 0,
+    "auth_permission": 116,
+    "auth_user": 1,
+    "auth_user_groups": 0,
+    "auth_user_user_permissions": 0,
+    "cita": 5,
+    "cliente": 5,
+    "django_admin_log": 0,
+    "django_content_type": 29,
+    "django_migrations": 42,
+    "django_session": 0,
+    "empleado": 5,
+    "evaluacion_adopcion": 0,
+    "factura": 5,
+    "factura_detallefactura": 10,
+    "historial_de_vacunas": 5,
+    "mascota": 9,
+    "pagInicio_notificacion": 5,
+    "pagInicio_operacion": 0,
+    "tratamiento": 5,
+    "vc_login_bucket": 0,
+    "vc_schema_migration": 3,
+    "vc_session": 2,
+    "vc_session_scope": 0,
+    "veterinario": 5
+  },
+  "facturacion": {
+    "cantidad": 5,
+    "total": "320000.00",
+    "cobrado": "110000.00",
+    "pendiente": "210000.00"
+  },
+  "citas_propietario_incorrecto": 0,
+  "facturas_inconsistentes": 0,
+  "adopciones_disponibles": 5,
+  "encuestas_aprobadas": "3",
+  "estados_notificaciones": [
+    {
+      "estado": "Demostración",
+      "cantidad": 5,
+      "intentos": 0
+    }
+  ],
+  "dashboard": {
+    "total": 5,
+    "hoy": 1,
+    "pendientes": 3,
+    "clientes": 5,
+    "vacunas": 0,
+    "mascotas": 9,
+    "veterinarios": 5
+  },
+  "pdf_generados_y_leidos": 5,
+  "endpoints": 107
+}

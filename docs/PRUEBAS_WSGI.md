@@ -1,6 +1,18 @@
 # Evidencia de la migración WSGI
 
-Pruebas realizadas en Windows, Python 3.14, MySQL 8.4.13 de Railway y un entorno `.venv-wsgi` sin Django. Las escrituras automatizadas usan bases nuevas con prefijo `test_vetcare_`, separadas de la base operativa. No se instalaron fixtures en `railway`.
+Pruebas realizadas en Windows, Python 3.14, MySQL 8.4.13 de Railway y un entorno `.venv-wsgi` sin Django. Las pruebas automatizadas usan bases nuevas con prefijo `test_vetcare_`, separadas de la base operativa. La carga de demostración en la base operativa es una operación posterior, expresamente solicitada por el propietario.
+
+## Actualización: demostración, sesiones y encuesta · 17 de noviembre de 2026
+
+La suite completa pasó **47 pruebas, sin fallos, errores ni omisiones**, en 326,265 segundos. Incluye los 30 casos originales, ocho de Gmail y nueve nuevos de limpieza/sesiones. Evidencia actual: `wsgi_pruebas.json` y `wsgi-pruebas.txt`.
+
+Se comprobó la conservación exacta de las filas y permisos de superusuarios, eliminación de cuentas ordinarias, cantidades y relaciones de los ejemplos, totales de facturas, limpieza repetible incluso con adopciones históricas y claves circulares, reversión de toda la limpieza ante un fallo y ausencia de envíos de correo de demostración. La sesión autenticada sigue vigente después de 30 días durante la misma ejecución; otra ejecución la rechaza y el logout la revoca.
+
+El recorrido Edge `scripts/prueba_demo_sesion_encuesta.cjs` pasó: redirección del inicio con sesión activa, recarga, botón de encuesta en la tarjeta administrativa, apertura con la mascota seleccionada, las 21 respuestas, resultado aprobado, adaptación móvil y cierre de sesión. Evidencia: `demo-navegador-pruebas.txt`, `demo-adopciones-encuesta.png`, `demo-encuesta-directa.png`. Usa exclusivamente la base aislada.
+
+La carga operativa autorizada ya se aplicó y se documenta en `demostracion-carga.json`, `demo-verificacion-real.json` y [vetcare-funciones.md](../vetcare-funciones.md). Se conservaron íntegramente el superusuario y diez tablas de configuración; quedaron cinco clientes, nueve pacientes, cinco veterinarios/citas/facturas/vacunas/tratamientos y cinco mascotas disponibles con sus cinco solicitudes. Se generaron y leyeron los cinco PDF; el importe total es $320.000 COP, con $110.000 pagados y $210.000 pendientes. Las cinco notificaciones están en Demostración, con cero intentos de envío. El respaldo completo previo fue creado y verificado fuera del repositorio: `vetcare_sql_20261117_053809.json.gz`.
+
+Los resultados de integridad y cantidades que aparecen más abajo corresponden a la migración inicial, anterior a esta limpieza; no describen los conteos actuales.
 
 ## Resultados comprobados
 
@@ -41,9 +53,17 @@ Las reducciones medidas de las tres primeras rutas son aproximadamente 41 %, 50 
 ## Pendientes externos y alcance de la validación
 
 1. **Cuenta personal real:** no se conoce su contraseña de acceso al sistema. Su fila/hash siguen intactos y se verificó el mismo formato heredado con cuenta sintética; falta un login manual de esa cuenta. La contraseña MySQL no es la contraseña de acceso a VetCare.
-2. **SMTP externo:** no está configurado un proveedor/buzón real verificado. Se comprobaron generación, outbox, fallo/reintento y envío SMTP local. Falta entrega real con TLS y credenciales del proveedor.
+2. **SMTP externo:** la configuración privada de Gmail se validó posteriormente y el mensaje antes fallido llegó al estado `Enviada` después de retirar el worker antiguo. Esto acredita aceptación SMTP; la recepción en el buzón y la lectura corresponden al destinatario. La demostración no envía mensajes reales.
 3. **Railway público:** no se creó ni sustituyó el servicio web. Faltan acceso autenticado y autorización para costos, construcción Docker en Linux, prueba del dominio HTTPS, volumen persistente y rendimiento dentro de Railway. Las pruebas de cabeceras de producción son locales; no sustituyen esa validación.
 
 La migración de código local está implementada y verificada en el alcance descrito. Estos puntos impiden declarar verificada una puesta en producción completa.
 
 El vector de compatibilidad incluido en `tests/fixtures/legacy.json` fue generado por la versión anterior con una clave y contraseña **exclusivamente sintéticas**. Permite repetir las pruebas en otro equipo sin instalar el framework anterior, sin depender de archivos temporales privados y sin utilizar la clave de firma real como fixture.
+
+## Actualización de correo Gmail · 16 de noviembre de 2026
+
+Se añadió `scripts/configurar_gmail.py`: solicita la cuenta y una contraseña de aplicación mediante entrada oculta, comprueba TLS/autenticación sin enviar mensajes y guarda sólo las variables SMTP si Google acepta la conexión. El worker valida la configuración antes de tomar notificaciones; los errores de configuración/autenticación muestran instrucciones sin respuestas privadas del proveedor.
+
+Pasaron nueve pruebas de configuración, privacidad, autenticación controlada y SMTP local, más dos pruebas de integración de outbox/fallo/reintento en una base MySQL aislada. Evidencia: `gmail-configuracion-pruebas.txt` y `gmail-outbox-pruebas.txt`. El ejecutor completo incorpora los ocho casos nuevos de Gmail además de los 30 casos originales; no se presenta esta comprobación focalizada como una nueva ejecución de toda la suite.
+
+La conexión real a `smtp.gmail.com:587` y su negociación STARTTLS se verificaron desde este equipo **sin autenticar ni enviar mensajes**. Faltan la dirección remitente y su contraseña de aplicación, que el usuario introduce localmente en el asistente; todavía no se ha comprobado una entrega real a un buzón de Gmail.

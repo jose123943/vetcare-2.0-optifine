@@ -16,5 +16,6 @@ if not state.exists():
 info = json.loads(state.read_text(encoding="utf-8"))
 config = Config.load(database=info["database"], testing=True)
 config.media = Path(info["media"])
+config.session_run_id = info.get("session_run_id", config.session_run_id)
 print("Navegador de pruebas: http://127.0.0.1:8001 (base aislada)", flush=True)
 serve(create_app(config), host="127.0.0.1", port=8001, threads=config.pool_size)

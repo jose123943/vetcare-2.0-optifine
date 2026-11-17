@@ -42,6 +42,7 @@ class MigrationTests(unittest.TestCase):
             state = json.loads(info.read_text())
             config = Config.load(database=state["database"], testing=True)
             config.media = Path(state["media"])
+            config.session_run_id = state.get("session_run_id", config.session_run_id)
             cls.app = create_app(config)
         else:
             cls.app, _ = provision()
@@ -108,11 +109,17 @@ class MigrationTests(unittest.TestCase):
 
     def test_01_no_framework_and_start(self):
         self.assertIsNone(importlib.util.find_spec("django"))
-        for path in ["/", "/adopciones/", "/health/live/", "/health/ready/"]:
+        for path in ["/adopciones/", "/health/live/", "/health/ready/"]:
             response = self.c.get(path)
             self.assertEqual(response.status_code, 200)
             response.get_data()
             response.close()
+        self.assertEqual(self.c.get("/").status_code, 303)
+        anon = client(self.app, False)
+        response = anon.get("/")
+        self.assertEqual(response.status_code, 200)
+        response.get_data()
+        response.close()
         for html in (self.app.config.root / "frontend/pages").glob("*.html"):
             text = html.read_text(encoding="utf-8")
             self.assertNotIn("{%", text)

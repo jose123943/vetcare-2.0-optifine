@@ -28,8 +28,25 @@ test_27_archived_history_permissions_and_no_framework_imports (tests.test_wsgi.M
 test_28_dead_connection_returns_503_then_recovers (tests.test_wsgi.MigrationTests.test_28_dead_connection_returns_503_then_recovers) ... ok
 test_29_pet_edit_preserves_inactive_owner (tests.test_wsgi.MigrationTests.test_29_pet_edit_preserves_inactive_owner) ... ok
 test_real_smtp_transport_on_loopback (tests.test_smtp.SMTPTests.test_real_smtp_transport_on_loopback) ... ok
+test_assistant_does_not_save_credentials_rejected_by_google (tests.test_gmail.GmailTests.test_assistant_does_not_save_credentials_rejected_by_google) ... ok
+test_assistant_saves_only_after_authentication_succeeds (tests.test_gmail.GmailTests.test_assistant_saves_only_after_authentication_succeeds) ... ok
+test_authentication_check_uses_tls_and_never_sends (tests.test_gmail.GmailTests.test_authentication_check_uses_tls_and_never_sends) ... ok
+test_diagnostics_hide_provider_responses (tests.test_gmail.GmailTests.test_diagnostics_hide_provider_responses) ... ok
+test_incomplete_password_is_rejected (tests.test_gmail.GmailTests.test_incomplete_password_is_rejected) ... ok
+test_missing_account_fails_before_network (tests.test_gmail.GmailTests.test_missing_account_fails_before_network) ... ok
+test_private_configuration_preserves_database_and_signing_key (tests.test_gmail.GmailTests.test_private_configuration_preserves_database_and_signing_key) ... ok
+test_rejects_insecure_or_inconsistent_gmail_transport (tests.test_gmail.GmailTests.test_rejects_insecure_or_inconsistent_gmail_transport) ... ok
+test_01_login_survives_more_than_eight_hours_and_home_redirects (tests.test_demo_sessions.DemoSessionTests.test_01_login_survives_more_than_eight_hours_and_home_redirects) ... ok
+test_02_restart_invalidates_session_but_shared_workers_accept_it (tests.test_demo_sessions.DemoSessionTests.test_02_restart_invalidates_session_but_shared_workers_accept_it) ... ok
+test_03_logout_revokes_scope (tests.test_demo_sessions.DemoSessionTests.test_03_logout_revokes_scope) ... ok
+test_04_demo_preserves_superuser_and_relations_and_never_sends_mail (tests.test_demo_sessions.DemoSessionTests.test_04_demo_preserves_superuser_and_relations_and_never_sends_mail) ... ok
+test_05_failure_rolls_back_cleanup (tests.test_demo_sessions.DemoSessionTests.test_05_failure_rolls_back_cleanup) ... ok
+test_06_demo_can_be_repeated_with_exact_counts (tests.test_demo_sessions.DemoSessionTests.test_06_demo_can_be_repeated_with_exact_counts) ... ok
+test_07_direct_survey_api_is_public_and_hides_clinical_relation (tests.test_demo_sessions.DemoSessionTests.test_07_direct_survey_api_is_public_and_hides_clinical_relation) ... ok
+test_08_no_superuser_means_no_delete (tests.test_demo_sessions.DemoSessionTests.test_08_no_superuser_means_no_delete) ... ok
+test_09_reserved_demo_addresses_are_never_queued (tests.test_demo_sessions.DemoSessionTests.test_09_reserved_demo_addresses_are_never_queued) ... ok
 
 ----------------------------------------------------------------------
-Ran 30 tests in 178.888s
+Ran 47 tests in 326.264s
 
 OK

@@ -1,0 +1,77 @@
+{
+  "fecha_base": "2026-11-17",
+  "superusuarios_conservados": 1,
+  "superusuarios_sin_cambios": true,
+  "conteos": {
+    "cliente": 5,
+    "mascota": 9,
+    "veterinario": 5,
+    "empleado": 5,
+    "cita": 5,
+    "factura": 5,
+    "factura_detallefactura": 10,
+    "historial_de_vacunas": 5,
+    "tratamiento": 5,
+    "adopciones_mascotaadopcion": 5,
+    "adopciones_solicitud": 5,
+    "adopciones_respuesta": 105,
+    "pagInicio_notificacion": 5
+  },
+  "clientes_ids": [
+    8,
+    9,
+    10,
+    11,
+    12
+  ],
+  "mascotas_clinicas_ids": [
+    [
+      8,
+      9
+    ],
+    [
+      10
+    ],
+    [
+      11,
+      12,
+      13
+    ],
+    [
+      14
+    ],
+    [
+      15,
+      16
+    ]
+  ],
+  "veterinarios_ids": [
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "citas_ids": [
+    8,
+    9,
+    10,
+    11,
+    12
+  ],
+  "facturas_ids": [
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "adopcion_ids": [
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "avisos_reales_en_cola": 0
+}

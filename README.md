@@ -2,6 +2,10 @@
 
 Sistema veterinario con autenticación, clientes y múltiples mascotas, profesionales, citas, vacunas, tratamientos, facturas PDF, notificaciones y adopciones. Backend Python independiente, consultas SQL parametrizadas, frontend HTML/CSS/JavaScript y MySQL existente en Railway. No requiere Django, Flask, FastAPI ni un framework de frontend.
 
+[Guía completa de funciones y pestañas](vetcare-funciones.md). La sesión autenticada se mantiene durante la ejecución del programa, hasta cerrar sesión o reiniciar el servidor; ya no tiene el límite automático de ocho horas. Las sesiones de visitantes del catálogo conservan su caducidad independiente.
+
+Para previsualizar la carga ficticia: `python scripts/preparar_demostracion.py`. La opción explícita `--aplicar` respalda y reemplaza datos operativos, conserva superusuarios/configuración y carga cinco clientes con nueve mascotas, cinco veterinarios, citas, facturas, vacunas, tratamientos y mascotas/solicitudes de adopción. Nunca se ejecuta automáticamente al iniciar la aplicación. Los correos de demostración no se envían.
+
 ## Ejecutar en este equipo
 
 La configuración privada `.env` y el entorno nuevo `.venv-wsgi` ya están preparados. En PowerShell, dentro de esta carpeta:
@@ -47,11 +51,23 @@ La base existente conserva todas sus tablas e identificadores. Para una instalac
 
 Los SQL del directorio `sql` contienen sólo estructura; no borran ni recrean la base existente. El ejecutor registra sus checksums y evita aplicar cambios simultáneos. No modificar archivos SQL ya aplicados: crear otra migración aditiva.
 
-Las cuentas previas siguen usando su usuario y contraseña; el primer acceso correcto convierte progresivamente su hash a Argon2. La sesión anterior debe iniciarse de nuevo. Para una base vacía, `python run.py create-admin` solicita una cuenta nueva mediante entrada protegida. No reinicia cuentas existentes ni proporciona contraseñas predeterminadas.
+Los superusuarios conservados siguen usando su usuario y contraseña; la limpieza de demostración solicitada elimina las demás cuentas. El primer acceso correcto convierte progresivamente los hashes heredados a Argon2. La sesión anterior debe iniciarse de nuevo. Para una base vacía, `python run.py create-admin` solicita una cuenta nueva mediante entrada protegida. No reinicia cuentas existentes ni proporciona contraseñas predeterminadas.
 
 Las cuentas y los cuestionarios se administran en **Configuración**, dentro del dashboard. La gestión de cuentas requiere superadministrador.
 
 ## Correo
+
+Para **Gmail**, activa la verificación en dos pasos y crea una contraseña de aplicación para VetCare en [tu cuenta de Google](https://myaccount.google.com/apppasswords). Introduce esos datos exclusivamente en la terminal local:
+
+```powershell
+.\.venv-wsgi\Scripts\python.exe scripts/configurar_gmail.py
+```
+
+El asistente solicita la dirección remitente y la contraseña de aplicación de 16 caracteres mediante entrada oculta, comprueba TLS y autenticación **sin enviar correos**, y guarda únicamente las variables de correo en `.env`. Conserva las credenciales MySQL y la clave de firma. Si la comprobación falla, no guarda los nuevos datos.
+
+Gmail utiliza `smtp.gmail.com:587`, `EMAIL_USE_TLS=true` y `EMAIL_USE_SSL=false`; el remitente corresponde a la misma cuenta que autentica. La configuración puede comprobarse de nuevo con `python scripts/configurar_gmail.py --comprobar`, usando el Python de `.venv-wsgi`. [Servidor y puerto SMTP oficiales](https://developers.google.com/workspace/gmail/imap/imap-smtp).
+
+Google exige verificación en dos pasos para generar contraseñas de aplicación. Algunas cuentas de organizaciones o con Protección Avanzada no ofrecen esta opción; si no aparece, consultar las restricciones de la cuenta y la [ayuda oficial de Google](https://support.google.com/accounts/answer/185833?hl=es). La aplicación usa SMTP y no requiere compartir credenciales en el chat.
 
 Completar `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `EMAIL_USE_TLS`, `EMAIL_USE_SSL` y `DEFAULT_FROM_EMAIL` en `.env`. No activar TLS y SSL simultáneamente. En otra terminal:
 
@@ -60,6 +76,8 @@ Completar `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, 
 ```
 
 Registrar o modificar una cita guarda una notificación transaccional. El worker la envía fuera de la petición web. El dashboard muestra pendientes/fallidos y permite reintentar tras corregir SMTP. La generación MIME y el procesamiento están probados con transporte controlado; la entrega a un buzón externo requiere configurar y verificar el proveedor real.
+
+Después de configurar Gmail, detén el worker anterior con Ctrl+C y vuelve a iniciarlo para que lea el `.env` actualizado. En Notificaciones pulsa **Reintentar** en los mensajes fallidos y luego **Actualizar**. El worker nuevo comprueba la configuración antes de tomar mensajes de la cola; los errores de configuración y autenticación se muestran sin revelar respuestas privadas del proveedor. `Enviada` indica aceptación por el servidor SMTP, no confirmación de lectura o de ubicación en la bandeja de entrada.
 
 ## Pruebas y documentación
 
@@ -80,6 +98,8 @@ node scripts/prueba_navegador.cjs
 node scripts/prueba_adopciones.cjs
 node scripts/prueba_configuracion.cjs
 node scripts/prueba_crud.cjs
+.\.venv-wsgi\Scripts\python.exe scripts/preparar_wsgi_navegador.py
+node scripts/prueba_demo_sesion_encuesta.cjs
 ```
 
 Estos scripts usan Edge instalado en Windows y el puerto 8001, con usuarios y datos sintéticos. El preparador renueva la cookie revocada por la prueba de logout; no escribe cookies privadas en el repositorio.

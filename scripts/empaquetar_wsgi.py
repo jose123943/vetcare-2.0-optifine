@@ -15,6 +15,7 @@ files = {
     "requirements.txt",
     "requirements-dev.txt",
     "README.md",
+    "vetcare-funciones.md",
     ".env.example",
     ".gitignore",
     ".gitattributes",

@@ -16,6 +16,7 @@ from ..validation import (
     money,
     required,
 )
+from .mail import notification_state
 
 ACTIVE = ("Pendiente", "Programada", "Confirmada")
 
@@ -453,7 +454,7 @@ def save_appointment(ctx, appointment_id=None):
                 asunto=("Actualización" if old else "Confirmación")
                 + " de cita veterinaria — VetCare",
                 contexto=json.dumps(context, ensure_ascii=False),
-                estado="Pendiente" if m["email"] else "Sin correo",
+                estado=notification_state(m["email"]),
                 intentos=0,
                 error="",
                 creada=datetime.now(UTC).replace(tzinfo=None),
@@ -463,11 +464,11 @@ def save_appointment(ctx, appointment_id=None):
     return {
         "status": "ok",
         "message": "Cita guardada. "
-        + (
-            "Correo en cola."
-            if m["email"]
-            else "Cliente sin correo; no se enviará notificación."
-        ),
+        + {
+            "Pendiente": "Correo en cola.",
+            "Sin correo": "Cliente sin correo; no se enviará notificación.",
+            "Demostración": "Datos de demostración; no se enviará correo real.",
+        }[notification_state(m["email"])],
         "cita": appointment(
             found(ctx.db.one(APPOINTMENTS + " WHERE a.id_cita=%s", (pk,)))
         ),

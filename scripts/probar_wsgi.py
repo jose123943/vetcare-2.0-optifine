@@ -9,7 +9,12 @@ from pathlib import Path
 root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(root))
 suite = unittest.defaultTestLoader.loadTestsFromNames(
-    ["tests.test_wsgi", "tests.test_smtp"]
+    [
+        "tests.test_wsgi",
+        "tests.test_smtp",
+        "tests.test_gmail",
+        "tests.test_demo_sessions",
+    ]
 )
 start = time.monotonic()
 with (root / "docs/wsgi-pruebas.txt").open("w", encoding="utf-8") as stream:

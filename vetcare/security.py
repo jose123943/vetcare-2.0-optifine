@@ -46,8 +46,11 @@ def ensure_session(ctx):
     row = (
         ctx.db.one(
             "SELECT s.*,u.id AS uid,u.username,u.first_name,u.last_name,u.is_active,u.is_staff,u.is_superuser "
-            "FROM vc_session s LEFT JOIN auth_user u ON u.id=s.user_id WHERE s.token_hash=%s AND s.expires>UTC_TIMESTAMP(6)",
-            (digest(token),),
+            "FROM vc_session s LEFT JOIN auth_user u ON u.id=s.user_id "
+            "LEFT JOIN vc_session_scope scope ON scope.token_hash=s.token_hash "
+            "WHERE s.token_hash=%s AND s.expires>UTC_TIMESTAMP(6) "
+            "AND (s.user_id IS NULL OR scope.run_id=%s)",
+            (digest(token), ctx.app.config.session_run_id),
         )
         if token
         else None
@@ -112,9 +115,17 @@ def new_session(ctx, user_id=None, owner_hash=None):
         owner_hash=owner_hash or digest(secrets.token_urlsafe(32)),
         user_id=user_id,
         created=now,
-        expires=now + timedelta(hours=ctx.app.config.session_hours),
+        expires=datetime(9999, 12, 31, 23, 59, 59)
+        if user_id is not None
+        else now + timedelta(hours=ctx.app.config.session_hours),
     )
     insert(ctx.db, "vc_session", row)
+    if user_id is not None:
+        insert(
+            ctx.db,
+            "vc_session_scope",
+            dict(token_hash=row["token_hash"], run_id=ctx.app.config.session_run_id),
+        )
     ctx.cookies = [("vetcare_sid", token, True), ("csrftoken", csrf, False)]
     return row
 

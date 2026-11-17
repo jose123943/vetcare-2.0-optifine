@@ -1,3 +1,4 @@
+# Cat?logo, cuestionarios, evaluaci?n de solicitudes y entrega responsable.
 import hashlib
 import json
 import secrets
@@ -29,10 +30,12 @@ PET_FIELDS = [
 ]
 
 
+# Interpreta JSON guardado por MySQL cuando el driver lo devuelve como texto.
 def load_json(value):
     return json.loads(value) if isinstance(value, str) else value
 
 
+# Publica la ficha permitida de adopción; el vínculo clínico se incluye sólo para administración.
 def pet_data(p, private=False):
     result = {k: p[k] for k in PET_FIELDS}
     result["id"] = p["id"]
@@ -47,6 +50,7 @@ def pet_data(p, private=False):
     return result
 
 
+# Filtra y pagina las mascotas del catálogo o de administración.
 def catalog(ctx, private=False):
     params = []
     query = "SELECT * FROM adopciones_mascotaadopcion"
@@ -67,6 +71,7 @@ def catalog(ctx, private=False):
     )
 
 
+# Devuelve la ficha pública de una mascota disponible para abrir su encuesta directamente.
 def public_pet(ctx, pet_id):
     pet = found(
         ctx.db.one(
@@ -77,6 +82,7 @@ def public_pet(ctx, pet_id):
     return {"status": "ok", "mascota": pet_data(pet)}
 
 
+# Obtiene una versión y agrupa criterios, preguntas y opciones desde SQL.
 def questionnaire(ctx, qid=None):
     q = (
         ctx.db.one("SELECT * FROM adopciones_cuestionario WHERE id=%s", (qid,))
@@ -117,6 +123,7 @@ def questionnaire(ctx, qid=None):
     return q
 
 
+# Publica preguntas/opciones sin divulgar los valores de puntuación al visitante.
 def schema(ctx):
     q = questionnaire(ctx)
     return {
@@ -144,6 +151,7 @@ def schema(ctx):
     }
 
 
+# Comprueba respuestas completas, calcula fracciones exactas y obtiene puntuación, alertas y snapshots.
 def evaluate(q, answers):
     if not isinstance(answers, dict) or sum(c["peso"] for c in q["criterios"]) != 100:
         raise Problem("El cuestionario debe sumar 100 puntos.")
@@ -210,6 +218,7 @@ def evaluate(q, answers):
     )
 
 
+# Muestra porcentaje sin redondear para aprobar, estado y recomendaciones sin datos personales.
 def public_result(s):
     code = str(uuid.UUID(str(s["codigo"])))
     return dict(
@@ -225,6 +234,7 @@ def public_result(s):
     )
 
 
+# Valida mayoría de edad, consentimiento, contacto y condiciones declaradas por el solicitante.
 def application_values(d):
     if d.get("consentimiento") is not True:
         raise Problem("Es necesario autorizar el uso de datos para esta solicitud.")
@@ -249,6 +259,7 @@ def application_values(d):
     return values
 
 
+# Valida la mascota disponible, la versión y la clave de operación; guarda solicitud y respuestas atomícamente.
 def apply(ctx, pet_id):
     data = ctx.data
     sess = ensure_session(ctx)
@@ -261,6 +272,7 @@ def apply(ctx, pet_id):
         (str(pet_id) + json.dumps(data, sort_keys=True)).encode()
     ).hexdigest()
 
+    # Devuelve un envío previo únicamente al propietario de esa sesión y con la misma huella.
     def replay(previous):
         if not secrets.compare_digest(
             previous["propietario_sesion"], sess["owner_hash"]
@@ -333,6 +345,7 @@ def apply(ctx, pet_id):
     return {"status": "ok", "resultado": public_result(values)}
 
 
+# Comprueba el propietario de sesión antes de devolver un resultado privado.
 def own_result(ctx, code):
     s = found(
         ctx.db.one(
@@ -347,6 +360,7 @@ def own_result(ctx, code):
     return {"status": "ok", "resultado": public_result(s)}
 
 
+# Crea o edita una ficha, preservando estados controlados por la revisión/entrega.
 def save_pet(ctx):
     d = ctx.data
     old = (
@@ -418,6 +432,7 @@ def save_pet(ctx):
     }
 
 
+# Prepara datos administrativos del solicitante y su evaluación.
 def applicant_data(s):
     return {
         **public_result(s),
@@ -445,6 +460,7 @@ def applicant_data(s):
     }
 
 
+# Filtra y pagina solicitudes por evaluación aprobada/no aprobada.
 def applications(ctx):
     query = "SELECT s.*,m.nombre AS mascota FROM adopciones_solicitud s JOIN adopciones_mascotaadopcion m ON m.id=s.mascota_id"
     params = ()
@@ -462,6 +478,7 @@ def applications(ctx):
     )
 
 
+# Devuelve solicitud, respuestas originales e historial de revisiones para el equipo autorizado.
 def detail(ctx, application_id):
     s = found(
         ctx.db.one(
@@ -486,6 +503,7 @@ def detail(ctx, application_id):
     }
 
 
+# Bloquea mascota/solicitud y registra autorización, rechazo o entrega, comprobando bienestar y unicidad.
 def review(ctx, application_id):
     d = ctx.data
     sid = found(
@@ -582,6 +600,7 @@ def review(ctx, application_id):
     }
 
 
+# Crea una nueva versión con los pesos solicitados sin modificar resultados anteriores.
 def clone_questionnaire(ctx):
     d = ctx.data
     found(
@@ -642,6 +661,7 @@ def clone_questionnaire(ctx):
     }
 
 
+# Edita pregunta y opciones sólo en una versión no activa y sin solicitudes.
 def edit_draft(ctx, qid):
     """Reemplaza la edición dependiente del Admin por una API JSON con control de versión."""
     q = found(
@@ -689,6 +709,7 @@ def edit_draft(ctx, qid):
     return {"status": "ok", "message": "Borrador actualizado."}
 
 
+# Valida el borrador, desactiva la versión anterior y publica la seleccionada.
 def publish(ctx, qid):
     q = found(
         ctx.db.one(

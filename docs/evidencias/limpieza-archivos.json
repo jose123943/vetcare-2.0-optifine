@@ -1,0 +1,23 @@
+{
+  "respaldo_privado": "limpieza_proyecto_20261117_211436.zip",
+  "archivos_retirados": [
+    "frontend/assets/login/css/styles.css",
+    "frontend/assets/pagInicio/css/styles.css",
+    "frontend/assets/login/imgs/huella.png",
+    "frontend/assets/login/imgs/security_logo.png",
+    "dist/VetCare-WSGI-railway.zip"
+  ],
+  "sha256": {
+    "frontend/assets/login/css/styles.css": "834e254d1b2ce33436a12f844727c39769b07cc62ed485f8206e0a2b2420a587",
+    "frontend/assets/pagInicio/css/styles.css": "8c269be0fa4f88f78cb9d835524c46f0897aa266b46518032ff7b32972ebb787",
+    "frontend/assets/login/imgs/huella.png": "5194b836cc7ced1224f60b34e69e8a204d3d78f2ebc9662e7b06a624b736c7a8",
+    "frontend/assets/login/imgs/security_logo.png": "392493b4d6c5818839e4091456ba0f318c6535c6fca5794e75fea25e71306165",
+    "dist/VetCare-WSGI-railway.zip": "ae57c67472b613ea37fb68c19ce0204cf1419993f4f83a46eeaa75ae4005aae8"
+  },
+  "caches_retiradas": false,
+  "caches_pendientes": [
+    ".ruff_cache",
+    "__pycache__ (codigo propio)"
+  ],
+  "motivo_pendiente": "Revision automatica: blocked by policy; sin detalle adicional."
+}

@@ -1,0 +1,10 @@
+{
+  "ejecutadas": 63,
+  "fallos": 0,
+  "errores": 0,
+  "omitidas": 0,
+  "duracion_segundos": 494.002,
+  "exito": true,
+  "framework_requerido": false,
+  "base_de_pruebas": "test_vetcare_* (aislada)"
+}

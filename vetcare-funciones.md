@@ -2,6 +2,10 @@
 
 Guía de la aplicación Python WSGI + MySQL, actualizada el **17 de noviembre de 2026**. Los registros de demostración son ficticios y no constituyen indicaciones clínicas, certificados ni facturas electrónicas.
 
+El [mapa del proyecto](docs/ESTRUCTURA.md) explica las carpetas actuales. El código incluye comentarios sobre funciones y bloques; los informes y capturas están en `docs/evidencias/`. La [guía de Railway](docs/RAILWAY.md) describe la preparación y los requisitos de publicación.
+
+**Actualización:** la última limpieza deja la base operativa vacía, conservando todos los superusuarios y la configuración necesaria. La demostración descrita más abajo es opcional y no se carga al iniciar. Véase [limpieza del proyecto y reglas actuales](docs/LIMPIEZA_PROYECTO.md).
+
 ## 1. Abrir el programa
 
 En la terminal PowerShell de Visual Studio Code, desde la carpeta del proyecto:
@@ -70,6 +74,8 @@ Se introducen nombres, apellidos, documento, teléfono, dirección y correo opci
 
 El buscador localiza pacientes por mascota, nombre del propietario, documento, teléfono o correo. **Cargar más pacientes** obtiene la página siguiente.
 
+Al hacer clic en **Buscar** aparece una lista de propietarios. Se puede escribir para filtrar o seleccionar con ratón y con flechas/Enter; Escape cierra la lista. Elegir un propietario muestra sus mascotas por su identificador exacto, incluso cuando dos personas tienen el mismo nombre. Escribir de nuevo permite volver a buscar libremente por paciente u otros datos.
+
 **Ficha / editar** abre los datos del propietario y el paciente seleccionado. **Actualizar registro** guarda ambos; las mascotas siguen perteneciendo al mismo cliente. Se puede activar o desactivar al propietario sin eliminar sus historiales.
 
 **Otra mascota** registra un paciente para un propietario existente. **Ver propietarios** permite consultar clientes aunque no tengan mascotas, editar sólo sus datos o añadirles un paciente.
@@ -81,10 +87,12 @@ Las eliminaciones se validan también en el servidor: una mascota con citas, vac
 1. Buscar al propietario por nombre, documento o teléfono.
 2. Seleccionarlo para cargar exclusivamente sus mascotas.
 3. Elegir paciente y veterinario.
-4. Introducir fecha, hora, duración, estado, motivo y observaciones.
+4. Introducir fecha, hora, duración, motivo y observaciones. El único estado inicial es **Programada**.
 5. Pulsar **Registrar cita**.
 
 El servidor comprueba la pertenencia del paciente y evita solapamientos para el mismo veterinario. Dos citas pueden ser adyacentes cuando una empieza exactamente al terminar la anterior. La cita debe terminar el mismo día y durar entre cinco y 480 minutos.
+
+El buscador despliega propietarios al recibir el foco, sin exigir caracteres previos, y conserva la búsqueda por nombre, documento, teléfono o correo. Sólo carga los pacientes del propietario elegido.
 
 Al crear o modificar realmente la cita se guarda una notificación junto con el cambio. El correo no se envía dentro de esa petición HTTP. Los datos de demostración utilizan direcciones `.invalid`: sus notificaciones se marcan **Demostración** y nunca entran en la cola de envío real.
 
@@ -92,7 +100,9 @@ Al crear o modificar realmente la cita se guarda una notificación junto con el 
 
 Lista las citas por fecha y hora, con paciente, propietario, profesional, motivo y estado. **Ver detalle → Editar / cambiar estado** abre los mismos controles del agendamiento.
 
-Los estados son **Pendiente**, **Programada**, **Confirmada**, **Atendida** y **Cancelada**. La cancelación conserva el registro; no elimina historial. Las tres primeras reservan horario y participan en la prevención de conflictos. Los reenvíos de una misma operación no crean citas adicionales.
+Las citas nuevas se guardan como **Programada**. Al alcanzar su fecha, hora y duración pasan automáticamente a **Atendida**, usando la hora de Colombia. El monitor del servidor revisa cada 15 segundos, sin depender de Gmail, y consultar agenda/detalle/resumen también sincroniza los estados. La agenda visible se actualiza cada 15 segundos sin recargar toda la página, conserva sus páginas y pausa la actualización durante un modal.
+
+Desde el detalle se puede reprogramar, marcar atendida o cancelar. Las **Canceladas** conservan su estado e historial. El cambio automático no crea notificaciones adicionales. Los estados antiguos Pendiente/Confirmada se reconocen sólo por compatibilidad con datos previos; no se ofrecen al crear. Los reenvíos de una misma operación no crean citas adicionales.
 
 ## 9. Veterinarios
 
@@ -117,6 +127,8 @@ Las tarjetas muestran ingresos cobrados, importe pendiente, cantidad total y fac
 El navegador muestra una estimación, pero Python vuelve a calcular con Decimal: `total = suma(cantidad × precio) − descuento + impuesto`. No se aceptan importes negativos, cantidades fraccionarias ni descuentos superiores al subtotal. Factura y líneas se confirman juntas.
 
 **Detalle** muestra el desglose, permite cambiar el estado de pago y descargar el PDF. **Descargar factura PDF** genera el documento con datos guardados; no exige un archivo PDF previamente subido. Los documentos son de gestión interna y no equivalen a facturación electrónica autorizada.
+
+El **Método de pago** es un menú de **Transferencia**, **Efectivo** o **Tarjeta**, tanto en Nueva factura como en su detalle. Se guarda y valida en el servidor y se muestra en el PDF.
 
 ## 12. Notificaciones por correo
 
@@ -175,6 +187,8 @@ Una evaluación aprobada permite **Autorizar**, después de confirmar bienestar 
 
 ## 15. Datos de demostración y limpieza autorizada
 
+La carga siguiente describe la demostración opcional anterior. La última operación solicitada utiliza `scripts/limpiar_datos.py --aplicar`: vacía datos operativos, verifica un respaldo y conserva los superusuarios sin volver a cargar ejemplos. `docs/evidencias/limpieza-base.json` contiene los conteos posteriores.
+
 La preparación conserva **todos los campos y hashes de los superusuarios**, sus relaciones de permisos, la configuración del cuestionario y los metadatos necesarios del esquema. Elimina las cuentas no superusuarias y los datos operativos anteriores. No borra tablas, no recrea MySQL y no modifica la configuración privada de Gmail/MySQL.
 
 | Datos | Cantidad inicial |
@@ -232,24 +246,26 @@ Los listados usan paginación y consultas con JOIN; los importes se calculan con
 
 | Archivo | Funciones y responsabilidad |
 |---|---|
-| `frontend/assets/bootstrap.js` | Obtiene la sesión, prepara CSRF y nombre del usuario, carga los scripts adecuados, gestiona el login y presenta el resultado privado. `load()` carga los scripts en orden. |
-| `pagInicio/js/scripts.js`: comunicación | `api()` procesa HTTP/JSON y errores; `toast()` muestra avisos; `bindForm()` asocia un formulario a su endpoint; el listener de submit genera/reutiliza la clave de operación y bloquea botones. Usa `getAttribute('id')` para que un campo llamado `id` no oculte el identificador del formulario. |
-| `pagInicio/js/scripts.js`: presentación | `esc`, `cop`, `badge`, `today`, `field`, `select`, `area`, `title`, `table`, `submit`, `openModal` escapan texto, formatean importes y construyen controles, tablas y ventanas. |
-| `pagInicio/js/scripts.js`: familias | `ownerFields`, `petFields`, `renumberPets`, `addPet`, `registrar`, `consultar`, `addExistingPet`, `editPet` organizan propietarios, fichas dinámicas y edición. |
-| `pagInicio/js/scripts.js`: agenda | `appointmentRows`, `bindCitaButtons`, `dashboard`, `citas`, `showCita`, `appointmentForm` presentan citas y conectan búsqueda de propietario, selector de mascotas y guardado. La ayuda interna `chooseOwner()` carga los pacientes del propietario elegido. |
-| `pagInicio/js/scripts.js`: clínica y finanzas | `veterinarios`, `vacunacion`, `loadHealth`, `reportes`, `addService`, `updateTotal`, `newInvoice`, `showInvoice`, `correos` implementan los módulos respectivos. `navigate()` cambia de sección y descarta respuestas antiguas al navegar rápido. |
-| `pagInicio/js/scripts.js`: ayudas internas | Las funciones `load()` de citas/consulta y `loadInvoices()` solicitan las páginas y aplican sus filtros; `rows()` vuelve a construir las líneas de servicios y sus totales; `edit()` prepara el alta o edición del veterinario. |
-| `adopciones/admin.js` | `adoptionAdmin()` carga fichas y solicitudes; sus funciones internas paginan ambos listados. `editAdoptionPet()`, `adoptionPhoto()`, `reviewApplication()` y `editWeights()` registran fichas, fotos, revisiones y versiones. |
-| `adopciones/public.js` | `initialize()` abre la mascota indicada en la URL; `load()` filtra/pagina el catálogo; `start()` construye el cuestionario; `show()` y `valid()` controlan pasos y campos. `request()`, `message()`, `input()` y `escapeText()` gestionan peticiones, avisos y controles seguros. |
-| `configuration.js` | `editOwner()`, `configuration()`, `historicalAdoptions()`, `editAccount()`, `viewVersion()` y `editQuestion()` implementan gestión de propietarios, cuentas, versiones y antecedentes. |
-| `pagInicio/js/v2.js` | Contrae el menú y anima indicadores, respetando la preferencia de movimiento reducido. |
+| `frontend/assets/js/bootstrap.js` | Obtiene la sesión, prepara CSRF y nombre del usuario, carga los scripts adecuados, gestiona el login y presenta el resultado privado. `load()` carga los scripts en orden. |
+| `frontend/assets/js/owner-search.js` | `bindOwnerSearch()` conecta el desplegable reutilizable; `search()` consulta propietarios, `highlight()` mueve la selección de teclado, `choose()` aplica el propietario y `hide()` cierra la lista. `ownerSearchCleanup()` cancela eventos, respuestas antiguas y temporizadores al navegar. |
+| `js/clinic.js`: comunicación | `api()` procesa HTTP/JSON y errores; `toast()` muestra avisos; `bindForm()` asocia el elemento del formulario a su endpoint mediante WeakMap. El listener de submit genera/reutiliza la clave de operación y bloquea botones. Los elementos retirados pueden liberarse sin conservar manejadores por sus identificadores. |
+| `js/clinic.js`: presentación | `esc`, `cop`, `badge`, `today`, `field`, `select`, `area`, `title`, `table`, `submit`, `openModal` escapan texto, formatean importes y construyen controles, tablas y ventanas. |
+| `js/clinic.js`: familias | `ownerFields`, `petFields`, `renumberPets`, `addPet`, `registrar`, `consultar`, `addExistingPet`, `editPet` organizan propietarios, fichas dinámicas y edición. |
+| `js/clinic.js`: agenda | `appointmentRows`, `bindCitaButtons`, `dashboard`, `citas`, `showCita`, `appointmentForm` presentan citas y conectan búsqueda de propietario, selector de mascotas y guardado. La ayuda interna `chooseOwner()` carga los pacientes del propietario elegido. |
+| `js/clinic.js`: clínica y finanzas | `veterinarios`, `vacunacion`, `loadHealth`, `reportes`, `addService`, `updateTotal`, `newInvoice`, `showInvoice`, `correos` implementan los módulos respectivos. `navigate()` cambia de sección y descarta respuestas antiguas al navegar rápido. |
+| `js/clinic.js`: ayudas internas | Las funciones `load()` de citas/consulta y `loadInvoices()` solicitan las páginas y aplican sus filtros; `rows()` vuelve a construir las líneas de servicios y sus totales; `edit()` prepara el alta o edición del veterinario. |
+| `js/clinic.js`: pagos | `paymentMethodField()` construye el mismo selector de Transferencia/Efectivo/Tarjeta para alta y actualización. |
+| `js/adoptions-admin.js` | `adoptionAdmin()` carga fichas y solicitudes; sus funciones internas paginan ambos listados. `editAdoptionPet()`, `adoptionPhoto()`, `reviewApplication()` y `editWeights()` registran fichas, fotos, revisiones y versiones. |
+| `js/adoptions-public.js` | `initialize()` abre la mascota indicada en la URL; `load()` filtra/pagina el catálogo; `start()` construye el cuestionario; `show()` y `valid()` controlan pasos y campos. `request()`, `message()`, `input()` y `escapeText()` gestionan peticiones, avisos y controles seguros. |
+| `js/configuration.js` | `editOwner()`, `configuration()`, `historicalAdoptions()`, `editAccount()`, `viewVersion()` y `editQuestion()` implementan gestión de propietarios, cuentas, versiones y antecedentes. |
+| `js/interface.js` | Contrae el menú y anima indicadores, respetando la preferencia de movimiento reducido. |
 
 ## 18. Referencia de funciones Python
 
-El siguiente inventario incluye las funciones de la aplicación, sus métodos, ayudas internas y comandos. Las pruebas automatizadas están en `tests/` y los recorridos de navegador en `scripts/prueba_*.cjs`; no son funciones clínicas que deban ejecutarse en la base operativa.
+El siguiente inventario incluye las funciones de la aplicación, sus métodos, ayudas internas y comandos. Las pruebas automatizadas están en `tests/` y los recorridos de navegador en `tests/browser/prueba_*.cjs`; no son funciones clínicas que deban ejecutarse en la base operativa.
 
 <!-- INICIO-INVENTARIO-PYTHON -->
-Funciones documentadas: **150**.
+Funciones documentadas: **165**.
 
 ### vetcare/application.py
 
@@ -260,7 +276,7 @@ Funciones documentadas: **150**.
 | `Application.add(self, method, path, fn, admin=False, write=False)` | Registra método, ruta, función y controles administrativos/de escritura. |
 | `Application.dispatch(self, environ, start_response)` | Valida host, HTTPS, sesión, permisos y CSRF; invoca el servicio y genera una respuesta segura. |
 | `Application.mutate(self, ctx, fn, args)` | Confirma operación, respuesta e idempotencia en una transacción; resuelve reenvíos y colisiones de clave. |
-| `Application.asset(self, ctx, path)` | Sirve un archivo permitido del directorio de assets. |
+| `Application.asset(self, ctx, path)` | Sirve un recurso público, negocia gzip en producción y conserva ETag/304 por variante. |
 | `Application.html(self, ctx, name)` | Sirve una página HTML estática. |
 | `Application.dashboard_html(self, ctx)` | Protege el dashboard y redirige al acceso cuando falta autenticación. |
 | `Application.session(self, ctx)` | Devuelve los datos mínimos del usuario para preparar la interfaz. |
@@ -403,7 +419,8 @@ Funciones documentadas: **150**.
 | `pet_data(m)` | Serializa una mascota con propietario y datos de contacto para las vistas administrativas. |
 | `owner(c)` | Serializa los campos de un cliente. |
 | `time_value(value)` | Normaliza el TIME de MySQL a una hora Python. |
-| `appointment(c)` | Serializa una cita y calcula si su horario pendiente ya pasó. |
+| `appointment(c)` | Serializa una cita y compara su final, incluyendo la duración, con la hora de Colombia. |
+| `complete_finished_appointments(db, now=None)` | Marca Atendida al alcanzar fecha, hora y duración de citas programadas; conserva cancelaciones y no envía correo. |
 | `dashboard(ctx)` | Consulta indicadores y citas pendientes sin consultas por cada fila. |
 | `customers(ctx, customer_id=None)` | Busca propietarios o consulta uno por identificador. |
 | `pets(ctx, customer_id=None)` | Busca/pagina pacientes o devuelve las mascotas de un cliente concreto. |
@@ -458,6 +475,14 @@ Funciones documentadas: **150**.
 | `build.p(value, style='BodyText')` | Escapa texto y lo convierte en un párrafo del documento. |
 | `build.footer(canvas, document)` | Dibuja pie de página y numeración en cada hoja. |
 
+### vetcare/services/scheduler.py
+
+| Función | Qué hace |
+|---|---|
+| `start_monitor(database, interval=15)` | Inicia el monitor de agenda cada 15 segundos, independiente del correo. |
+| `start_monitor.run()` | Actualiza citas finalizadas y registra fallos sin secretos; continúa tras errores temporales. |
+| `stop_monitor(monitor)` | Señala la detención del monitor al cerrar el servidor y espera su finalización. |
+
 ### vetcare/validation.py
 
 | Función | Qué hace |
@@ -479,11 +504,25 @@ Funciones documentadas: **150**.
 | `seed(database)` | Siembra el cuestionario inicial sólo cuando no existe ninguno. |
 | `main()` | Ejecuta serve, check, migrate, worker, create-admin, backup o integrity según el comando. |
 
+### gunicorn.conf.py
+
+| Función | Qué hace |
+|---|---|
+| `post_worker_init(worker)` | Activa el monitor de citas con el pool del proceso de Gunicorn recién iniciado. |
+| `worker_exit(server, worker)` | Detiene el monitor de agenda al finalizar ese proceso. |
+
+### scripts/build_assets.py
+
+| Función | Qué hace |
+|---|---|
+| `build_assets(root=ROOT)` | Genera recursos CSS/JS gzip reproducibles y un manifiesto de tamaños y hashes, sin leer secretos. |
+
 ### scripts/comprobar_integridad_wsgi.py
 
 | Función | Qué hace |
 |---|---|
 | `compare(path)` | Compara filas con un respaldo privado y guarda únicamente el resultado de integridad. |
+| `compare.sort(records)` | Ordena registros serializados para comparar respaldos sin depender del orden físico. |
 
 ### scripts/configurar_gmail.py
 
@@ -500,9 +539,31 @@ Funciones documentadas: **150**.
 | `definitions(nodes, prefix='')` | Recorre funciones, métodos y ayudas anidadas del AST para construir nombres completos. |
 | `main()` | Verifica que cada función tenga descripción y actualiza este inventario dentro del Markdown. |
 
+### scripts/empaquetar_wsgi.py
+
+| Función | Qué hace |
+|---|---|
+| `private_patterns(root=ROOT)` | Lee valores privados sólo para detectar su presencia accidental en archivos, sin imprimirlos. |
+| `create_archive(target, web=False, root=ROOT)` | Construye y verifica un ZIP de fuente con exclusiones de secretos, entornos y archivos generados. |
+| `main()` | Genera un paquete web ligero y otro completo con las evidencias de pruebas. |
+
+### scripts/limpiar_datos.py
+
+| Función | Qué hace |
+|---|---|
+| `main(argv=None)` | Previsualiza o respalda/vacía datos operativos en una transacción, preservando superusuarios sin cargar ejemplos. |
+
 ### scripts/preparar_demostracion.py
 
 | Función | Qué hace |
 |---|---|
 | `main(argv=None)` | Previsualiza o respalda/aplica la limpieza y genera su informe de conteos. |
+
+### scripts/verificar_despliegue.py
+
+| Función | Qué hace |
+|---|---|
+| `check_source(root=ROOT)` | Valida las referencias estáticas, Railway y la copia selectiva del Dockerfile. |
+| `check_database()` | Comprueba MySQL y los checksums aplicados mediante consultas de sólo lectura. |
+| `main(argv=None)` | Ejecuta la revisión estática y, opcionalmente, la comprobación de base sin publicar ni modificar datos. |
 <!-- FIN-INVENTARIO-PYTHON -->

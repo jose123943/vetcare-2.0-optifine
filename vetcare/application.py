@@ -1,3 +1,4 @@
+# HTTP, rutas protegidas, idempotencia y archivos de la aplicaci?n.
 import hashlib
 import json
 import logging
@@ -25,6 +26,7 @@ logger = logging.getLogger("vetcare")
 
 
 class Application:
+    # Crea el pool, el mapa de rutas y el tratamiento del proxy según el entorno.
     def __init__(self, config=None):
         self.config = config or Config.load()
         self.database = Database(self.config)
@@ -38,14 +40,17 @@ class Application:
             else self.dispatch
         )
 
+    # Expone la aplicación como callable WSGI para Waitress o Gunicorn.
     def __call__(self, environ, start_response):
         return self.wsgi(environ, start_response)
 
+    # Registra método, ruta, función y controles administrativos/de escritura.
     def add(self, method, path, fn, admin=False, write=False):
         name = "route" + str(len(self.handlers))
         self.handlers[name] = (fn, admin, write)
         self.routes.append(Rule(path, endpoint=name, methods=[method]))
 
+    # Valida host, HTTPS, sesión, permisos y CSRF; invoca el servicio y genera una respuesta segura.
     def dispatch(self, environ, start_response):
         start = time.monotonic()
         ctx = Context(self, environ)
@@ -145,6 +150,7 @@ class Application:
             )
         return response(environ, start_response)
 
+    # Confirma operación, respuesta e idempotencia en una transacción; resuelve reenvíos y colisiones de clave.
     def mutate(self, ctx, fn, args):
         key = ctx.request.headers.get("Idempotency-Key", "")
         if not key or len(key) > 100:
@@ -204,11 +210,38 @@ class Application:
                 raise Problem("Esta clave ya fue utilizada con otros datos.", 409)
             return adoptions.load_json(previous["respuesta"])
 
+    # Sirve un archivo permitido del directorio de assets.
     def asset(self, ctx, path):
-        return send_from_directory(
-            self.config.root / "frontend/assets", path, ctx.request.environ, max_age=0
-        )
+        # Publica el mismo recurso en texto o gzip y conserva ETag/304 por variante.
+        source = self.config.root / "frontend/assets"
+        compressed = self.config.root / "build/static"
+        original = safe_join(source, path)
+        variant = safe_join(compressed, path + ".gz")
+        text_asset = Path(path).suffix in (".css", ".js")
+        if (
+            self.config.production
+            and text_asset
+            and ctx.request.accept_encodings["gzip"] > 0
+            and original
+            and Path(original).is_file()
+            and variant
+            and Path(variant).is_file()
+        ):
+            response = send_from_directory(
+                compressed,
+                path + ".gz",
+                ctx.request.environ,
+                max_age=0,
+                mimetype="text/css" if path.endswith(".css") else "text/javascript",
+            )
+            response.headers["Content-Encoding"] = "gzip"
+        else:
+            response = send_from_directory(source, path, ctx.request.environ, max_age=0)
+        if text_asset:
+            response.vary.add("Accept-Encoding")
+        return response
 
+    # Sirve una página HTML estática.
     def html(self, ctx, name):
         return send_from_directory(
             self.config.root / "frontend/pages",
@@ -217,6 +250,7 @@ class Application:
             max_age=0,
         )
 
+    # Protege el dashboard y redirige al acceso cuando falta autenticación.
     def dashboard_html(self, ctx):
         try:
             security.admin(ctx)
@@ -226,6 +260,7 @@ class Application:
             raise
         return self.html(ctx, "dashboard")
 
+    # Devuelve los datos mínimos del usuario para preparar la interfaz.
     def session(self, ctx):
         user = security.user(ctx)
         return {
@@ -244,6 +279,7 @@ class Application:
             ),
         }
 
+    # Lee una foto de adopción mediante una ruta restringida y cacheable.
     def photo(self, ctx, pet_id):
         p = found(
             ctx.db.one(
@@ -264,6 +300,7 @@ class Application:
         response = send_file(path, ctx.request.environ, conditional=True, max_age=3600)
         return response
 
+    # Valida tamaño/dimensiones, elimina metadatos y guarda una fotografía WebP con nombre aleatorio.
     def upload(self, ctx, pet_id):
         upload = ctx.request.files.get("fotografia")
         if not upload:
@@ -308,6 +345,7 @@ class Application:
             "fotografia": f"/adopciones/fotos/{pet_id}/?v={uuid.uuid4().hex}",
         }
 
+    # Entrega el PDF de una factura como descarga.
     def invoice_pdf(self, ctx, invoice_id):
         body = pdf.build(billing.get_invoice(ctx, invoice_id), self.config.root)
         return send_file(
@@ -318,20 +356,24 @@ class Application:
             download_name=f"VetCare-F{invoice_id:06d}.pdf",
         )
 
+    # Comprueba la propiedad de una solicitud antes de mostrar el resultado.
     def own_html(self, ctx, code):
         adoptions.own_result(ctx, code)
         return self.html(ctx, "result")
 
+    # Comprueba que el servicio puede consultar MySQL.
     def ready(self, ctx):
         ctx.db.one("SELECT 1 AS ok")
         return {"status": "ok"}
 
+    # Evita pedir acceso otra vez cuando el administrador ya tiene una sesión válida.
     def login_html(self, ctx):
         account = security.user(ctx)
         if account and account["is_staff"]:
             return redirect("/inicio/", 303)
         return self.html(ctx, "login")
 
+    # Asocia todos los endpoints, alias, permisos e idempotencia.
     def register_routes(self):
         add = self.add
         add("GET", "/", self.login_html)
@@ -537,5 +579,6 @@ class Application:
         )
 
 
+# Construye una instancia aislada de la aplicación con su configuración.
 def create_app(config=None):
     return Application(config)

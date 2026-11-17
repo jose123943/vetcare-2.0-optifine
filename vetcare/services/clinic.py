@@ -1,3 +1,4 @@
+# Clientes, mascotas, profesionales, agenda e historial cl?nico.
 import json
 import uuid
 from datetime import UTC, datetime, time, timedelta
@@ -21,6 +22,7 @@ from .mail import notification_state
 ACTIVE = ("Pendiente", "Programada", "Confirmada")
 
 
+# Obtiene fecha/hora de la clínica en America/Bogota.
 def NOW():
     return datetime.now(ZoneInfo("America/Bogota"))
 
@@ -32,6 +34,7 @@ APPOINTMENTS = """SELECT a.*,m.nombre AS mascota,c.id_cliente AS cliente_id,CONC
  JOIN empleado e ON e.id_empleado=v.id_veterinario"""
 
 
+# Serializa una mascota con propietario y datos de contacto para las vistas administrativas.
 def pet_data(m):
     return {
         "id": m["id_mascota"],
@@ -50,6 +53,7 @@ def pet_data(m):
     }
 
 
+# Serializa los campos de un cliente.
 def owner(c):
     return {
         "id": c["id_cliente"],
@@ -68,6 +72,7 @@ def owner(c):
     }
 
 
+# Normaliza el TIME de MySQL a una hora Python.
 def time_value(value):
     if isinstance(value, timedelta):
         seconds = int(value.total_seconds())
@@ -75,6 +80,7 @@ def time_value(value):
     return value
 
 
+# Serializa una cita y compara su final, incluyendo la duración, con la hora de Colombia.
 def appointment(c):
     hour = time_value(c["hora"])
     return {
@@ -97,11 +103,30 @@ def appointment(c):
         },
         "hora": hour.strftime("%H:%M"),
         "vencida": c["estado"] in ACTIVE
-        and datetime.combine(c["fecha"], hour) < NOW().replace(tzinfo=None),
+        and datetime.combine(c["fecha"], hour)
+        + timedelta(minutes=c["duracion_minutos"])
+        <= NOW().replace(tzinfo=None),
     }
 
 
+# Marca Atendida al alcanzar fecha, hora y duración de citas programadas; conserva cancelaciones y no envía correo.
+def complete_finished_appointments(db, now=None):
+    """Cierra citas cuyo final ya se alcanzó, en hora local de Colombia, sin enviar correo."""
+    current = now or NOW()
+    if current.tzinfo is not None:
+        current = current.astimezone(ZoneInfo("America/Bogota")).replace(tzinfo=None)
+    db.execute(
+        "UPDATE cita SET estado='Atendida' "
+        "WHERE estado IN ('Pendiente','Programada','Confirmada') "
+        "AND fecha<=%s "
+        "AND TIMESTAMP(fecha,hora)+INTERVAL duracion_minutos MINUTE<=%s",
+        (current.date(), current),
+    )
+
+
+# Consulta indicadores y citas pendientes sin consultas por cada fila.
 def dashboard(ctx):
+    complete_finished_appointments(ctx.db)
     today = NOW().date()
     stats = ctx.db.one(
         """SELECT (SELECT COUNT(*) FROM cita) AS total,
@@ -125,6 +150,7 @@ def dashboard(ctx):
     }
 
 
+# Busca propietarios o consulta uno por identificador.
 def customers(ctx, customer_id=None):
     if customer_id:
         return {
@@ -139,12 +165,13 @@ def customers(ctx, customer_id=None):
         }
     term = "%" + ctx.request.args.get("q", "").strip()[:150] + "%"
     rows = ctx.db.all(
-        "SELECT * FROM cliente WHERE CONCAT(nombre,' ',apellido) LIKE %s OR documento LIKE %s OR telefono LIKE %s ORDER BY nombre,apellido LIMIT 100",
-        (term, term, term),
+        "SELECT * FROM cliente WHERE CONCAT(nombre,' ',apellido) LIKE %s OR documento LIKE %s OR telefono LIKE %s OR email LIKE %s ORDER BY nombre,apellido,id_cliente LIMIT 100",
+        (term,) * 4,
     )
     return {"status": "ok", "clientes": [owner(r) for r in rows]}
 
 
+# Busca/pagina pacientes o devuelve las mascotas de un cliente concreto.
 def pets(ctx, customer_id=None):
     if customer_id:
         c = customers(ctx, customer_id)["cliente"]
@@ -159,6 +186,15 @@ def pets(ctx, customer_id=None):
                 )
             ],
         }
+    selected = ctx.request.args.get("cliente_id")
+    if selected:
+        return page(
+            PETS + " WHERE m.cliente_id=%s ORDER BY m.id_mascota",
+            (integer(selected, "cliente", 1),),
+            ctx,
+            "mascotas",
+            pet_data,
+        )
     q = "%" + ctx.request.args.get("q", "").strip()[:150] + "%"
     query = (
         PETS
@@ -167,6 +203,7 @@ def pets(ctx, customer_id=None):
     return page(query, (q,) * 5, ctx, "mascotas", pet_data)
 
 
+# Valida y selecciona sólo campos permitidos del propietario.
 def customer_values(d, new=False):
     document = required(d, "documento", 30, optional=not new) or None
     return dict(
@@ -180,6 +217,7 @@ def customer_values(d, new=False):
     )
 
 
+# Valida y selecciona sólo campos permitidos del paciente.
 def pet_values(d):
     return dict(
         nombre=required(d, "nombre", 50),
@@ -192,6 +230,7 @@ def pet_values(d):
     )
 
 
+# Guarda un propietario y entre una y 50 mascotas en lote.
 def register_family(ctx):
     d = ctx.data
     values = customer_values(d, True)
@@ -216,6 +255,7 @@ def register_family(ctx):
     }
 
 
+# Añade un paciente a un propietario existente.
 def add_pet(ctx, customer_id):
     found(
         ctx.db.one("SELECT id_cliente FROM cliente WHERE id_cliente=%s", (customer_id,))
@@ -224,6 +264,7 @@ def add_pet(ctx, customer_id):
     return {"status": "ok", "message": "Mascota registrada.", "id": pk}
 
 
+# Devuelve la ficha conjunta del paciente y su propietario.
 def pet_detail(ctx, pet_id):
     m = found(ctx.db.one(PETS + " WHERE m.id_mascota=%s", (pet_id,)))
     c = found(
@@ -232,6 +273,7 @@ def pet_detail(ctx, pet_id):
     return {"status": "ok", "mascota": pet_data(m), "cliente": owner(c)}
 
 
+# Edita paciente/propietario comprobando su pertenencia y conserva estados no modificados explícitamente.
 def edit_record(ctx):
     d = ctx.data
     pk = integer(d.get("mascotaId"), "mascota", 1)
@@ -251,6 +293,7 @@ def edit_record(ctx):
     return {"status": "ok", "message": "Cliente y mascota actualizados."}
 
 
+# Elimina únicamente un paciente sin historial protegido.
 def delete_pet(ctx, pet_id):
     found(
         ctx.db.one(
@@ -270,6 +313,7 @@ def delete_pet(ctx, pet_id):
     return {"status": "ok", "message": "Mascota eliminada. Se conserva el propietario."}
 
 
+# Edita sólo los datos del propietario.
 def edit_customer(ctx, customer_id):
     found(
         ctx.db.one(
@@ -284,6 +328,7 @@ def edit_customer(ctx, customer_id):
     return {"status": "ok", "message": "Cliente actualizado."}
 
 
+# Elimina un propietario cuando no tiene mascotas ni facturas y sus FK lo permiten.
 def delete_customer(ctx, customer_id):
     found(
         ctx.db.one(
@@ -302,6 +347,7 @@ def delete_customer(ctx, customer_id):
     return {"status": "ok", "message": "Cliente eliminado sin historiales asociados."}
 
 
+# Lista profesionales con los datos de empleado relacionados.
 def vets(ctx):
     return {
         "status": "ok",
@@ -311,6 +357,7 @@ def vets(ctx):
     }
 
 
+# Crea o modifica empleado y veterinario sin duplicar la identidad profesional.
 def save_vet(ctx):
     d = ctx.data
     values = {
@@ -334,6 +381,7 @@ def save_vet(ctx):
     return {"status": "ok", "message": "Veterinario guardado.", "id": pk}
 
 
+# Retira un profesional sin citas ni otras relaciones protegidas.
 def delete_vet(ctx, vet_id):
     found(
         ctx.db.one(
@@ -350,7 +398,9 @@ def delete_vet(ctx, vet_id):
     return {"status": "ok", "message": "Veterinario eliminado."}
 
 
+# Consulta/pagina citas, pendientes o citas de un paciente.
 def appointment_list(ctx, pet_id=None, pending=False):
+    complete_finished_appointments(ctx.db)
     query = APPOINTMENTS
     params = ()
     if pet_id:
@@ -364,7 +414,9 @@ def appointment_list(ctx, pet_id=None, pending=False):
     return page(query, params, ctx, "citas", appointment)
 
 
+# Consulta cita y estados de notificación.
 def appointment_detail(ctx, appointment_id):
+    complete_finished_appointments(ctx.db)
     c = found(ctx.db.one(APPOINTMENTS + " WHERE a.id_cita=%s", (appointment_id,)))
     ns = ctx.db.all(
         "SELECT id,estado,intentos,error,creada FROM pagInicio_notificacion WHERE cita_id=%s ORDER BY id",
@@ -373,13 +425,19 @@ def appointment_detail(ctx, appointment_id):
     return {"status": "ok", "cita": appointment(c), "notificaciones": ns}
 
 
+# Valida propietario/paciente, bloquea profesionales, impide solapamientos y guarda cita/notificación.
 def save_appointment(ctx, appointment_id=None):
     d = ctx.data
     values = dict(
         fecha=day(d.get("fecha")),
         hora=clock(d.get("hora")),
         motivo=required(d, "motivo", 200),
-        estado=choice(d.get("estado", "Pendiente"), (*ACTIVE, "Atendida", "Cancelada")),
+        estado=choice(
+            d.get("estado", "Programada"),
+            ("Programada", "Atendida", "Cancelada")
+            if appointment_id
+            else ("Programada",),
+        ),
         observaciones=required(d, "observaciones", 10000, True),
         duracion_minutos=integer(d.get("duracion_minutos", 30), "duración", 5, 480),
     )
@@ -475,6 +533,7 @@ def save_appointment(ctx, appointment_id=None):
     }
 
 
+# Consulta vacunas del paciente y días hasta vencer.
 def vaccines(ctx, pet_id):
     rows = ctx.db.all(
         "SELECT id_vacuna AS id,nombre_vacuna AS nombre,fecha_aplic AS fecha_aplicacion,fecha_venc AS fecha_vencimiento,lote FROM historial_de_vacunas WHERE mascota_id=%s ORDER BY fecha_aplic DESC",
@@ -485,6 +544,7 @@ def vaccines(ctx, pet_id):
     return {"status": "ok", "vacunas": rows}
 
 
+# Valida las fechas y guarda una vacuna para un paciente existente.
 def save_vaccine(ctx):
     d = ctx.data
     applied = day(d.get("fecha_aplicacion"))
@@ -507,6 +567,7 @@ def save_vaccine(ctx):
     return {"status": "ok", "message": "Vacuna registrada.", "id": pk}
 
 
+# Consulta tratamientos unidos a las citas del paciente.
 def treatments(ctx, pet_id):
     rows = ctx.db.all(
         "SELECT t.id_tratamiento AS id,t.descripcion,t.medicamento,t.dosis,t.duracion,t.fecha_inicio,a.fecha AS cita_fecha,a.motivo AS cita_motivo FROM tratamiento t JOIN cita a ON a.id_cita=t.cita_id WHERE a.mascota_id=%s ORDER BY t.fecha_inicio DESC",
@@ -515,6 +576,7 @@ def treatments(ctx, pet_id):
     return {"status": "ok", "tratamientos": rows}
 
 
+# Valida y registra un tratamiento vinculado a una cita.
 def save_treatment(ctx):
     d = ctx.data
     cid = integer(d.get("cita_id"), "cita", 1)

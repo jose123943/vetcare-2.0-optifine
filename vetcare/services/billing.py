@@ -1,15 +1,19 @@
+# Facturas, servicios, importes Decimal y estado de pago.
 from decimal import Decimal
 
 from ..db import insert, update
 from ..http import page
 from ..validation import Problem, choice, found, integer, money, required
-from .clinic import APPOINTMENTS, NOW, appointment
+from .clinic import APPOINTMENTS, NOW, appointment, complete_finished_appointments
+
+PAYMENT_METHODS = ("Transferencia", "Efectivo", "Tarjeta")
 
 INVOICES = """SELECT f.*,CONCAT(c.nombre,' ',c.apellido) AS cliente,c.nombre,c.apellido,c.documento,c.email,c.telefono,
  a.fecha AS cita_fecha,a.motivo AS cita_motivo,m.nombre AS mascota_nombre,m.especie,m.raza
  FROM factura f JOIN cliente c ON c.id_cliente=f.cliente_id JOIN cita a ON a.id_cita=f.cita_id JOIN mascota m ON m.id_mascota=a.mascota_id"""
 
 
+# Agrega cantidad de facturas e importes por estado de pago.
 def summary(ctx):
     r = ctx.db.one("""SELECT COUNT(*) AS total_facturas,COALESCE(SUM(estado_pago='Pagada'),0) AS facturas_pagadas,
        COALESCE(SUM(estado_pago='Pendiente'),0) AS facturas_pendientes,
@@ -18,6 +22,7 @@ def summary(ctx):
     return {"status": "ok", "resumen": r}
 
 
+# Filtra y pagina el historial de facturas.
 def list_invoices(ctx):
     state = ctx.request.args.get("estado")
     sql = INVOICES
@@ -27,6 +32,7 @@ def list_invoices(ctx):
         params = (state,)
     sql += " ORDER BY f.fecha_emision DESC,f.id_factura DESC"
 
+    # Selecciona los campos del listado y su enlace de descarga.
     def serialize(f):
         return dict(
             id=f["id_factura"],
@@ -41,6 +47,7 @@ def list_invoices(ctx):
     return page(sql, params, ctx, "facturas", serialize)
 
 
+# Obtiene factura, propietario, cita, paciente y servicios con importes calculados.
 def get_invoice(ctx, invoice_id):
     f = found(ctx.db.one(INVOICES + " WHERE f.id_factura=%s", (invoice_id,)))
     f["servicios"] = ctx.db.all(
@@ -50,6 +57,7 @@ def get_invoice(ctx, invoice_id):
     return f
 
 
+# Prepara el detalle JSON utilizado por la ventana de factura.
 def detail(ctx, invoice_id):
     f = get_invoice(ctx, invoice_id)
     return {
@@ -59,6 +67,7 @@ def detail(ctx, invoice_id):
             fecha_emision=f["fecha_emision"],
             monto_total=str(f["monto_total"]),
             estado_pago=f["estado_pago"],
+            metodo_pago=f["metodo_pago"],
             cliente_nombre=f["cliente"],
             cliente_email=f["email"],
             cliente_telefono=f["telefono"],
@@ -71,6 +80,7 @@ def detail(ctx, invoice_id):
     }
 
 
+# Valida servicios y pertenencia, calcula Decimal y guarda cabecera/líneas con el administrador de la sesión.
 def save(ctx):
     d = ctx.data
     cid = integer(d.get("cita_id"), "cita", 1)
@@ -116,7 +126,7 @@ def save(ctx):
             administrador_id=ctx.session["user_id"],
             descuento=discount,
             impuesto=tax,
-            metodo_pago=required(d, "metodo_pago", 50, True),
+            metodo_pago=choice(d.get("metodo_pago"), PAYMENT_METHODS),
         ),
     )
     ctx.db.many(
@@ -132,11 +142,13 @@ def save(ctx):
     }
 
 
+# Valida y actualiza el estado de pago.
 def change_state(ctx):
     pk = integer(ctx.data.get("factura_id"), "factura", 1)
-    found(
+    previous = found(
         ctx.db.one(
-            "SELECT id_factura FROM factura WHERE id_factura=%s FOR UPDATE", (pk,)
+            "SELECT id_factura,metodo_pago FROM factura WHERE id_factura=%s FOR UPDATE",
+            (pk,),
         )
     )
     update(
@@ -145,7 +157,10 @@ def change_state(ctx):
         {
             "estado_pago": choice(
                 ctx.data.get("estado_pago"), ("Pendiente", "Pagada", "Cancelada")
-            )
+            ),
+            "metodo_pago": choice(
+                ctx.data.get("metodo_pago", previous["metodo_pago"]), PAYMENT_METHODS
+            ),
         },
         pk,
         "id_factura",
@@ -153,7 +168,9 @@ def change_state(ctx):
     return {"status": "ok", "message": "Estado de factura actualizado."}
 
 
+# Carga citas no canceladas para seleccionar cliente/paciente al facturar.
 def options(ctx):
+    complete_finished_appointments(ctx.db)
     rows = ctx.db.all(
         APPOINTMENTS
         + " WHERE a.estado<>'Cancelada' ORDER BY a.fecha DESC,a.id_cita DESC"

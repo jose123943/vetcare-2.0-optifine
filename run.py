@@ -1,3 +1,4 @@
+# Comandos de arranque y administraci?n; nunca se imprimen credenciales.
 """Comandos independientes del framework anterior. Nunca imprimen credenciales."""
 
 import argparse
@@ -12,6 +13,7 @@ from vetcare.config import Config
 from vetcare.db import Database, insert
 
 
+# Siembra el cuestionario inicial sólo cuando no existe ninguno.
 def seed(database):
     from vetcare.default_questions import DEFAULTS
 
@@ -54,6 +56,7 @@ def seed(database):
                 )
 
 
+# Ejecuta serve, check, migrate, worker, create-admin, backup o integrity según el comando.
 def main():
     parser = argparse.ArgumentParser(description="VetCare · Python WSGI + MySQL")
     parser.add_argument(
@@ -78,28 +81,38 @@ def main():
         level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s"
     )
     if args.command == "serve":
+        # Servidor local: crea la aplicaci?n y mantiene el monitor mientras est? abierto.
         from waitress import serve
 
         from vetcare.application import create_app
+        from vetcare.services.scheduler import start_monitor, stop_monitor
 
         print(
             f"VetCare disponible en http://{args.host}:{args.port} (Waitress, sin Django)",
             flush=True,
         )
-        serve(
-            create_app(config),
-            host=args.host,
-            port=args.port,
-            threads=config.pool_size,
-            clear_untrusted_proxy_headers=True,
-        )
+        app = create_app(config)
+        monitor = start_monitor(app.database)
+        try:
+            serve(
+                app,
+                host=args.host,
+                port=args.port,
+                threads=config.pool_size,
+                clear_untrusted_proxy_headers=True,
+            )
+        finally:
+            stop_monitor(monitor)
+            app.database.close()
     elif args.command == "migrate":
+        # Aplica s?lo estructura pendiente; no limpia los datos operativos.
         from vetcare.migrations import migrate
 
         migrate(database)
         seed(database)
         print("Migraciones SQL aditivas verificadas. Datos existentes conservados.")
     elif args.command == "worker":
+        # Proceso independiente que consume la cola de correos sin bloquear la web.
         from vetcare.services.mail import deliver_one, smtp_settings
 
         smtp_settings()
@@ -112,6 +125,7 @@ def main():
                 logging.error("Worker: %s", type(exc).__name__)
                 time.sleep(5)
     elif args.command == "create-admin":
+        # Alta interactiva con contrase?a oculta y validaciones previas.
         from vetcare.security import hasher
 
         username = input("Usuario nuevo: ").strip()
@@ -144,6 +158,7 @@ def main():
             )
         print("Cuenta nueva creada. Las cuentas anteriores no se modifican.")
     elif args.command in ("backup", "integrity"):
+        # Respalda en privado o genera un inventario sin publicar filas.
         from vetcare.maintenance import snapshot
 
         snapshot(database, backup=args.command == "backup")

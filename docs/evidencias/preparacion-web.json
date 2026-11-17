@@ -1,0 +1,21 @@
+{
+  "rutas_locales": {
+    "/": 200,
+    "/health/ready/": 200,
+    "/adopciones/": 200,
+    "/static/js/bootstrap.js": 200,
+    "/static/js/clinic.js": 200,
+    "/static/css/app.css": 200,
+    "/static/images/huella.png": 200,
+    "/api/clientes": 401
+  },
+  "conteos_operativos_actuales": {
+    "superusuarios": 2,
+    "clientes": 0,
+    "mascotas": 0,
+    "citas": 0,
+    "facturas": 0
+  },
+  "publicado_en_internet": false,
+  "docker_construido": false
+}

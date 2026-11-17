@@ -1,3 +1,4 @@
+# Administraci?n de cuentas y revocaci?n de sus sesiones.
 from datetime import UTC, datetime
 
 from ..db import insert, update
@@ -5,11 +6,13 @@ from ..security import admin, hasher
 from ..validation import Problem, email, found, required
 
 
+# Exige superusuario para administrar cuentas.
 def authorize(ctx):
     if not admin(ctx)["is_superuser"]:
         raise Problem("Solo un superadministrador puede gestionar cuentas.", 403)
 
 
+# Lista identidades y permisos sin devolver hashes ni contraseñas.
 def list_users(ctx):
     authorize(ctx)
     return {
@@ -20,6 +23,7 @@ def list_users(ctx):
     }
 
 
+# Crea/actualiza cuentas, protege permisos propios y revoca sesiones al cambiar una contraseña.
 def save(ctx, user_id=None):
     authorize(ctx)
     d = ctx.data

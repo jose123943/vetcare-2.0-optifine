@@ -1,3 +1,4 @@
+# Documentos PDF a partir de facturas verificadas y recursos p?blicos.
 import os
 from decimal import Decimal
 from io import BytesIO
@@ -18,6 +19,7 @@ from reportlab.platypus import (
 from ..validation import Problem
 
 
+# Formatea un importe como moneda COP para el documento.
 def cop(value):
     return (
         "$ "
@@ -26,6 +28,7 @@ def cop(value):
     )
 
 
+# Genera el PDF con ReportLab, detalle real, totales y marca de gestión interna.
 def build(f, root):
     lines = f["servicios"]
     total = f["monto_total"]
@@ -58,11 +61,12 @@ def build(f, root):
         )
     )
 
+    # Escapa texto y lo convierte en un párrafo del documento.
     def p(value, style="BodyText"):
         return Paragraph(escape(str(value)), styles[style])
 
     story = []
-    logo = root / "frontend/assets/pagInicio/imgs/huella.png"
+    logo = root / "frontend/assets/images/huella.png"
     if logo.exists():
         story.append(Image(str(logo), width=30, height=30, hAlign="LEFT"))
     story += [
@@ -137,6 +141,7 @@ def build(f, root):
         ),
     ]
 
+    # Dibuja pie de página y numeración en cada hoja.
     def footer(canvas, document):
         canvas.setFont("Helvetica", 8)
         canvas.setFillColor(colors.HexColor("#4c6961"))

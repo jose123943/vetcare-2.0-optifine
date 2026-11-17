@@ -1,3 +1,4 @@
+# Respaldos privados consistentes y evidencia de integridad sin datos personales.
 """Copias privadas y comprobación de datos; no publica filas ni contraseñas."""
 
 import base64
@@ -9,12 +10,14 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 
+# Convierte valores especiales para un respaldo lógico JSON.
 def encode(value):
     if isinstance(value, bytes):
         return {"__bytes__": base64.b64encode(value).decode()}
     return str(value)
 
 
+# Captura esquema/filas de forma consistente y verifica el respaldo privado, o genera conteos y hashes sin filas.
 def snapshot(database, backup=False):
     output = {}
     tables = {}
@@ -77,8 +80,12 @@ def snapshot(database, backup=False):
                 )
         print("Copia SQL privada creada y verificada:", target)
     else:
-        target = database.config.root / "docs" / ("integridad_wsgi_" + stamp + ".json")
-        target.parent.mkdir(exist_ok=True)
+        target = (
+            database.config.root
+            / "docs/evidencias"
+            / ("integridad_wsgi_" + stamp + ".json")
+        )
+        target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(json.dumps(output, indent=2), encoding="utf-8")
         print("Inventario sin datos personales:", target)
     return output

@@ -11,6 +11,7 @@ from vetcare.db import Database
 from vetcare.maintenance import encode
 
 
+# Compara filas con un respaldo privado y guarda únicamente el resultado de integridad.
 def compare(path):
     with gzip.open(path, "rt", encoding="utf-8") as stream:
         backup = json.load(stream)
@@ -34,17 +35,21 @@ def compare(path):
                     ensure_ascii=False,
                 )
             )
+
             # Se ordenan por PK para neutralizar el orden de lectura del respaldo.
-            sort = lambda records: sorted(
-                records, key=lambda row: json.dumps(row, ensure_ascii=False)
-            )
+            # Ordena registros serializados para comparar respaldos sin depender del orden físico.
+            def sort(records):
+                return sorted(
+                    records, key=lambda row: json.dumps(row, ensure_ascii=False)
+                )
+
             result[name] = {
                 "registros_antes": len(table["rows"]),
                 "registros_despues": len(rows),
                 "identica": sort(table["rows"]) == sort(current),
             }
     database.close()
-    (Config.load().root / "docs/wsgi_integridad_completa.json").write_text(
+    (Config.load().root / "docs/evidencias/wsgi_integridad_completa.json").write_text(
         json.dumps(result, indent=2), encoding="utf-8"
     )
     print(

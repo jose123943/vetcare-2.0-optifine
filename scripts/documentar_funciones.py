@@ -11,7 +11,7 @@ DESCRIPTIONS = {
         "Application.add": "Registra método, ruta, función y controles administrativos/de escritura.",
         "Application.dispatch": "Valida host, HTTPS, sesión, permisos y CSRF; invoca el servicio y genera una respuesta segura.",
         "Application.mutate": "Confirma operación, respuesta e idempotencia en una transacción; resuelve reenvíos y colisiones de clave.",
-        "Application.asset": "Sirve un archivo permitido del directorio de assets.",
+        "Application.asset": "Sirve un recurso público, negocia gzip en producción y conserva ETag/304 por variante.",
         "Application.html": "Sirve una página HTML estática.",
         "Application.dashboard_html": "Protege el dashboard y redirige al acceso cuando falta autenticación.",
         "Application.login_html": "Evita pedir acceso otra vez cuando el administrador ya tiene una sesión válida.",
@@ -95,7 +95,8 @@ DESCRIPTIONS = {
         "pet_data": "Serializa una mascota con propietario y datos de contacto para las vistas administrativas.",
         "owner": "Serializa los campos de un cliente.",
         "time_value": "Normaliza el TIME de MySQL a una hora Python.",
-        "appointment": "Serializa una cita y calcula si su horario pendiente ya pasó.",
+        "appointment": "Serializa una cita y compara su final, incluyendo la duración, con la hora de Colombia.",
+        "complete_finished_appointments": "Marca Atendida al alcanzar fecha, hora y duración de citas programadas; conserva cancelaciones y no envía correo.",
         "dashboard": "Consulta indicadores y citas pendientes sin consultas por cada fila.",
         "customers": "Busca propietarios o consulta uno por identificador.",
         "pets": "Busca/pagina pacientes o devuelve las mascotas de un cliente concreto.",
@@ -128,6 +129,15 @@ DESCRIPTIONS = {
         "save": "Valida servicios y pertenencia, calcula Decimal y guarda cabecera/líneas con el administrador de la sesión.",
         "change_state": "Valida y actualiza el estado de pago.",
         "options": "Carga citas no canceladas para seleccionar cliente/paciente al facturar.",
+    },
+    "scheduler": {
+        "start_monitor": "Inicia el monitor de agenda cada 15 segundos, independiente del correo.",
+        "start_monitor.run": "Actualiza citas finalizadas y registra fallos sin secretos; continúa tras errores temporales.",
+        "stop_monitor": "Señala la detención del monitor al cerrar el servidor y espera su finalización.",
+    },
+    "gunicorn.conf": {
+        "post_worker_init": "Activa el monitor de citas con el pool del proceso de Gunicorn recién iniciado.",
+        "worker_exit": "Detiene el monitor de agenda al finalizar ese proceso.",
     },
     "adoptions": {
         "load_json": "Interpreta JSON guardado por MySQL cuando el driver lo devuelve como texto.",
@@ -190,8 +200,25 @@ DESCRIPTIONS = {
     "preparar_demostracion": {
         "main": "Previsualiza o respalda/aplica la limpieza y genera su informe de conteos.",
     },
+    "limpiar_datos": {
+        "main": "Previsualiza o respalda/vacía datos operativos en una transacción, preservando superusuarios sin cargar ejemplos.",
+    },
     "comprobar_integridad_wsgi": {
-        "compare": "Compara filas con un respaldo privado y guarda únicamente el resultado de integridad."
+        "compare": "Compara filas con un respaldo privado y guarda únicamente el resultado de integridad.",
+        "compare.sort": "Ordena registros serializados para comparar respaldos sin depender del orden físico.",
+    },
+    "build_assets": {
+        "build_assets": "Genera recursos CSS/JS gzip reproducibles y un manifiesto de tamaños y hashes, sin leer secretos.",
+    },
+    "verificar_despliegue": {
+        "check_source": "Valida las referencias estáticas, Railway y la copia selectiva del Dockerfile.",
+        "check_database": "Comprueba MySQL y los checksums aplicados mediante consultas de sólo lectura.",
+        "main": "Ejecuta la revisión estática y, opcionalmente, la comprobación de base sin publicar ni modificar datos.",
+    },
+    "empaquetar_wsgi": {
+        "private_patterns": "Lee valores privados sólo para detectar su presencia accidental en archivos, sin imprimirlos.",
+        "create_archive": "Construye y verifica un ZIP de fuente con exclusiones de secretos, entornos y archivos generados.",
+        "main": "Genera un paquete web ligero y otro completo con las evidencias de pruebas.",
     },
     "documentar_funciones": {
         "definitions": "Recorre funciones, métodos y ayudas anidadas del AST para construir nombres completos.",
@@ -200,6 +227,7 @@ DESCRIPTIONS = {
 }
 
 
+# Recorre funciones, métodos y ayudas anidadas del AST para construir nombres completos.
 def definitions(nodes, prefix=""):
     for node in nodes:
         if isinstance(node, ast.ClassDef):
@@ -207,12 +235,15 @@ def definitions(nodes, prefix=""):
         elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
             yield prefix + node.name, node
             yield from definitions(node.body, prefix + node.name + ".")
+        else:
+            yield from definitions(list(ast.iter_child_nodes(node)), prefix)
 
 
+# Verifica que cada función tenga descripción y actualiza este inventario dentro del Markdown.
 def main():
     files = (
         sorted((ROOT / "vetcare").rglob("*.py"))
-        + [ROOT / "run.py"]
+        + [ROOT / "run.py", ROOT / "gunicorn.conf.py"]
         + sorted((ROOT / "scripts").glob("*.py"))
     )
     sections = []

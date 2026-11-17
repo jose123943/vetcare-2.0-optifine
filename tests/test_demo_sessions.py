@@ -19,15 +19,18 @@ from .support import client, provision, write
 
 
 class DemoSessionTests(unittest.TestCase):
+    # Prepara el entorno y los datos aislados requeridos por este grupo de pruebas.
     @classmethod
     def setUpClass(cls):
         cls.app, cls.uid = provision()
         cls.c = client(cls.app)
 
+    # Cierra los recursos reservados por este grupo de pruebas.
     @classmethod
     def tearDownClass(cls):
         cls.app.database.close()
 
+    # Comprueba la regresi?n de login survives more than eight hours and home redirects.
     def test_01_login_survives_more_than_eight_hours_and_home_redirects(self):
         c = client(self.app)
         token = digest(c.get_cookie("vetcare_sid").value)
@@ -46,6 +49,7 @@ class DemoSessionTests(unittest.TestCase):
             self.assertNotIn("Expires=", header)
             self.assertNotIn("Max-Age=", header)
 
+    # Comprueba la regresi?n de restart invalidates session but shared workers accept it.
     def test_02_restart_invalidates_session_but_shared_workers_accept_it(self):
         c = client(self.app)
         cookie = c.get_cookie("vetcare_sid").value
@@ -64,6 +68,7 @@ class DemoSessionTests(unittest.TestCase):
             same.database.close()
             restarted.database.close()
 
+    # Comprueba la regresi?n de logout revokes scope.
     def test_03_logout_revokes_scope(self):
         c = client(self.app)
         token = c.get_cookie("vetcare_sid").value
@@ -78,6 +83,7 @@ class DemoSessionTests(unittest.TestCase):
         c.set_cookie("vetcare_sid", token)
         self.assertEqual(c.get("/api/clientes").status_code, 401)
 
+    # Comprueba la regresi?n de demo preserves superuser and relations and never sends mail.
     def test_04_demo_preserves_superuser_and_relations_and_never_sends_mail(self):
         with self.app.database.lease() as db:
             ordinary = insert(
@@ -149,6 +155,7 @@ class DemoSessionTests(unittest.TestCase):
         self.assertEqual(report["conteos"]["mascota"], 9)
         self.assertEqual(self.c.get("/api/clientes").status_code, 200)
 
+    # Comprueba la regresi?n de failure rolls back cleanup.
     def test_05_failure_rolls_back_cleanup(self):
         with self.app.database.lease() as db:
             before = table_counts(db)
@@ -161,6 +168,7 @@ class DemoSessionTests(unittest.TestCase):
                         prepare_demo(db, date(2026, 11, 17))
             self.assertEqual(before, table_counts(db))
 
+    # Comprueba la regresi?n de demo can be repeated with exact counts.
     def test_06_demo_can_be_repeated_with_exact_counts(self):
         with self.app.database.lease() as db:
             if db.one("SELECT COUNT(*) AS n FROM cliente")["n"] == 0:
@@ -227,6 +235,7 @@ class DemoSessionTests(unittest.TestCase):
         self.assertEqual(report["conteos"]["adopciones_solicitud"], 5)
         self.assertEqual(report["avisos_reales_en_cola"], 0)
 
+    # Comprueba la regresi?n de direct survey api is public and hides clinical relation.
     def test_07_direct_survey_api_is_public_and_hides_clinical_relation(self):
         with self.app.database.lease() as db:
             pet = db.one(
@@ -246,6 +255,7 @@ class DemoSessionTests(unittest.TestCase):
             visitor.get("/adopciones/api/mascotas/2147483647/").status_code, 404
         )
 
+    # Comprueba la regresi?n de no superuser means no delete.
     def test_08_no_superuser_means_no_delete(self):
         db = Mock()
         db.all.side_effect = [[], []]
@@ -253,6 +263,7 @@ class DemoSessionTests(unittest.TestCase):
             clear_operational_data(db)
         db.execute.assert_not_called()
 
+    # Comprueba la regresi?n de reserved demo addresses are never queued.
     def test_09_reserved_demo_addresses_are_never_queued(self):
         self.assertEqual(
             notification_state("client@vetcare.example.invalid"), "Demostración"

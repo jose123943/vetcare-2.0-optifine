@@ -1,3 +1,4 @@
+# Pool SQL por proceso, consultas parametrizadas y control de transacciones.
 import os
 import queue
 import time
@@ -10,12 +11,14 @@ from pymysql.cursors import DictCursor
 class Database:
     """Pool por proceso. Nunca reenvía SQL tras una conexión perdida."""
 
+    # Prepara los slots del pool de conexiones por proceso.
     def __init__(self, config):
         self.config = config
         self.pool = queue.LifoQueue(maxsize=config.pool_size)
         for _ in range(config.pool_size):
             self.pool.put(None)
 
+    # Abre una conexión PyMySQL con tiempos límite, charset y aislamiento READ COMMITTED.
     def connect(self, database=True, multi=False):
         options = dict(
             host=os.environ["MYSQLHOST"],
@@ -57,6 +60,7 @@ class Database:
                     raise
                 time.sleep(0.1)
 
+    # Presta una conexión, comprueba conexiones antiguas y descarta sockets cerrados al devolverla.
     @contextmanager
     def lease(self):
         try:
@@ -103,6 +107,7 @@ class Database:
                     connection = None
             self.pool.put((connection, time.monotonic()) if connection else None)
 
+    # Cierra las conexiones disponibles del pool.
     def close(self):
         while not self.pool.empty():
             item = self.pool.get_nowait()
@@ -112,31 +117,37 @@ class Database:
 
 
 class SQL:
+    # Envuelve una conexión y comienza su contador de consultas.
     def __init__(self, connection):
         self.connection = connection
         self.queries = 0
 
+    # Ejecuta una consulta parametrizada y devuelve sus filas como diccionarios.
     def all(self, statement, params=()):
         self.queries += 1
         with self.connection.cursor() as c:
             c.execute(statement, params)
             return list(c.fetchall())
 
+    # Devuelve la primera fila o None.
     def one(self, statement, params=()):
         rows = self.all(statement, params)
         return rows[0] if rows else None
 
+    # Ejecuta una sentencia parametrizada y devuelve el identificador insertado.
     def execute(self, statement, params=()):
         self.queries += 1
         with self.connection.cursor() as c:
             c.execute(statement, params)
             return c.lastrowid
 
+    # Ejecuta un lote parametrizado para evitar inserciones individuales innecesarias.
     def many(self, statement, rows):
         self.queries += 1
         with self.connection.cursor() as c:
             c.executemany(statement, rows)
 
+    # Inicia una transacción y decide COMMIT o ROLLBACK según el resultado.
     @contextmanager
     def atomic(self):
         self.connection.begin()
@@ -148,6 +159,7 @@ class SQL:
             raise
 
 
+# Construye INSERT con identificadores internos y parámetros para todos los valores.
 def insert(db, table, values):
     # Los identificadores vienen solo de constantes internas, jamás de JSON o URLs.
     fields = ",".join("`" + key + "`" for key in values)
@@ -157,6 +169,7 @@ def insert(db, table, values):
     )
 
 
+# Actualiza campos internos de una fila identificada por su clave primaria.
 def update(db, table, values, pk, pk_name="id"):
     fields = ",".join("`" + key + "`=%s" for key in values)
     db.execute(

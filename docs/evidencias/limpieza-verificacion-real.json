@@ -1,0 +1,31 @@
+{
+  "respaldo_privado": "vetcare_sql_20261117_212241.json.gz",
+  "superusuarios_conservados": 2,
+  "filas_hashes_y_permisos_de_cuenta_identicos": true,
+  "relaciones_de_permisos_superusuarios_identicas": true,
+  "tablas_configuracion_identicas": 10,
+  "datos_operativos_vacios": true,
+  "conteos_operativos": {
+    "adopciones_entrega": 0,
+    "adopciones_revision": 0,
+    "adopciones_respuesta": 0,
+    "adopciones_solicitud": 0,
+    "adopciones_mascotaadopcion": 0,
+    "evaluacion_adopcion": 0,
+    "adopcion": 0,
+    "factura_detallefactura": 0,
+    "factura": 0,
+    "tratamiento": 0,
+    "historial_de_vacunas": 0,
+    "pagInicio_notificacion": 0,
+    "pagInicio_operacion": 0,
+    "cita": 0,
+    "mascota": 0,
+    "veterinario": 0,
+    "empleado": 0,
+    "cliente": 0,
+    "django_admin_log": 0,
+    "django_session": 0,
+    "vc_login_bucket": 0
+  }
+}

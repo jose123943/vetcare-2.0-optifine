@@ -14,6 +14,7 @@ from vetcare.demo import prepare_demo, table_counts
 from vetcare.maintenance import snapshot
 
 
+# Previsualiza o respalda/aplica la limpieza y genera su informe de conteos.
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -60,7 +61,7 @@ def main(argv=None):
                 db.one(
                     "SELECT RELEASE_LOCK(%s) AS n", ("vetcare-demo-" + config.database,)
                 )
-        destination = config.root / "docs/demostracion-carga.json"
+        destination = config.root / "docs/evidencias/demostracion-carga.json"
         destination.write_text(
             json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8"
         )

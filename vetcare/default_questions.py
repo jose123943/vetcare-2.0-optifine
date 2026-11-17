@@ -1,3 +1,4 @@
+# Definici?n inicial y versionada de la encuesta de adopci?n.
 """Encuesta orientativa, no instrumento científico. Todas las opciones son editables por versión."""
 
 # Preguntas sin prejuicio por ingresos, tipo de vivienda o experiencia previa.

@@ -1,3 +1,4 @@
+# Configuraci?n SMTP segura, cola transaccional y env?o de notificaciones.
 import json
 import os
 import smtplib
@@ -17,6 +18,7 @@ class MailConfigurationError(RuntimeError):
     """Mensaje controlado sin valores privados de la configuración."""
 
 
+# Distingue destinatarios reales, sin correo y direcciones reservadas de demostración.
 def notification_state(recipient):
     """Las direcciones reservadas de demostración nunca se ponen en envío real."""
     if not recipient:
@@ -26,6 +28,7 @@ def notification_state(recipient):
     return "Pendiente"
 
 
+# Valida host, puerto, transporte, credenciales y remitente sin mostrar sus valores privados.
 def smtp_settings():
     host = os.getenv("EMAIL_HOST", "").strip()
     sender = os.getenv("DEFAULT_FROM_EMAIL", "").strip()
@@ -90,6 +93,7 @@ def smtp_settings():
     )
 
 
+# Abre SMTP con TLS/SSL y autentica cuando corresponde; cierra la conexión al terminar.
 @contextmanager
 def smtp_connection():
     settings = smtp_settings()
@@ -106,6 +110,7 @@ def smtp_connection():
         yield server
 
 
+# Comprueba SMTP y autenticación mediante NOOP, sin enviar mensajes.
 def check_smtp_connection():
     """Comprueba conexión/autenticación sin enviar mensajes ni tocar la cola."""
     with smtp_connection() as server:
@@ -114,6 +119,7 @@ def check_smtp_connection():
             raise smtplib.SMTPException("Verificación SMTP rechazada")
 
 
+# Traduce errores conocidos a diagnósticos seguros sin respuestas privadas del proveedor.
 def mail_error(exc):
     """Diagnóstico visible que nunca incorpora respuestas o credenciales del proveedor."""
     if isinstance(exc, MailConfigurationError):
@@ -139,6 +145,7 @@ def mail_error(exc):
     return type(exc).__name__[:250]
 
 
+# Consulta estados e intentos de las notificaciones recientes.
 def list_messages(ctx):
     rows = ctx.db.all(
         "SELECT id,cita_id,estado,intentos,error,creada FROM pagInicio_notificacion ORDER BY id DESC LIMIT 100"
@@ -151,6 +158,7 @@ def list_messages(ctx):
     return {"status": "ok", "notificaciones": rows}
 
 
+# Devuelve una notificación fallida a Pendiente para un nuevo intento.
 def retry(ctx, message_id):
     row = found(
         ctx.db.one(
@@ -171,6 +179,7 @@ def retry(ctx, message_id):
     return {"status": "ok", "message": "Notificación en cola de nuevo."}
 
 
+# Construye el mensaje MIME con texto y HTML escapado a partir del contexto guardado.
 def make_message(n):
     context = (
         json.loads(n["contexto"]) if isinstance(n["contexto"], str) else n["contexto"]
@@ -204,6 +213,7 @@ def make_message(n):
     return message
 
 
+# Entrega el mensaje al servidor SMTP y detecta destinatarios rechazados.
 def smtp_send(message):
     with smtp_connection() as server:
         refused = server.send_message(message)
@@ -211,6 +221,7 @@ def smtp_send(message):
             raise RuntimeError("Destinatario rechazado")
 
 
+# Reclama una notificación con SKIP LOCKED, envía fuera de la transacción y guarda aceptación o fallo.
 def deliver_one(database, sender=smtp_send):
     with database.lease() as db:
         with db.atomic():

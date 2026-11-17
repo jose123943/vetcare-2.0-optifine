@@ -1,0 +1,18 @@
+# Reglas de edición del código; los SQL aplicados conservan sus bytes.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.{json,yml,yaml}]
+indent_size = 2
+
+[sql/*.sql]
+end_of_line = unset
+insert_final_newline = false
+trim_trailing_whitespace = false

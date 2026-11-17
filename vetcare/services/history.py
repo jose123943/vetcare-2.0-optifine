@@ -1,9 +1,11 @@
+# Consulta del historial legado sin recalcular evaluaciones.
 """Consulta protegida de antecedentes anteriores al catálogo público actual."""
 
 from ..http import page
 from ..validation import found
 
 
+# Pagina antecedentes del esquema anterior sin recalcular sus resultados.
 def adoptions(ctx):
     return page(
         "SELECT a.id,a.estado,a.fecha_registro,a.fecha_adopcion,a.motivo,a.observaciones,"
@@ -17,6 +19,7 @@ def adoptions(ctx):
     )
 
 
+# Obtiene el registro histórico y sus evaluaciones originales.
 def detail(ctx, adoption_id):
     row = found(ctx.db.one("SELECT * FROM adopcion WHERE id=%s", (adoption_id,)))
     evaluations = ctx.db.all(

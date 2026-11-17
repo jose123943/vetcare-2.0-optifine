@@ -19,6 +19,7 @@ from vetcare.services.mail import (
 from vetcare.validation import Problem, email
 
 
+# Valida dirección y clave de aplicación y prepara los parámetros Gmail.
 def gmail_values(address, password):
     address = email(address)
     password = "".join(password.split())
@@ -37,6 +38,7 @@ def gmail_values(address, password):
     }
 
 
+# Actualiza únicamente las claves SMTP del .env privado.
 def save_configuration(path, values):
     if not path.is_file():
         raise MailConfigurationError(
@@ -46,6 +48,7 @@ def save_configuration(path, values):
         set_key(path, key, value)
 
 
+# Solicita datos ocultos, comprueba acceso SMTP sin enviar y guarda sólo tras éxito.
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(

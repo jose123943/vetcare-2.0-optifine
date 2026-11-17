@@ -1,3 +1,4 @@
+# Contrase?as, sesiones, permisos, CSRF y l?mites de autenticaci?n.
 import base64
 import hashlib
 import json
@@ -17,10 +18,12 @@ hasher = PasswordHasher()
 DUMMY_HASH = hasher.hash(secrets.token_urlsafe(24))
 
 
+# Calcula SHA-256 para tokens, claves de control y propietarios de sesiones.
 def digest(value):
     return hashlib.sha256(value.encode()).hexdigest()
 
 
+# Verifica hashes Argon2 y formatos heredados sin almacenar contraseñas en claro.
 def verify_password(password, stored):
     if not isinstance(password, str) or not password or len(password) > 1024:
         return False
@@ -39,6 +42,7 @@ def verify_password(password, stored):
         return False
 
 
+# Recupera una sesión vigente y, para usuarios, comprueba la identidad de ejecución; si falta crea una anónima.
 def ensure_session(ctx):
     if ctx.session is not None:
         return ctx.session
@@ -66,6 +70,7 @@ def ensure_session(ctx):
     return row
 
 
+# Reconoce de forma verificada al propietario de una solicitud procedente de una sesión antigua.
 def legacy_owner(ctx):
     """Transición de solicitudes privadas antiguas con firma verificada por ItsDangerous."""
     token = ctx.request.cookies.get("sessionid", "")
@@ -83,6 +88,7 @@ def legacy_owner(ctx):
     return digest(owner) if isinstance(owner, str) and 16 <= len(owner) <= 200 else None
 
 
+# Verifica la firma de una sesión heredada antes de interpretar su JSON limitado.
 def decode_legacy(value, secret):
     try:
         signer = Signer(
@@ -106,6 +112,7 @@ def decode_legacy(value, secret):
         return {}
 
 
+# Genera tokens aleatorios, guarda sus hashes y vincula el acceso autenticado a la ejecución actual.
 def new_session(ctx, user_id=None, owner_hash=None):
     token, csrf = secrets.token_urlsafe(32), secrets.token_urlsafe(32)
     now = datetime.now(timezone.utc).replace(tzinfo=None)
@@ -130,6 +137,7 @@ def new_session(ctx, user_id=None, owner_hash=None):
     return row
 
 
+# Obtiene únicamente identidad y permisos de una cuenta activa.
 def user(ctx):
     s = ensure_session(ctx)
     return (
@@ -149,6 +157,7 @@ def user(ctx):
     )
 
 
+# Exige usuario activo con permiso staff antes de entrar a una API administrativa.
 def admin(ctx):
     u = user(ctx)
     if not u:
@@ -158,6 +167,7 @@ def admin(ctx):
     return u
 
 
+# Comprueba el token de formulario y el origen de una escritura.
 def csrf(ctx):
     s = ensure_session(ctx)
     candidate = ctx.request.headers.get("X-CSRFToken") or ctx.request.form.get(
@@ -173,6 +183,7 @@ def csrf(ctx):
         raise Problem("Origen de solicitud no autorizado.", 403)
 
 
+# Limita intentos, valida credenciales, actualiza el hash cuando corresponde y rota la sesión.
 def login(ctx):
     csrf(ctx)
     data = ctx.data
@@ -240,6 +251,7 @@ def login(ctx):
     return {"status": "ok", "redirect": "/inicio/"}
 
 
+# Revoca la sesión actual y ordena borrar sus cookies.
 def logout(ctx):
     csrf(ctx)
     s = ensure_session(ctx)

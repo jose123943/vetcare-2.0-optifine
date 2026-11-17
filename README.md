@@ -1,8 +1,30 @@
 # VetCare · Python WSGI + MySQL
 
+[Mapa de carpetas y bloques de código](docs/ESTRUCTURA.md) · [Publicación en Railway](docs/RAILWAY.md)
+
+El frontend está separado en `frontend/assets/css`, `js` e `images`; las pruebas de navegador están en `tests/browser` y los informes en `docs/evidencias`. Los bloques Python, JavaScript, CSS y HTML incluyen explicaciones sobre su responsabilidad.
+
+## Preparar el paquete web
+
+```powershell
+.\.venv-wsgi\Scripts\python.exe scripts/verificar_despliegue.py --con-base
+.\.venv-wsgi\Scripts\python.exe scripts/build_assets.py
+.\.venv-wsgi\Scripts\python.exe scripts/empaquetar_wsgi.py
+```
+
+`dist/VetCare-web.zip` contiene el código necesario para publicar, sin credenciales, entornos ni evidencias pesadas. El paquete `VetCare-WSGI-railway.zip` conserva también los informes y capturas. Docker construye únicamente los directorios de ejecución y prepara gzip para CSS/JS; no requiere Node ni conexión SQL durante el build.
+
+La configuración de Railway está preparada en los archivos raíz. El despliegue público requiere configurar las referencias MySQL, la firma privada, el dominio y el volumen, según [la guía](docs/RAILWAY.md). Gmail por SMTP necesita un plan que habilite SMTP en Railway; la guía enlaza la restricción oficial.
+
 Sistema veterinario con autenticación, clientes y múltiples mascotas, profesionales, citas, vacunas, tratamientos, facturas PDF, notificaciones y adopciones. Backend Python independiente, consultas SQL parametrizadas, frontend HTML/CSS/JavaScript y MySQL existente en Railway. No requiere Django, Flask, FastAPI ni un framework de frontend.
 
 [Guía completa de funciones y pestañas](vetcare-funciones.md). La sesión autenticada se mantiene durante la ejecución del programa, hasta cerrar sesión o reiniciar el servidor; ya no tiene el límite automático de ocho horas. Las sesiones de visitantes del catálogo conservan su caducidad independiente.
+
+Los buscadores de Clientes y mascotas y Agendar cita despliegan propietarios sin exigir texto previo y permiten seguir buscando normalmente. Las citas nuevas sólo se crean como **Programada**; al terminar su duración pasan a **Atendida**. El monitor del servidor revisa cada 15 segundos con hora de Colombia, sin depender del worker de correo. La agenda abierta también actualiza los estados automáticamente.
+
+Las facturas utilizan un selector de **Transferencia**, **Efectivo** o **Tarjeta**. [Detalle de la limpieza y reglas actuales](docs/LIMPIEZA_PROYECTO.md).
+
+La última limpieza deja la base operativa vacía, conservando todos los superusuarios y el cuestionario. Para previsualizar otra limpieza: `python scripts/limpiar_datos.py`. Sólo `--aplicar` respalda y vacía datos; nunca se ejecuta al iniciar.
 
 Para previsualizar la carga ficticia: `python scripts/preparar_demostracion.py`. La opción explícita `--aplicar` respalda y reemplaza datos operativos, conserva superusuarios/configuración y carga cinco clientes con nueve mascotas, cinco veterinarios, citas, facturas, vacunas, tratamientos y mascotas/solicitudes de adopción. Nunca se ejecuta automáticamente al iniciar la aplicación. Los correos de demostración no se envían.
 
@@ -88,18 +110,21 @@ Después de configurar Gmail, detén el worker anterior con Ctrl+C y vuelve a in
 
 Las pruebas crean una base **nueva y aislada** con prefijo `test_vetcare_`; no escriben fixtures en `railway`. Se requiere permiso MySQL CREATE DATABASE. Las bases de prueba se conservan para inspección y nunca se confunden con la base operativa.
 
-Para repetir los recorridos de navegador, después de la suite ejecutar `python scripts/preparar_wsgi_navegador.py` y, en otra terminal, `python scripts/servidor_pruebas_wsgi.py`, usando siempre el Python de `.venv-wsgi`. Instalar Node.js y Playwright Core fuera del proyecto:
+Para repetir los recorridos de navegador, después de la suite ejecutar `python tests/browser/preparar_wsgi_navegador.py` y, en otra terminal, `python tests/browser/servidor_pruebas_wsgi.py`, usando siempre el Python de `.venv-wsgi`. Instalar Node.js y Playwright Core fuera del proyecto:
 
 ```powershell
 npm install --prefix "$env:TEMP\vetcare_browser" playwright-core
 $env:VETCARE_PLAYWRIGHT_MODULE = "$env:TEMP\vetcare_browser\node_modules\playwright-core"
-node scripts/prueba_navegador.cjs
-.\.venv-wsgi\Scripts\python.exe scripts/preparar_wsgi_navegador.py
-node scripts/prueba_adopciones.cjs
-node scripts/prueba_configuracion.cjs
-node scripts/prueba_crud.cjs
-.\.venv-wsgi\Scripts\python.exe scripts/preparar_wsgi_navegador.py
-node scripts/prueba_demo_sesion_encuesta.cjs
+node tests/browser/prueba_navegador.cjs
+.\.venv-wsgi\Scripts\python.exe tests/browser/preparar_wsgi_navegador.py --reset-demo
+node tests/browser/prueba_adopciones.cjs
+node tests/browser/prueba_configuracion.cjs
+node tests/browser/prueba_crud.cjs
+.\.venv-wsgi\Scripts\python.exe tests/browser/preparar_wsgi_navegador.py --reset-demo
+node tests/browser/prueba_demo_sesion_encuesta.cjs
+.\.venv-wsgi\Scripts\python.exe tests/browser/preparar_wsgi_navegador.py --reset-demo
+Copy-Item "$env:TEMP\vetcare_wsgi_test_database.json" "$env:TEMP\vetcare_browser_active_database.json"
+node tests/browser/prueba_agenda_propietarios.cjs
 ```
 
 Estos scripts usan Edge instalado en Windows y el puerto 8001, con usuarios y datos sintéticos. El preparador renueva la cookie revocada por la prueba de logout; no escribe cookies privadas en el repositorio.
@@ -107,8 +132,8 @@ Estos scripts usan Edge instalado en Windows y el puerto 8001, con usuarios y da
 - [Arquitectura, inventario funcional y sustentación](docs/MIGRACION_WSGI.md).
 - [Despliegue en Railway](docs/RAILWAY.md).
 - [Resultados y comprobaciones pendientes](docs/PRUEBAS_WSGI.md).
-- `docs/endpoints_wsgi.json`: métodos, rutas, permisos e idempotencia.
-- `docs/wsgi_integridad_completa.json`: comparación de las 33 tablas originales sin datos privados.
-- `docs/wsgi_rendimiento_*.json`: muestras comparativas de rendimiento.
+- `docs/evidencias/endpoints_wsgi.json`: métodos, rutas, permisos e idempotencia.
+- `docs/evidencias/wsgi_integridad_completa.json`: comparación de las 33 tablas originales sin datos privados.
+- `docs/evidencias/wsgi_rendimiento_*.json`: muestras comparativas de rendimiento.
 
 La versión anterior permanece recuperable mediante el respaldo privado completo creado antes de migrar. No se incluyen `.env`, fotos privadas, entornos virtuales ni respaldos de datos en el ZIP compartido.

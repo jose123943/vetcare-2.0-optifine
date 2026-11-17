@@ -1,14 +1,40 @@
 # Evidencia de la migración WSGI
 
-Pruebas realizadas en Windows, Python 3.14, MySQL 8.4.13 de Railway y un entorno `.venv-wsgi` sin Django. Las pruebas automatizadas usan bases nuevas con prefijo `test_vetcare_`, separadas de la base operativa. La carga de demostración en la base operativa es una operación posterior, expresamente solicitada por el propietario.
+Pruebas realizadas en Windows, Python 3.14, MySQL 8.4.13 de Railway y un entorno `.venv-wsgi` sin Django. Las pruebas automatizadas usan bases nuevas con prefijo `test_vetcare_`, separadas de la base operativa. Las cargas de demostración y limpiezas operativas corresponden a peticiones expresas del propietario.
 
-## Actualización: demostración, sesiones y encuesta · 17 de noviembre de 2026
+## Entrega actual: organización y preparación web
+
+La suite actual pasó **63 pruebas, sin fallos, errores ni omisiones**, en 494,002 segundos. Los ocho casos nuevos comprueban rutas estáticas, configuración de producción, gzip frente a texto, calidad de `Accept-Encoding`, HEAD, ETag/304, rechazo de rutas inválidas y construcción repetible de recursos. Evidencia: `evidencias/wsgi_pruebas.json`, `evidencias/wsgi-pruebas.txt`.
+
+También pasaron **17 pruebas sin base externa en Linux**, y el arranque real de Gunicorn en WSL con Python 3.14.4 y dos workers: MySQL listo en base aislada, acceso administrativo sin sesión rechazado, catálogo, gzip y revalidación 304. Evidencia: `evidencias/linux-gunicorn.json`. No se enviaron correos reales.
+
+Los seis recorridos de Edge pasaron tras reorganizar las carpetas: clínica/factura/PDF/logout; adopciones y entrega; cuentas/cuestionarios/vacuna; CRUD y fotografía; desplegable/agenda/pagos; sesión y encuesta directa. Cada escenario utiliza datos sintéticos y puede restablecerse con `tests/browser/preparar_wsgi_navegador.py --reset-demo`. Sus salidas están en `evidencias/web-prueba_*.txt`.
+
+La auditoría del entorno Linux, incluidas sus herramientas de comprobación, revisó **44 paquetes** y no encontró vulnerabilidades conocidas en esa consulta. `evidencias/auditoria-dependencias.json` conserva los detalles; no se presenta como garantía sobre vulnerabilidades aún no publicadas.
+
+Las tres migraciones aplicadas se compararon byte por byte con la copia privada anterior y siguen idénticas. Las referencias HTML/JS y los enlaces Markdown locales se verificaron después de mover los archivos. Los paquetes excluyen secretos, fotos, entornos, cachés y respaldos. Véase [ESTRUCTURA.md](ESTRUCTURA.md).
+
+El motor Docker local no está activo. El Dockerfile y la CI quedaron preparados, pero aún faltan la construcción de la imagen, ejecución de CI en GitHub y las comprobaciones del dominio/volumen/correo en Railway. La ejecución Linux comprobada no equivale a una publicación web.
+
+La resolución adicional de dependencias para Linux/CPython 3.12 descargó todas las ruedas binarias requeridas, incluido Gunicorn, sin necesitar un compilador. Se extrajo `VetCare-web.zip` en otra carpeta y sus comandos de revisión de referencias y construcción de recursos funcionaron sin `.env`; véase `evidencias/paquete-web-verificado.json`.
+
+## Actualización previa: depuración, propietarios, agenda y pagos
+
+La suite actual pasó **55 pruebas, sin fallos, errores ni omisiones**, en 492,43 segundos. Incluye ocho casos nuevos para el estado inicial Programada, límites de hora final y zona de Colombia, sincronización persistente desde la agenda, cancelaciones, filtrado exacto por propietario, tres métodos de pago con detalle/PDF, rechazo de valores inválidos, monitor independiente de SMTP y limpieza transaccional con rollback. Evidencia: `wsgi_pruebas.json`, `wsgi-pruebas.txt`.
+
+El recorrido Edge `tests/browser/prueba_agenda_propietarios.cjs` pasó en una base aislada: propietarios al abrir el buscador, documento y teclado, búsqueda libre de mascota, selección de sus pacientes, única opción Programada, alta y cambio de método de pago, PDF y paso a Atendida sin recargar. También se comprobó el desplegable en móvil. Evidencia: `agenda-propietarios-pruebas.txt`, `propietarios-desplegable-movil.png`.
+
+La última limpieza operativa dejó vacíos clientes, mascotas, veterinarios, citas, facturas, historiales, notificaciones y adopciones. Se compararon las filas completas y relaciones de permisos de **dos superusuarios** con el respaldo privado y son idénticas. Diez tablas de configuración también coinciden. Evidencia: `limpieza-base.json`, `limpieza-verificacion-real.json`. El respaldo previo verificado es `vetcare_sql_20261117_212241.json.gz`, fuera del proyecto.
+
+Los archivos retirados, la auditoría de dependencias y las reglas actuales están en [LIMPIEZA_PROYECTO.md](LIMPIEZA_PROYECTO.md). Las cifras de demostración y migración que siguen son históricas y no representan la base actual.
+
+## Actualización anterior: demostración, sesiones y encuesta
 
 La suite completa pasó **47 pruebas, sin fallos, errores ni omisiones**, en 326,265 segundos. Incluye los 30 casos originales, ocho de Gmail y nueve nuevos de limpieza/sesiones. Evidencia actual: `wsgi_pruebas.json` y `wsgi-pruebas.txt`.
 
 Se comprobó la conservación exacta de las filas y permisos de superusuarios, eliminación de cuentas ordinarias, cantidades y relaciones de los ejemplos, totales de facturas, limpieza repetible incluso con adopciones históricas y claves circulares, reversión de toda la limpieza ante un fallo y ausencia de envíos de correo de demostración. La sesión autenticada sigue vigente después de 30 días durante la misma ejecución; otra ejecución la rechaza y el logout la revoca.
 
-El recorrido Edge `scripts/prueba_demo_sesion_encuesta.cjs` pasó: redirección del inicio con sesión activa, recarga, botón de encuesta en la tarjeta administrativa, apertura con la mascota seleccionada, las 21 respuestas, resultado aprobado, adaptación móvil y cierre de sesión. Evidencia: `demo-navegador-pruebas.txt`, `demo-adopciones-encuesta.png`, `demo-encuesta-directa.png`. Usa exclusivamente la base aislada.
+El recorrido Edge `tests/browser/prueba_demo_sesion_encuesta.cjs` pasó: redirección del inicio con sesión activa, recarga, botón de encuesta en la tarjeta administrativa, apertura con la mascota seleccionada, las 21 respuestas, resultado aprobado, adaptación móvil y cierre de sesión. Evidencia: `demo-navegador-pruebas.txt`, `demo-adopciones-encuesta.png`, `demo-encuesta-directa.png`. Usa exclusivamente la base aislada.
 
 La carga operativa autorizada ya se aplicó y se documenta en `demostracion-carga.json`, `demo-verificacion-real.json` y [vetcare-funciones.md](../vetcare-funciones.md). Se conservaron íntegramente el superusuario y diez tablas de configuración; quedaron cinco clientes, nueve pacientes, cinco veterinarios/citas/facturas/vacunas/tratamientos y cinco mascotas disponibles con sus cinco solicitudes. Se generaron y leyeron los cinco PDF; el importe total es $320.000 COP, con $110.000 pagados y $210.000 pendientes. Las cinco notificaciones están en Demostración, con cero intentos de envío. El respaldo completo previo fue creado y verificado fuera del repositorio: `vetcare_sql_20261117_053809.json.gz`.
 

@@ -1,3 +1,4 @@
+# Variables de entorno y par?metros de ejecuci?n validados antes del arranque.
 import hashlib
 import os
 import secrets
@@ -9,6 +10,7 @@ from dotenv import load_dotenv
 ROOT = Path(__file__).resolve().parent.parent
 
 
+# Obtiene una identidad común por ejecución o despliegue para las sesiones autenticadas.
 def session_run_id():
     """Identidad compartida por los workers de una misma ejecución/despliegue."""
     if os.getenv("RAILWAY_DEPLOYMENT_ID"):
@@ -30,6 +32,7 @@ class Config:
     testing: bool = False
     session_run_id: str = field(default_factory=session_run_id)
 
+    # Carga .env sin revelar secretos, valida MySQL/firma/volumen y limita las bases utilizadas por pruebas.
     @classmethod
     def load(cls, database=None, testing=False):
         load_dotenv(ROOT / ".env", override=False, interpolate=False)
@@ -53,6 +56,16 @@ class Config:
             )
         production = os.getenv("VETCARE_PRODUCTION", "false").lower() == "true"
         media = Path(os.getenv("MEDIA_ROOT") or ROOT / "media")
+        # Evita pools vacíos y puertos inválidos antes de levantar el servicio.
+        try:
+            pool_size = int(os.getenv("DB_POOL_SIZE", "8"))
+            port = int(os.environ["MYSQLPORT"])
+            if not 1 <= pool_size <= 32 or not 1 <= port <= 65535:
+                raise ValueError()
+        except ValueError:
+            raise RuntimeError(
+                "DB_POOL_SIZE debe estar entre 1 y 32; MYSQLPORT, entre 1 y 65535."
+            ) from None
         if (
             production
             and os.getenv("VETCARE_SERVICE", "web") != "worker"
@@ -60,6 +73,14 @@ class Config:
         ):
             raise RuntimeError(
                 "Producción requiere MEDIA_ROOT en un volumen persistente."
+            )
+        if (
+            production
+            and os.getenv("VETCARE_SERVICE", "web") != "worker"
+            and not media.is_absolute()
+        ):
+            raise RuntimeError(
+                "MEDIA_ROOT debe ser una ruta absoluta del volumen persistente."
             )
         name = database or os.environ["MYSQLDATABASE"]
         if testing and (
@@ -71,10 +92,11 @@ class Config:
             secret=secret,
             production=production,
             media=media,
-            pool_size=int(os.getenv("DB_POOL_SIZE", "8")),
+            pool_size=pool_size,
             testing=testing,
         )
 
+    # Calcula los hosts permitidos, incluido el dominio público configurado.
     @property
     def hosts(self):
         hosts = set(

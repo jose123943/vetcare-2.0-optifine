@@ -1,3 +1,4 @@
+# Contexto de petici?n, respuestas JSON, cookies y paginaci?n compartida.
 import json
 from contextlib import ExitStack
 from datetime import date, datetime, time, timedelta
@@ -8,6 +9,7 @@ from werkzeug.wrappers import Request, Response
 from .validation import Problem
 
 
+# Convierte Decimal y fechas/horas en valores JSON estables.
 def json_default(value):
     if isinstance(value, Decimal):
         return str(value)
@@ -19,6 +21,7 @@ def json_default(value):
     raise TypeError(type(value).__name__)
 
 
+# Crea una respuesta JSON UTF-8 y su código HTTP.
 def response_json(value, status=200):
     return Response(
         json.dumps(value, ensure_ascii=False, default=json_default),
@@ -28,6 +31,7 @@ def response_json(value, status=200):
 
 
 class Context:
+    # Prepara petición, límites de carga, sesión, cookies y gestión de recursos.
     def __init__(self, app, environ):
         self.app = app
         self.request = Request(environ)
@@ -41,12 +45,14 @@ class Context:
         self.clear_cookies = False
         self.session = None
 
+    # Reserva la conexión sólo cuando la petición realmente necesita SQL.
     @property
     def db(self):
         if self._db is None:
             self._db = self.stack.enter_context(self.app.database.lease())
         return self._db
 
+    # Acepta un objeto JSON o campos de formulario y rechaza otras estructuras.
     @property
     def data(self):
         if self._data is None:
@@ -59,6 +65,7 @@ class Context:
                 raise Problem("Envía un objeto JSON válido.")
         return self._data
 
+    # Añade cookies de sesión/CSRF o las elimina al cerrar sesión.
     def finish(self, response):
         for name, value, http_only in self.cookies:
             response.set_cookie(
@@ -77,6 +84,7 @@ class Context:
         return response
 
 
+# Pagina con LIMIT tamaño+1 y publica el indicador de página siguiente.
 def page(query, params, ctx, key, serialize=lambda row: row, size=50, always=False):
     if not always and "pagina" not in ctx.request.args:
         return {"status": "ok", key: [serialize(r) for r in ctx.db.all(query, params)]}

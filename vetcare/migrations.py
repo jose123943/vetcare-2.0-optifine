@@ -1,6 +1,8 @@
+# Migraciones aditivas con bloqueo y verificaci?n de checksums.
 import hashlib
 
 
+# Aplica SQL versionado con lock de esquema y checksum; no repite archivos ya aplicados.
 def migrate(database):
     connection = database.connect(multi=True)
     try:
@@ -42,6 +44,7 @@ def migrate(database):
         connection.close()
 
 
+# Consulta columnas, tipos y claves de la base activa.
 def schema_inventory(db):
     return db.all(
         "SELECT TABLE_NAME,COLUMN_NAME,COLUMN_TYPE,IS_NULLABLE,COLUMN_KEY FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() ORDER BY TABLE_NAME,ORDINAL_POSITION"

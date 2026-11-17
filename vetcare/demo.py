@@ -1,3 +1,4 @@
+# Limpieza administrativa y generaci?n expl?cita de datos ficticios.
 """Datos ficticios de formación; limpieza transaccional autorizada por el operador."""
 
 import hashlib
@@ -96,6 +97,7 @@ RESCUES = [
 ]
 
 
+# Obtiene conteos sin exponer nombres, correos u otros datos de personas.
 def table_counts(db):
     names = [next(iter(row.values())) for row in db.all("SHOW TABLES")]
     return {
@@ -104,6 +106,7 @@ def table_counts(db):
     }
 
 
+# Valida tablas conocidas, limpia hijos/relaciones operativas y conserva superusuarios y configuración.
 def clear_operational_data(db):
     """Se ejecuta dentro de la transacción del llamador, sin desactivar claves foráneas."""
     existing = set(table_counts(db))
@@ -140,6 +143,7 @@ def clear_operational_data(db):
     return supers
 
 
+# Calcula y guarda respuestas y puntuación de una solicitud ficticia con el motor real.
 def save_demo_application(ctx, pet_id, index, questionnaire, base_date):
     """Solicitud de ejemplo con respuestas y evaluación calculadas por el motor real."""
     applicant = dict(
@@ -195,6 +199,7 @@ def save_demo_application(ctx, pet_id, index, questionnaire, base_date):
     )
 
 
+# Carga el conjunto completo dentro de una transacción y verifica conteos, relaciones y conservación de cuentas.
 def prepare_demo(db, base_date):
     """Reemplaza datos operativos y verifica el resultado antes del COMMIT exterior."""
     supers = clear_operational_data(db)
@@ -263,9 +268,7 @@ def prepare_demo(db, base_date):
                 "Valoración inicial (demo)",
                 "Seguimiento (demo)",
             ][index],
-            estado=["Atendida", "Atendida", "Pendiente", "Programada", "Confirmada"][
-                index
-            ],
+            estado="Programada",
             observaciones="Registro ficticio de capacitación.",
         )
         appointment = clinic.save_appointment(ctx)["cita"]
@@ -282,7 +285,7 @@ def prepare_demo(db, base_date):
             if index == 0
             else "Transferencia"
             if index == 1
-            else "",
+            else "Tarjeta",
             descuento=5000 if index == 1 else 0,
             impuesto=0,
             servicios=[
@@ -337,6 +340,7 @@ def prepare_demo(db, base_date):
         pet = adoptions.save_pet(ctx)["mascota"]
         rescues.append(pet["id"])
         save_demo_application(ctx, pet["id"], index, questionnaire, base_date)
+    clinic.complete_finished_appointments(db)
     after = db.all("SELECT * FROM auth_user WHERE is_superuser=1 ORDER BY id")
     if supers != after:
         raise RuntimeError(

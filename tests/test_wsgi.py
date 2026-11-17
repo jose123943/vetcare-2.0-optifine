@@ -35,6 +35,7 @@ from .support import (
 
 
 class MigrationTests(unittest.TestCase):
+    # Prepara el entorno y los datos aislados requeridos por este grupo de pruebas.
     @classmethod
     def setUpClass(cls):
         info = Path(tempfile.gettempdir()) / "vetcare_wsgi_test_database.json"
@@ -48,6 +49,7 @@ class MigrationTests(unittest.TestCase):
             cls.app, _ = provision()
         cls.c = client(cls.app)
 
+    # Cierra los recursos reservados por este grupo de pruebas.
     @classmethod
     def tearDownClass(cls):
         cls.app.database.close()
@@ -107,6 +109,7 @@ class MigrationTests(unittest.TestCase):
         data = applicant(q)
         return pet, visitor, data
 
+    # Comprueba la regresi?n de no framework and start.
     def test_01_no_framework_and_start(self):
         self.assertIsNone(importlib.util.find_spec("django"))
         for path in ["/adopciones/", "/health/live/", "/health/ready/"]:
@@ -125,13 +128,14 @@ class MigrationTests(unittest.TestCase):
             self.assertNotIn("{%", text)
             self.assertNotIn("{{", text)
 
+    # Comprueba la regresi?n de legacy password hash upgrades after login.
     def test_02_legacy_password_hash_upgrades_after_login(self):
         with self.app.database.lease() as db:
             db.execute(
                 "UPDATE auth_user SET password=%s WHERE username=%s",
                 (django_pbkdf2_sha256.hash(PASSWORD), USERNAME),
             )
-        c = client(self.app)
+        client(self.app)
         with self.app.database.lease() as db:
             stored = db.one(
                 "SELECT password FROM auth_user WHERE username=%s", (USERNAME,)
@@ -152,6 +156,7 @@ class MigrationTests(unittest.TestCase):
             )
         )
 
+    # Comprueba la regresi?n de private routes csrf methods and expiration.
     def test_03_private_routes_csrf_methods_and_expiration(self):
         anon = client(self.app, False)
         self.checked(anon.get("/api/clientes"), 401)
@@ -175,6 +180,7 @@ class MigrationTests(unittest.TestCase):
             )
         self.checked(stale.get("/api/clientes"), 401)
 
+    # Comprueba la regresi?n de login throttle and logout.
     def test_04_login_throttle_and_logout(self):
         c = client(self.app, False)
         name = "invalid-" + uuid.uuid4().hex
@@ -193,6 +199,7 @@ class MigrationTests(unittest.TestCase):
         c.set_cookie("vetcare_sid", token)
         self.checked(c.get("/api/clientes"), 401)
 
+    # Comprueba la regresi?n de family three pets and idempotency.
     def test_05_family_three_pets_and_idempotency(self):
         d = family()
         key = str(uuid.uuid4())
@@ -212,6 +219,7 @@ class MigrationTests(unittest.TestCase):
             write(self.c, "/inicio/api/registrar/cliente-mascota/", d, key), 409
         )
 
+    # Comprueba la regresi?n de invalid child rolls back parent.
     def test_06_invalid_child_rolls_back_parent(self):
         d = family()
         d["mascotas"][-1]["peso"] = "NaN"
@@ -224,6 +232,7 @@ class MigrationTests(unittest.TestCase):
                 )
             )
 
+    # Comprueba la regresi?n de concurrent same key only one family.
     def test_07_concurrent_same_key_only_one_family(self):
         d = family()
         key = str(uuid.uuid4())
@@ -241,6 +250,7 @@ class MigrationTests(unittest.TestCase):
         bodies = [self.checked(r) for r in responses]
         self.assertEqual(len({r["cliente_id"] for r in bodies}), 1)
 
+    # Comprueba la regresi?n de unique document and sql injection.
     def test_08_unique_document_and_sql_injection(self):
         d, cid, pets = self.make_family()
         self.checked(write(self.c, "/api/clientes", d), 409)
@@ -259,6 +269,7 @@ class MigrationTests(unittest.TestCase):
             1,
         )
 
+    # Comprueba la regresi?n de edit pet and existing owner and deletion rules.
     def test_09_edit_pet_and_existing_owner_and_deletion_rules(self):
         d, cid, pets = self.make_family()
         p = pets[0]
@@ -282,6 +293,7 @@ class MigrationTests(unittest.TestCase):
             self.checked(self.c.get(f"/api/clientes/{cid}"))["cliente"]["id"], cid
         )
 
+    # Comprueba la regresi?n de appointment owner overlap adjacent and cancel.
     def test_10_appointment_owner_overlap_adjacent_and_cancel(self):
         d, appointment = self.make_appointment()
         self.checked(write(self.c, "/api/citas", d), 400)
@@ -301,6 +313,7 @@ class MigrationTests(unittest.TestCase):
         )
         self.checked(write(self.c, "/api/citas", d))
 
+    # Comprueba la regresi?n de concurrent appointment conflict.
     def test_11_concurrent_appointment_conflict(self):
         d = self.appointment_data()
         sid = self.c.get_cookie("vetcare_sid").value
@@ -320,6 +333,7 @@ class MigrationTests(unittest.TestCase):
             [r.json for r in responses],
         )
 
+    # Comprueba la regresi?n de vaccine treatment history and protected delete.
     def test_12_vaccine_treatment_history_and_protected_delete(self):
         _, a = self.make_appointment()
         mid = a["mascota_id"]
@@ -361,6 +375,7 @@ class MigrationTests(unittest.TestCase):
         )
         self.checked(write(self.c, f"/api/mascotas/{mid}", {}, method="DELETE"), 400)
 
+    # Comprueba la regresi?n de invoice decimal pdf and replay.
     def test_13_invoice_decimal_pdf_and_replay(self):
         _, a = self.make_appointment()
         d = dict(
@@ -390,6 +405,7 @@ class MigrationTests(unittest.TestCase):
         self.assertIn("79.000,50", text)
         self.checked(write(self.c, "/api/facturas", dict(d, descuento="999999")), 400)
 
+    # Comprueba la regresi?n de outbox transaction and delivery.
     def test_14_outbox_transaction_and_delivery(self):
         _, a = self.make_appointment()
         sent = []
@@ -412,6 +428,7 @@ class MigrationTests(unittest.TestCase):
                 "Enviada",
             )
 
+    # Comprueba la regresi?n de email failure does not lose appointment.
     def test_15_email_failure_does_not_lose_appointment(self):
         _, a = self.make_appointment()
 
@@ -431,6 +448,7 @@ class MigrationTests(unittest.TestCase):
             write(self.c, f"/inicio/api/notificaciones/{n['id']}/reintentar/", {})
         )
 
+    # Comprueba la regresi?n de exact adoption threshold.
     def test_16_exact_adoption_threshold(self):
         for score, approved in [(66, False), (67, True), (100, True)]:
             q = {
@@ -466,6 +484,7 @@ class MigrationTests(unittest.TestCase):
         self.assertEqual(result["porcentaje"], Decimal("66.500000"))
         self.assertFalse(result["aprobada"])
 
+    # Comprueba la regresi?n de adoption submit privacy and replay.
     def test_17_adoption_submit_privacy_and_replay(self):
         pet, c, d = self.make_adoption()
         key = str(uuid.uuid4())
@@ -482,6 +501,7 @@ class MigrationTests(unittest.TestCase):
         self.assertNotIn("paciente", str(public))
         self.assertNotIn("documento", str(result))
 
+    # Comprueba la regresi?n de adoption review single delivery and immutable versions.
     def test_18_adoption_review_single_delivery_and_immutable_versions(self):
         pet, c, d = self.make_adoption()
         self.checked(write(c, f"/adopciones/api/mascotas/{pet['id']}/solicitar/", d))
@@ -515,6 +535,7 @@ class MigrationTests(unittest.TestCase):
             400,
         )
 
+    # Comprueba la regresi?n de questionnaire clone edit publish.
     def test_19_questionnaire_clone_edit_publish(self):
         q = self.checked(self.c.get("/adopciones/api/cuestionario/"))
         clone = self.checked(
@@ -549,6 +570,7 @@ class MigrationTests(unittest.TestCase):
             self.checked(self.c.get("/adopciones/api/cuestionario/"))["id"], clone
         )
 
+    # Comprueba la regresi?n de photo reencoded and safe static.
     def test_20_photo_reencoded_and_safe_static(self):
         pet, _, _ = self.make_adoption()
         output = BytesIO()
@@ -570,6 +592,7 @@ class MigrationTests(unittest.TestCase):
         photo.close()
         self.assertEqual(self.c.get("/static/../../.env").status_code, 404)
 
+    # Comprueba la regresi?n de accounts permissions and session revocation.
     def test_21_accounts_permissions_and_session_revocation(self):
         name = "staff-" + uuid.uuid4().hex[:12]
         d = dict(
@@ -598,6 +621,7 @@ class MigrationTests(unittest.TestCase):
         )
         self.checked(c.get("/api/clientes"), 401)
 
+    # Comprueba la regresi?n de legacy visitor signature compatibility.
     def test_22_legacy_visitor_signature_compatibility(self):
         fixture = Path(__file__).parent / "fixtures/legacy.json"
         data = json.loads(fixture.read_text())
@@ -610,6 +634,7 @@ class MigrationTests(unittest.TestCase):
             decode_legacy(data["session_data"] + "bad", data["secret"]), {}
         )
 
+    # Comprueba la regresi?n de paginated tables and canonical gets.
     def test_23_paginated_tables_and_canonical_gets(self):
         for path, key in [
             ("/api/mascotas", "mascotas"),
@@ -621,6 +646,7 @@ class MigrationTests(unittest.TestCase):
             self.assertIn("siguiente", d)
         self.checked(self.c.get("/api/mascotas?pagina=bad"), 400)
 
+    # Comprueba la regresi?n de production headers host https and secure cookie.
     def test_24_production_headers_host_https_and_secure_cookie(self):
         from dataclasses import replace
 
@@ -648,6 +674,7 @@ class MigrationTests(unittest.TestCase):
         finally:
             production.database.close()
 
+    # Comprueba la regresi?n de old visitor can still read private result.
     def test_25_old_visitor_can_still_read_private_result(self):
         from dataclasses import replace
         from werkzeug.test import Client
@@ -682,6 +709,7 @@ class MigrationTests(unittest.TestCase):
         finally:
             legacy_app.database.close()
 
+    # Comprueba la regresi?n de malformed payload no internal error.
     def test_26_malformed_payload_no_internal_error(self):
         self.checked(
             write(
@@ -710,6 +738,7 @@ class MigrationTests(unittest.TestCase):
             400,
         )
 
+    # Comprueba la regresi?n de dead connection returns 503 then recovers.
     def test_28_dead_connection_returns_503_then_recovers(self):
         with self.app.database.lease() as db:
             identity = db.one("SELECT CONNECTION_ID() AS id,DATABASE() AS name")
@@ -723,6 +752,7 @@ class MigrationTests(unittest.TestCase):
         self.checked(self.c.get("/api/clientes"), 503)
         self.checked(self.c.get("/api/clientes"))
 
+    # Comprueba la regresi?n de pet edit preserves inactive owner.
     def test_29_pet_edit_preserves_inactive_owner(self):
         d, cid, pets = self.make_family()
         self.checked(
@@ -744,6 +774,7 @@ class MigrationTests(unittest.TestCase):
             "Inactivo",
         )
 
+    # Comprueba la regresi?n de archived history permissions and no framework imports.
     def test_27_archived_history_permissions_and_no_framework_imports(self):
         import ast
 

@@ -1,19 +1,124 @@
 <!doctype html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>VetCare · Gestión veterinaria</title><link rel="icon" href="/static/pagInicio/imgs/huella.png">
-<link rel="stylesheet" href="/static/pagInicio/css/app.css"><link rel="stylesheet" href="/static/adopciones/adopciones.css"><link rel="stylesheet" href="/static/pagInicio/css/v2.css"></head>
-<body data-screen="dashboard" data-user="">
-<aside class="sidebar"><a href="#dashboard" class="brand"><span class="brand-mark">✚</span><span>VetCare<small>Cuidamos su bienestar</small></span></a>
-<button type="button" id="sidebar-toggle" class="sidebar-toggle" aria-label="Expandir o contraer menú" aria-expanded="true">☰</button><p class="nav-caption">ESPACIO DE TRABAJO</p><nav aria-label="Navegación principal">
-<a href="#dashboard" data-nav="dashboard">◈ <span>Resumen</span></a><a href="#registrar" data-nav="registrar">＋ <span>Nuevo cliente</span></a>
-<a href="#consultar" data-nav="consultar">♧ <span>Clientes y mascotas</span></a><a href="#agendar" data-nav="agendar">▦ <span>Agendar cita</span></a>
-<a href="#citas" data-nav="citas">◷ <span>Agenda completa</span></a><a href="#veterinarios" data-nav="veterinarios">✚ <span>Veterinarios</span></a>
-<a href="#vacunacion" data-nav="vacunacion">♡ <span>Salud e historial</span></a><a href="#reportes" data-nav="reportes">▤ <span>Facturas y reportes</span></a>
-<a href="#correos" data-nav="correos">✉ <span>Notificaciones</span></a><a href="#adopciones" data-nav="adopciones">♡ <span>Gestión de adopciones</span></a><a href="#configuracion" data-nav="configuracion">⚙ <span>Configuración</span></a><a href="/adopciones/" target="_blank" rel="noopener">🐾 <span>Catálogo público ↗</span></a></nav>
-<div class="sidebar-foot"><div class="avatar"><span data-avatar></span></div><div><strong><span data-user-name></span></strong><small>Administración</small></div></div>
-<form action="/salir/" method="post" class="logout-form"><input type="hidden" name="csrf_token"><button class="logout" type="submit">↪ Cerrar sesión</button></form></aside>
-<div class="workspace"><header class="topbar"><span>CLÍNICA VETERINARIA <b>/</b> Administración</span><span class="online"><i></i> Conectado a VetCare</span></header>
-<main id="app" tabindex="-1" aria-live="polite"><p>Cargando tu espacio de trabajo…</p></main><footer class="app-footer">VetCare · Un mejor cuidado empieza con una buena gestión.</footer></div>
-<div id="toasts" role="status" aria-live="polite"></div>
-<dialog id="modal" aria-labelledby="modal-title"><div class="modal-head"><h2 id="modal-title"></h2><button type="button" data-close aria-label="Cerrar ventana">×</button></div><div id="modal-content"></div></dialog>
-<script src="/static/bootstrap.js" defer></script></body></html>
+
+<html lang="es">
+    <!-- Metadatos de la pantalla y hojas de estilo locales. -->
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+        <title>VetCare · Gestión veterinaria</title>
+        <link rel="icon" href="/static/images/huella.png" />
+
+        <link rel="stylesheet" href="/static/css/app.css" />
+        <link rel="stylesheet" href="/static/css/adoptions.css" />
+        <link rel="stylesheet" href="/static/css/interface.css" />
+    </head>
+
+    <body data-screen="dashboard" data-user="">
+        <!-- Navegaci?n entre m?dulos y acceso al cierre de sesi?n. -->
+        <aside class="sidebar">
+            <a href="#dashboard" class="brand"
+                ><span class="brand-mark">✚</span
+                ><span>VetCare<small>Cuidamos su bienestar</small></span></a
+            >
+
+            <button
+                type="button"
+                id="sidebar-toggle"
+                class="sidebar-toggle"
+                aria-label="Expandir o contraer menú"
+                aria-expanded="true"
+            >
+                ☰
+            </button>
+            <p class="nav-caption">ESPACIO DE TRABAJO</p>
+            <nav aria-label="Navegación principal">
+                <a href="#dashboard" data-nav="dashboard"
+                    >◈ <span>Resumen</span></a
+                ><a href="#registrar" data-nav="registrar"
+                    >＋ <span>Nuevo cliente</span></a
+                >
+
+                <a href="#consultar" data-nav="consultar"
+                    >♧ <span>Clientes y mascotas</span></a
+                ><a href="#agendar" data-nav="agendar"
+                    >▦ <span>Agendar cita</span></a
+                >
+
+                <a href="#citas" data-nav="citas"
+                    >◷ <span>Agenda completa</span></a
+                ><a href="#veterinarios" data-nav="veterinarios"
+                    >✚ <span>Veterinarios</span></a
+                >
+
+                <a href="#vacunacion" data-nav="vacunacion"
+                    >♡ <span>Salud e historial</span></a
+                ><a href="#reportes" data-nav="reportes"
+                    >▤ <span>Facturas y reportes</span></a
+                >
+
+                <a href="#correos" data-nav="correos"
+                    >✉ <span>Notificaciones</span></a
+                ><a href="#adopciones" data-nav="adopciones"
+                    >♡ <span>Gestión de adopciones</span></a
+                ><a href="#configuracion" data-nav="configuracion"
+                    >⚙ <span>Configuración</span></a
+                ><a href="/adopciones/" target="_blank" rel="noopener"
+                    >🐾 <span>Catálogo público ↗</span></a
+                >
+            </nav>
+
+            <div class="sidebar-foot">
+                <div class="avatar"><span data-avatar></span></div>
+                <div>
+                    <strong><span data-user-name></span></strong
+                    ><small>Administración</small>
+                </div>
+            </div>
+
+            <form action="/salir/" method="post" class="logout-form">
+                <input type="hidden" name="csrf_token" /><button
+                    class="logout"
+                    type="submit"
+                >
+                    ↪ Cerrar sesión
+                </button>
+            </form>
+        </aside>
+
+        <div class="workspace">
+            <header class="topbar">
+                <span>CLÍNICA VETERINARIA <b>/</b> Administración</span
+                ><span class="online"><i></i> Conectado a VetCare</span>
+            </header>
+
+            <!-- Contenido principal que utiliza el m?dulo de esta pantalla. -->
+
+            <main id="app" tabindex="-1" aria-live="polite">
+                <p>Cargando tu espacio de trabajo…</p>
+            </main>
+            <!-- Informaci?n de cierre y contexto del servicio. -->
+            <footer class="app-footer">
+                VetCare · Un mejor cuidado empieza con una buena gestión.
+            </footer>
+        </div>
+
+        <div id="toasts" role="status" aria-live="polite"></div>
+
+        <!-- Formulario o detalle modal, separado del contenido principal. -->
+
+        <dialog id="modal" aria-labelledby="modal-title">
+            <div class="modal-head">
+                <h2 id="modal-title"></h2>
+                <button type="button" data-close aria-label="Cerrar ventana">
+                    ×
+                </button>
+            </div>
+            <div id="modal-content"></div>
+        </dialog>
+
+        <!-- Inicio de sesi?n, CSRF y carga de los m?dulos JavaScript necesarios. -->
+
+        <script src="/static/js/bootstrap.js" defer></script>
+    </body>
+</html>

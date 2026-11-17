@@ -1,0 +1,15 @@
+{
+  "plataforma": "linux",
+  "python": "3.14.4",
+  "gunicorn_workers": 2,
+  "base_aislada": true,
+  "rutas": {
+    "/health/ready/": 200,
+    "/": 200,
+    "/adopciones/": 200,
+    "/api/clientes": 401
+  },
+  "gzip_validado": true,
+  "etag_304": true,
+  "correos_enviados": 0
+}

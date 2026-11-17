@@ -1,0 +1,7 @@
+{
+  "archivo": "VetCare-web.zip",
+  "extraido_y_verificado": true,
+  "referencias_estaticas_validas": true,
+  "build_sin_env": true,
+  "sin_secretos": true
+}

@@ -37,6 +37,7 @@ class Receiver(socketserver.StreamRequestHandler):
 
 
 class SMTPTests(unittest.TestCase):
+    # Comprueba la regresi?n de real smtp transport on loopback.
     def test_real_smtp_transport_on_loopback(self):
         with socketserver.ThreadingTCPServer(("127.0.0.1", 0), Receiver) as receiver:
             receiver.messages = []

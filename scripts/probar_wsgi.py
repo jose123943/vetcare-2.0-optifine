@@ -14,10 +14,12 @@ suite = unittest.defaultTestLoader.loadTestsFromNames(
         "tests.test_smtp",
         "tests.test_gmail",
         "tests.test_demo_sessions",
+        "tests.test_agenda_payment",
+        "tests.test_deployment",
     ]
 )
 start = time.monotonic()
-with (root / "docs/wsgi-pruebas.txt").open("w", encoding="utf-8") as stream:
+with (root / "docs/evidencias/wsgi-pruebas.txt").open("w", encoding="utf-8") as stream:
     result = unittest.TextTestRunner(stream=stream, verbosity=2).run(suite)
 report = {
     "ejecutadas": result.testsRun,
@@ -29,7 +31,7 @@ report = {
     "framework_requerido": False,
     "base_de_pruebas": "test_vetcare_* (aislada)",
 }
-(root / "docs/wsgi_pruebas.json").write_text(
+(root / "docs/evidencias/wsgi_pruebas.json").write_text(
     json.dumps(report, indent=2), encoding="utf-8"
 )
 print(json.dumps(report))

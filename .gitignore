@@ -16,3 +16,4 @@ private_backups/
 !sql/*.sql
 *.dump
 dist/
+build/

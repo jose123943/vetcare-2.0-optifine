@@ -1,7 +1,7 @@
 """Reglas de agenda, filtro exacto de propietario, pagos y limpieza, en MySQL aislado."""
 
 import unittest
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime, timedelta
 from io import BytesIO
 from threading import Event
 from unittest.mock import MagicMock, patch
@@ -246,6 +246,98 @@ class AgendaPaymentTests(unittest.TestCase):
             # Conserva una demostración aislada para el recorrido de navegador posterior.
             with db.atomic():
                 prepare_demo(db, datetime(2026, 11, 17).date())
+
+    # Comprueba el orden real por fecha/hora en agenda, selectores y páginas completas.
+    def test_09_appointment_order_shared_by_lists_and_selectors(self):
+        data, _ = self.appointment(fecha="2027-03-30", hora="15:00")
+        today = date(2027, 3, 1)
+        now = datetime(2027, 3, 1, 12, tzinfo=ZoneInfo("America/Bogota"))
+        slots = [
+            (10, "15:00"),
+            (-10, "10:00"),
+            (0, "15:00"),
+            (1, "11:00"),
+            (-1, "09:00"),
+            (0, "09:00"),
+            (-1, "15:00"),
+            (3, "08:00"),
+            (3, "16:00"),
+        ] + [(offset, "09:00") for offset in range(20, 74)]
+        with self.app.database.lease() as db:
+            db.many(
+                "INSERT INTO cita (fecha,hora,motivo,estado,observaciones,"
+                "duracion_minutos,cliente_id,mascota_id,veterinario_id) "
+                "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                [
+                    (
+                        today + timedelta(days=offset),
+                        hour,
+                        "Orden de agenda: datos sintéticos",
+                        "Cancelada" if index == 3 else "Programada",
+                        "Prueba aislada, sin notificación",
+                        30,
+                        data["cliente_id"],
+                        data["mascota"],
+                        data["veterinario"],
+                    )
+                    for index, (offset, hour) in enumerate(slots)
+                ],
+            )
+            fixtures = db.all(
+                "SELECT id_cita AS id,fecha,TIME_FORMAT(hora,'%%H:%%i') AS hora,"
+                "estado FROM cita WHERE mascota_id=%s",
+                (data["mascota"],),
+            )
+
+        def key(row):
+            stamp = datetime.fromisoformat(f"{row['fecha']}T{row['hora']}")
+            past = stamp.date() < today
+            seconds = (stamp - datetime(2027, 1, 1)).total_seconds()
+            return (past, -seconds if past else seconds, row["id"])
+
+        ordered = sorted(fixtures, key=key)
+        own_ids = {row["id"] for row in fixtures}
+        pending = [
+            row
+            for row in ordered
+            if row["estado"] != "Cancelada"
+            and datetime.fromisoformat(f"{row['fecha']}T{row['hora']}")
+            + timedelta(minutes=30)
+            > now.replace(tzinfo=None)
+        ]
+        routes = [
+            ("/api/citas", ordered),
+            ("/inicio/api/citas/", ordered),
+            (f"/inicio/api/citas-mascota/{data['mascota']}/", ordered),
+            (
+                "/inicio/api/datos-factura/",
+                [row for row in ordered if row["estado"] != "Cancelada"],
+            ),
+            ("/api/citas/pendientes", pending),
+            ("/inicio/api/citas/pendientes/", pending),
+            ("/inicio/api/dashboard/", pending),
+        ]
+        with patch("vetcare.services.clinic.NOW", return_value=now):
+            for path, expected in routes:
+                with self.subTest(path=path):
+                    response = self.c.get(path)
+                    self.assertEqual(response.status_code, 200, response.json)
+                    rows = response.json["citas"]
+                    self.assertEqual(rows, sorted(rows, key=key))
+                    self.assertEqual(
+                        [row["id"] for row in rows if row["id"] in own_ids],
+                        [row["id"] for row in expected],
+                    )
+
+            complete = self.c.get("/api/citas").json["citas"]
+            collected = []
+            index = 1
+            while index:
+                response = self.c.get(f"/api/citas?pagina={index}").json
+                collected.extend(response["citas"])
+                index = response["siguiente"]
+            self.assertGreater(len(collected), 50)
+            self.assertEqual(collected, complete)
 
 
 if __name__ == "__main__":

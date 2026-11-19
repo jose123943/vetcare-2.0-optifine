@@ -4,7 +4,13 @@ from decimal import Decimal
 from ..db import insert, update
 from ..http import page
 from ..validation import Problem, choice, found, integer, money, required
-from .clinic import APPOINTMENTS, NOW, appointment, complete_finished_appointments
+from .clinic import (
+    APPOINTMENTS,
+    NOW,
+    appointment,
+    appointment_order,
+    complete_finished_appointments,
+)
 
 PAYMENT_METHODS = ("Transferencia", "Efectivo", "Tarjeta")
 
@@ -171,9 +177,10 @@ def change_state(ctx):
 # Carga citas no canceladas para seleccionar cliente/paciente al facturar.
 def options(ctx):
     complete_finished_appointments(ctx.db)
+    order, order_params = appointment_order()
     rows = ctx.db.all(
-        APPOINTMENTS
-        + " WHERE a.estado<>'Cancelada' ORDER BY a.fecha DESC,a.id_cita DESC"
+        APPOINTMENTS + " WHERE a.estado<>'Cancelada'" + order,
+        order_params,
     )
     return {
         "status": "ok",

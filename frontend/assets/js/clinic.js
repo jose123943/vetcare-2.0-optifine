@@ -506,7 +506,7 @@ async function dashboard(token) {
                     `<article class="stat"><div class="stat-icon">${icon}</div><small>${label}</small><strong>${n}</strong><p>${desc}</p></article>`,
             )
             .join('')}</div>` +
-        `<section class="panel"><div class="panel-head"><div><h2>Citas pendientes</h2><p>Ordenadas por fecha y hora. Al finalizar pasan a Atendida.</p></div><button class="secondary small" onclick="location.hash='citas'">Toda la agenda ↗</button></div>${table(['Paciente', 'Propietario', 'Veterinario', 'Fecha y hora', 'Motivo', 'Estado', ''], appointmentRows(d.citas), 'Tu agenda está al día. No tienes citas pendientes.')}</section>`;
+        `<section class="panel"><div class="panel-head"><div><h2>Citas pendientes</h2><p>De la más cercana a la más lejana, por fecha y hora. Al finalizar pasan a Atendida.</p></div><button class="secondary small" onclick="location.hash='citas'">Toda la agenda ↗</button></div>${table(['Paciente', 'Propietario', 'Veterinario', 'Fecha y hora', 'Motivo', 'Estado', ''], appointmentRows(d.citas), 'Tu agenda está al día. No tienes citas pendientes.')}</section>`;
 
     const historic = document.createElement('p');
     historic.className = 'helper';
@@ -527,7 +527,7 @@ async function citas(token) {
         title(
             'AGENDA CLÍNICA',
             'Todas las citas',
-            'Las citas pasan a Atendida al terminar su duración. La agenda se actualiza automáticamente.',
+            'Hoy y próximas primero, de la más cercana a la más lejana. Las pasadas quedan al final, de la más reciente a la más antigua. Al terminar pasan a Atendida.',
             `<button onclick="location.hash='agendar'">＋ Nueva cita</button>`,
         ) + '<section class="panel" id="appointments-list"></section>';
 
@@ -1005,7 +1005,7 @@ async function loadHealth(id) {
     document.querySelector('#new-treatment').onclick = () => {
         openModal(
             'Registrar tratamiento',
-            `<form id="treatment"><div class="form-grid">${select('cita_id', 'Cita del paciente *', [['', 'Selecciona'], ...c.citas.map((c) => [c.id, `${c.fecha} · ${c.motivo}`])], '', 'required')}${field('fecha_inicio', 'Inicio *', 'date', today(), 'required')}${field('descripcion', 'Descripción *', 'text', '', 'required maxlength="200"')}${field('medicamento', 'Medicamento *', 'text', '', 'required maxlength="100"')}${field('dosis', 'Dosis *', 'text', '', 'required maxlength="50"')}${field('duracion', 'Duración *', 'text', '', 'required maxlength="50"')}</div>${submit('Registrar tratamiento')}</form>`,
+            `<form id="treatment"><div class="form-grid">${select('cita_id', 'Cita del paciente *', [['', 'Selecciona'], ...c.citas.map((c) => [c.id, `${c.fecha} · ${c.hora} · ${c.motivo}`])], '', 'required')}${field('fecha_inicio', 'Inicio *', 'date', today(), 'required')}${field('descripcion', 'Descripción *', 'text', '', 'required maxlength="200"')}${field('medicamento', 'Medicamento *', 'text', '', 'required maxlength="100"')}${field('dosis', 'Dosis *', 'text', '', 'required maxlength="50"')}${field('duracion', 'Duración *', 'text', '', 'required maxlength="50"')}</div>${submit('Registrar tratamiento')}</form>`,
         );
         bindForm(
             'treatment',
@@ -1139,7 +1139,7 @@ async function newInvoice() {
 
     openModal(
         'Nueva factura',
-        `<form id="invoice-form"><div class="form-grid">${select('cita_id', 'Cita / cliente / paciente *', [['', 'Selecciona'], ...d.citas.map((c) => [c.id, `${c.fecha} · ${c.cliente_nombre} · ${c.mascota} (#C${c.id})`])], '', 'required')}${select(
+        `<form id="invoice-form"><div class="form-grid">${select('cita_id', 'Cita / cliente / paciente *', [['', 'Selecciona'], ...d.citas.map((c) => [c.id, `${c.fecha} · ${c.hora} · ${c.cliente_nombre} · ${c.mascota} (#C${c.id})`])], '', 'required')}${select(
             'estado_pago',
             'Estado de pago',
             [

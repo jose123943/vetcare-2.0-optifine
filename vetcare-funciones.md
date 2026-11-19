@@ -98,7 +98,7 @@ Al crear o modificar realmente la cita se guarda una notificación junto con el 
 
 ## 8. Agenda completa
 
-Lista las citas por fecha y hora, con paciente, propietario, profesional, motivo y estado. **Ver detalle → Editar / cambiar estado** abre los mismos controles del agendamiento.
+Lista primero las citas de hoy y futuras, de la fecha y hora más cercana a la más lejana. Las citas pasadas aparecen al final, de la más reciente a la más antigua. Este mismo orden se utiliza en el resumen y en todos los desplegables de citas, incluidos tratamientos y facturación; sus opciones muestran también la hora. El orden se aplica antes de paginar, independientemente de cuándo se creó cada registro. **Ver detalle → Editar / cambiar estado** abre los mismos controles del agendamiento.
 
 Las citas nuevas se guardan como **Programada**. Al alcanzar su fecha, hora y duración pasan automáticamente a **Atendida**, usando la hora de Colombia. El monitor del servidor revisa cada 15 segundos, sin depender de Gmail, y consultar agenda/detalle/resumen también sincroniza los estados. La agenda visible se actualiza cada 15 segundos sin recargar toda la página, conserva sus páginas y pausa la actualización durante un modal.
 
@@ -265,7 +265,7 @@ Los listados usan paginación y consultas con JOIN; los importes se calculan con
 El siguiente inventario incluye las funciones de la aplicación, sus métodos, ayudas internas y comandos. Las pruebas automatizadas están en `tests/` y los recorridos de navegador en `tests/browser/prueba_*.cjs`; no son funciones clínicas que deban ejecutarse en la base operativa.
 
 <!-- INICIO-INVENTARIO-PYTHON -->
-Funciones documentadas: **165**.
+Funciones documentadas: **166**.
 
 ### vetcare/application.py
 
@@ -416,6 +416,7 @@ Funciones documentadas: **165**.
 | Función | Qué hace |
 |---|---|
 | `NOW()` | Obtiene fecha/hora de la clínica en America/Bogota. |
+| `appointment_order()` | Comparte el orden de fecha/hora de agenda, resumen y selectores: hoy y futuras primero; después el historial, del más reciente al más antiguo. |
 | `pet_data(m)` | Serializa una mascota con propietario y datos de contacto para las vistas administrativas. |
 | `owner(c)` | Serializa los campos de un cliente. |
 | `time_value(value)` | Normaliza el TIME de MySQL a una hora Python. |

@@ -34,6 +34,18 @@ APPOINTMENTS = """SELECT a.*,m.nombre AS mascota,c.id_cliente AS cliente_id,CONC
  JOIN empleado e ON e.id_empleado=v.id_veterinario"""
 
 
+# Ordena desde hoy hacia el futuro y deja el historial al final, del más reciente al más antiguo.
+def appointment_order():
+    today = NOW().date()
+    return (
+        " ORDER BY (a.fecha < %s) ASC,"
+        " CASE WHEN a.fecha >= %s THEN TIMESTAMP(a.fecha,a.hora) END ASC,"
+        " CASE WHEN a.fecha < %s THEN TIMESTAMP(a.fecha,a.hora) END DESC,"
+        " a.id_cita ASC",
+        (today, today, today),
+    )
+
+
 # Serializa una mascota con propietario y datos de contacto para las vistas administrativas.
 def pet_data(m):
     return {
@@ -128,6 +140,7 @@ def complete_finished_appointments(db, now=None):
 def dashboard(ctx):
     complete_finished_appointments(ctx.db)
     today = NOW().date()
+    order, order_params = appointment_order()
     stats = ctx.db.one(
         """SELECT (SELECT COUNT(*) FROM cita) AS total,
       (SELECT COUNT(*) FROM cita WHERE fecha=%s) AS hoy,
@@ -144,7 +157,9 @@ def dashboard(ctx):
             appointment(r)
             for r in ctx.db.all(
                 APPOINTMENTS
-                + " WHERE a.estado IN ('Pendiente','Programada','Confirmada') ORDER BY a.fecha,a.hora,a.id_cita"
+                + " WHERE a.estado IN ('Pendiente','Programada','Confirmada')"
+                + order,
+                order_params,
             )
         ],
     }
@@ -398,7 +413,7 @@ def delete_vet(ctx, vet_id):
     return {"status": "ok", "message": "Veterinario eliminado."}
 
 
-# Consulta/pagina citas, pendientes o citas de un paciente.
+# Consulta/pagina citas con el mismo orden cronológico de agenda y selectores.
 def appointment_list(ctx, pet_id=None, pending=False):
     complete_finished_appointments(ctx.db)
     query = APPOINTMENTS
@@ -408,10 +423,8 @@ def appointment_list(ctx, pet_id=None, pending=False):
         params = (pet_id,)
     elif pending:
         query += " WHERE a.estado IN ('Pendiente','Programada','Confirmada')"
-    query += (
-        " ORDER BY a.fecha" + (" ASC" if pending else " DESC") + ",a.hora,a.id_cita"
-    )
-    return page(query, params, ctx, "citas", appointment)
+    order, order_params = appointment_order()
+    return page(query + order, params + order_params, ctx, "citas", appointment)
 
 
 # Consulta cita y estados de notificación.

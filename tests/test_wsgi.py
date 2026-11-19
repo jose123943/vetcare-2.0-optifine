@@ -5,6 +5,7 @@ import tempfile
 import unittest
 import uuid
 from concurrent.futures import ThreadPoolExecutor
+from dataclasses import replace
 from datetime import datetime, timedelta
 from decimal import Decimal
 from io import BytesIO
@@ -17,7 +18,7 @@ from pypdf import PdfReader
 
 from vetcare.application import create_app
 from vetcare.config import Config
-from vetcare.db import insert
+from vetcare.db import Database, insert
 from vetcare.security import decode_legacy, digest, verify_password
 from vetcare.services.adoptions import evaluate
 from vetcare.services.mail import deliver_one
@@ -446,6 +447,92 @@ class MigrationTests(unittest.TestCase):
         self.assertEqual(n["error"], "RuntimeError")
         self.checked(
             write(self.c, f"/inicio/api/notificaciones/{n['id']}/reintentar/", {})
+        )
+
+    # El envío HTTP funciona con una sola conexión y procesa cada notificación una sola vez.
+    def test_15b_http_delivery_with_single_connection(self):
+        _, appointment = self.make_appointment()
+        sent = []
+        single = Database(replace(self.app.config, pool_size=1))
+
+        settings = {
+            "EMAIL_HOST": "localhost",
+            "EMAIL_PORT": "587",
+            "EMAIL_HOST_USER": "",
+            "EMAIL_HOST_PASSWORD": "",
+            "DEFAULT_FROM_EMAIL": "sender@example.invalid",
+        }
+        try:
+            with (
+                patch.dict(os.environ, settings),
+                patch.object(self.app, "notification_sender", sent.append, create=True),
+                patch.object(self.app, "database", single),
+            ):
+                status = self.c.get("/inicio/api/notificaciones/").json
+                self.assertTrue(status["correo"]["configurada"])
+                while True:
+                    response = self.checked(
+                        write(self.c, "/inicio/api/notificaciones/procesar/", {})
+                    )
+                    if not response["pendientes"]:
+                        break
+                self.assertEqual(
+                    self.checked(write(self.c, "/inicio/api/notificaciones/procesar/", {}))["procesadas"],
+                    0,
+                )
+        finally:
+            single.close()
+        with self.app.database.lease() as db:
+            row = db.one(
+                "SELECT estado,intentos FROM pagInicio_notificacion WHERE cita_id=%s",
+                (appointment["id"],),
+            )
+        self.assertEqual(row, {"estado": "Enviada", "intentos": 1})
+        self.assertTrue(sent)
+        self.assertEqual(len(sent), len({m["Message-ID"] for m in sent}))
+
+    # La falta de variables en la nube se diagnostica antes de reclamar mensajes.
+    def test_15c_http_delivery_reports_missing_cloud_configuration(self):
+        _, appointment = self.make_appointment()
+        with self.app.database.lease() as db:
+            before = db.one(
+                "SELECT estado,intentos FROM pagInicio_notificacion WHERE cita_id=%s",
+                (appointment["id"],),
+            )
+        sent = []
+        with (
+            patch.dict(os.environ, {"EMAIL_HOST": "", "DEFAULT_FROM_EMAIL": ""}),
+            patch.object(self.app, "notification_sender", sent.append, create=True),
+        ):
+            status = self.c.get("/inicio/api/notificaciones/").json
+            self.assertFalse(status["correo"]["configurada"])
+            self.assertIn("EMAIL_HOST", status["correo"]["diagnostico"])
+            response = self.checked(
+                write(self.c, "/inicio/api/notificaciones/procesar/", {}), 503
+            )
+            self.assertIn("variables del servicio", response["message"])
+        with self.app.database.lease() as db:
+            after = db.one(
+                "SELECT estado,intentos FROM pagInicio_notificacion WHERE cita_id=%s",
+                (appointment["id"],),
+            )
+        self.assertEqual(after, before)
+        self.assertFalse(sent)
+
+    # Ni visitantes ni peticiones sin CSRF pueden activar el envío de correos.
+    def test_15d_http_delivery_requires_authentication_and_csrf(self):
+        anonymous = client(self.app, login=False)
+        self.assertEqual(
+            anonymous.post("/inicio/api/notificaciones/procesar/", json={}).status_code,
+            401,
+        )
+        self.assertEqual(
+            self.c.post("/inicio/api/notificaciones/procesar/", json={}).status_code,
+            403,
+        )
+        self.assertEqual(
+            self.checked(write(self.c, "/inicio/api/notificaciones/procesar/", {}), 503)["message"],
+            "Entorno de pruebas: el envío real está deshabilitado.",
         )
 
     # Comprueba la regresi?n de exact adoption threshold.

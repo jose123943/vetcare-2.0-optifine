@@ -444,6 +444,8 @@ class Application:
             add("GET", "/inicio/api/" + path, fn, admin=True)
         for method, path, fn in writes:
             add(method, "/inicio/api/" + path, fn, admin=True, write=True)
+        # El envío confirma su propia reclamación antes de SMTP; no mantener una transacción HTTP abierta.
+        add("POST", "/inicio/api/notificaciones/procesar/", mail.process_pending, admin=True)
         for method, path, fn in [
             ("GET", "clientes", clinic.customers),
             ("GET", "clientes/<int:customer_id>", clinic.customers),

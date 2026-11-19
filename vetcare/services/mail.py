@@ -41,7 +41,7 @@ def smtp_settings():
         raise MailConfigurationError(
             "Configura "
             + ", ".join(missing)
-            + " en .env. Para Gmail: python scripts/configurar_gmail.py."
+            + " en las variables del servicio en la nube, o en .env si ejecutas localmente."
         )
     use_ssl = os.getenv("EMAIL_USE_SSL", "false").lower() == "true"
     use_tls = os.getenv("EMAIL_USE_TLS", "true").lower() == "true"
@@ -60,7 +60,7 @@ def smtp_settings():
     if host.lower() == "smtp.gmail.com":
         if not username or not password:
             raise MailConfigurationError(
-                "Gmail requiere EMAIL_HOST_USER y EMAIL_HOST_PASSWORD (contraseña de aplicación). Ejecuta python scripts/configurar_gmail.py."
+                "Gmail requiere EMAIL_HOST_USER y EMAIL_HOST_PASSWORD (contraseña de aplicación) en las variables del servicio desplegado o en .env local."
             )
         if not (
             (port == 587 and use_tls and not use_ssl)
@@ -130,6 +130,8 @@ def mail_error(exc):
         return "El servidor rechazó el destinatario. Revisa el correo del cliente de la cita."
     if isinstance(exc, ssl.SSLCertVerificationError):
         return "No se pudo verificar el certificado TLS del servidor de correo. Revisa la red y la fecha del equipo."
+    if isinstance(exc, smtplib.SMTPResponseException):
+        return f"El proveedor rechazó el envío (SMTP {exc.smtp_code}). Revisa la cuenta y sus límites de envío."
     if isinstance(
         exc,
         (
@@ -137,15 +139,31 @@ def mail_error(exc):
             ConnectionError,
             socket.gaierror,
             smtplib.SMTPServerDisconnected,
+            OSError,
         ),
     ):
         return "No se pudo conectar con el servidor de correo. Revisa Internet, el host y el puerto SMTP."
-    if isinstance(exc, smtplib.SMTPResponseException):
-        return f"El proveedor rechazó el envío (SMTP {exc.smtp_code}). Revisa la cuenta y sus límites de envío."
     return type(exc).__name__[:250]
 
 
-# Consulta estados e intentos de las notificaciones recientes.
+# Expone únicamente el diagnóstico de configuración; nunca devuelve valores SMTP privados.
+def configuration_status(ctx):
+    if ctx.app.config.testing and not getattr(ctx.app, "notification_sender", None):
+        return {
+            "configurada": False,
+            "diagnostico": "Entorno de pruebas: el envío real está deshabilitado.",
+        }
+    try:
+        smtp_settings()
+    except MailConfigurationError as exc:
+        return {"configurada": False, "diagnostico": mail_error(exc)}
+    return {
+        "configurada": True,
+        "diagnostico": "Configuración presente. El resultado del envío se muestra en cada notificación.",
+    }
+
+
+# Consulta estados e intentos y detecta configuración ausente en el servicio desplegado.
 def list_messages(ctx):
     rows = ctx.db.all(
         "SELECT id,cita_id,estado,intentos,error,creada FROM pagInicio_notificacion ORDER BY id DESC LIMIT 100"
@@ -153,9 +171,32 @@ def list_messages(ctx):
     for row in rows:
         if row["error"] == "RuntimeError":
             row["error"] = (
-                "Revisa la configuración SMTP y reinicia el proceso de correo antes de reintentar."
+                "Revisa las variables SMTP del servicio y vuelve a intentar el envío."
             )
-    return {"status": "ok", "notificaciones": rows}
+    return {
+        "status": "ok",
+        "notificaciones": rows,
+        "correo": configuration_status(ctx),
+        "pendientes": ctx.db.one(
+            "SELECT COUNT(*) AS n FROM pagInicio_notificacion WHERE estado='Pendiente'"
+        )["n"],
+    }
+
+
+# Procesa un mensaje durante una petición autenticada, compatible con la CPU por petición de Cloud Run.
+def process_pending(ctx):
+    status = configuration_status(ctx)
+    if not status["configurada"]:
+        raise Problem(status["diagnostico"], 503)
+    processed = deliver_one(
+        ctx.app.database,
+        sender=getattr(ctx.app, "notification_sender", None),
+        db=ctx.db,
+    )
+    pending = ctx.db.one(
+        "SELECT COUNT(*) AS n FROM pagInicio_notificacion WHERE estado='Pendiente'"
+    )["n"]
+    return {"status": "ok", "procesadas": int(processed), "pendientes": pending}
 
 
 # Devuelve una notificación fallida a Pendiente para un nuevo intento.
@@ -221,39 +262,42 @@ def smtp_send(message):
             raise RuntimeError("Destinatario rechazado")
 
 
-# Reclama una notificación con SKIP LOCKED, envía fuera de la transacción y guarda aceptación o fallo.
-def deliver_one(database, sender=smtp_send):
-    with database.lease() as db:
-        with db.atomic():
-            n = db.one(
-                "SELECT * FROM pagInicio_notificacion WHERE estado='Pendiente' ORDER BY id LIMIT 1 FOR UPDATE SKIP LOCKED"
-            )
-            if not n:
-                return False
+# Reclama y confirma un único mensaje antes de contactar con el proveedor.
+def claim_message(db):
+    with db.atomic():
+        n = db.one(
+            "SELECT * FROM pagInicio_notificacion WHERE estado='Pendiente' ORDER BY id LIMIT 1 FOR UPDATE SKIP LOCKED"
+        )
+        if n:
             db.execute(
                 "UPDATE pagInicio_notificacion SET estado='Enviando',intentos=intentos+1 WHERE id=%s",
                 (n["id"],),
             )
-    try:
-        sender(make_message(n))
-    except Exception as exc:
-        with database.lease() as db:
-            update(
-                db,
-                "pagInicio_notificacion",
-                {"estado": "Fallida", "error": mail_error(exc)},
-                n["id"],
-            )
+    return n
+
+
+# Reclama con SKIP LOCKED, envía fuera de la transacción y guarda aceptación o fallo.
+def deliver_one(database, sender=None, *, db=None):
+    if db is None:
+        with database.lease() as lease:
+            n = claim_message(lease)
     else:
-        with database.lease() as db:
-            update(
-                db,
-                "pagInicio_notificacion",
-                {
-                    "estado": "Enviada",
-                    "enviada": datetime.now(UTC).replace(tzinfo=None),
-                    "error": "",
-                },
-                n["id"],
-            )
+        n = claim_message(db)
+    if not n:
+        return False
+    try:
+        (sender or smtp_send)(make_message(n))
+    except Exception as exc:
+        values = {"estado": "Fallida", "error": mail_error(exc)}
+    else:
+        values = {
+            "estado": "Enviada",
+            "enviada": datetime.now(UTC).replace(tzinfo=None),
+            "error": "",
+        }
+    if db is None:
+        with database.lease() as lease:
+            update(lease, "pagInicio_notificacion", values, n["id"])
+    else:
+        update(db, "pagInicio_notificacion", values, n["id"])
     return True

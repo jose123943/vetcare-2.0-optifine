@@ -132,7 +132,7 @@ El **Método de pago** es un menú de **Transferencia**, **Efectivo** o **Tarjet
 
 ## 12. Notificaciones por correo
 
-Muestra cita, fecha de creación, estado, intentos y diagnóstico. **Actualizar** consulta los estados nuevos. **Reintentar** devuelve un aviso fallido a la cola cuando ya se ha corregido la causa.
+Muestra cita, fecha de creación, estado, intentos y diagnóstico. **Actualizar** consulta los estados nuevos. **Procesar pendientes** activa el envío mediante peticiones HTTP autenticadas, compatible con Cloud Run sin un worker local. La pestaña también procesa al abrir y revisa la cola cada 15 segundos mientras está visible. **Reintentar** devuelve un aviso fallido a la cola cuando ya se ha corregido la causa y activa otro intento. El panel indica qué variables de correo faltan en el servicio, sin revelar sus valores.
 
 | Estado | Significado |
 |---|---|
@@ -143,7 +143,7 @@ Muestra cita, fecha de creación, estado, intentos y diagnóstico. **Actualizar*
 | Sin correo | El cliente no tiene dirección registrada |
 | Demostración | Ejemplo ficticio que no se envía a Gmail |
 
-El proceso de envío se inicia en otra terminal con `python run.py worker`, usando el Python de `.venv-wsgi`. Gmail se configura con `scripts/configurar_gmail.py`: solicita la dirección remitente y una contraseña de aplicación de forma oculta, valida TLS/autenticación y guarda los datos en el `.env` privado. No comparte la contraseña de MySQL ni muestra secretos en la tabla de errores.
+Después de guardar o modificar una cita, la interfaz activa el envío en una petición separada; la cita ya está confirmada aunque falle el correo. El consumidor opcional permanente se inicia con `python run.py worker`. Para ejecución local, `scripts/configurar_gmail.py` valida y guarda las credenciales en `.env`. En Cloud Run se configuran las variables directamente en **Variables y secretos** de la revisión del servicio web; el `.env` local no se transfiere. Consulta [los valores y límites del modo HTTP](README.md#correo-en-google-cloud-run).
 
 El destinatario se toma del **cliente de la cita**, no del correo del administrador. Se guarda con la notificación. Un worker antiguo puede conservar una configuración anterior: detenerlo antes de iniciar otro con nuevas credenciales. Las notificaciones se reclaman con `FOR UPDATE SKIP LOCKED` para evitar que dos workers procesen la misma a la vez.
 
@@ -253,6 +253,7 @@ Los listados usan paginación y consultas con JOIN; los importes se calculan con
 | `js/clinic.js`: familias | `ownerFields`, `petFields`, `renumberPets`, `addPet`, `registrar`, `consultar`, `addExistingPet`, `editPet` organizan propietarios, fichas dinámicas y edición. |
 | `js/clinic.js`: agenda | `appointmentRows`, `bindCitaButtons`, `dashboard`, `citas`, `showCita`, `appointmentForm` presentan citas y conectan búsqueda de propietario, selector de mascotas y guardado. La ayuda interna `chooseOwner()` carga los pacientes del propietario elegido. |
 | `js/clinic.js`: clínica y finanzas | `veterinarios`, `vacunacion`, `loadHealth`, `reportes`, `addService`, `updateTotal`, `newInvoice`, `showInvoice`, `correos` implementan los módulos respectivos. `navigate()` cambia de sección y descarta respuestas antiguas al navegar rápido. |
+| `js/clinic.js`: correo en la nube | `processMailQueue()` procesa la cola en peticiones autenticadas separadas y agrupa las llamadas simultáneas del navegador. No modifica el resultado de la cita ya guardada si falla SMTP. |
 | `js/clinic.js`: ayudas internas | Las funciones `load()` de citas/consulta y `loadInvoices()` solicitan las páginas y aplican sus filtros; `rows()` vuelve a construir las líneas de servicios y sus totales; `edit()` prepara el alta o edición del veterinario. |
 | `js/clinic.js`: pagos | `paymentMethodField()` construye el mismo selector de Transferencia/Efectivo/Tarjeta para alta y actualización. |
 | `js/adoptions-admin.js` | `adoptionAdmin()` carga fichas y solicitudes; sus funciones internas paginan ambos listados. `editAdoptionPet()`, `adoptionPhoto()`, `reviewApplication()` y `editWeights()` registran fichas, fotos, revisiones y versiones. |
@@ -265,7 +266,7 @@ Los listados usan paginación y consultas con JOIN; los importes se calculan con
 El siguiente inventario incluye las funciones de la aplicación, sus métodos, ayudas internas y comandos. Las pruebas automatizadas están en `tests/` y los recorridos de navegador en `tests/browser/prueba_*.cjs`; no son funciones clínicas que deban ejecutarse en la base operativa.
 
 <!-- INICIO-INVENTARIO-PYTHON -->
-Funciones documentadas: **166**.
+Funciones documentadas: **169**.
 
 ### vetcare/application.py
 
@@ -462,10 +463,13 @@ Funciones documentadas: **166**.
 | `check_smtp_connection()` | Comprueba SMTP y autenticación mediante NOOP, sin enviar mensajes. |
 | `mail_error(exc)` | Traduce errores conocidos a diagnósticos seguros sin respuestas privadas del proveedor. |
 | `list_messages(ctx)` | Consulta estados e intentos de las notificaciones recientes. |
+| `configuration_status(ctx)` | Indica qué configuración SMTP falta, sin exponer valores, y bloquea transporte real en pruebas. |
+| `process_pending(ctx)` | Procesa un pendiente dentro de una petición HTTP autenticada compatible con Cloud Run. |
+| `claim_message(db)` | Reclama un solo pendiente con SKIP LOCKED y confirma su estado antes de contactar con Gmail. |
 | `retry(ctx, message_id)` | Devuelve una notificación fallida a Pendiente para un nuevo intento. |
 | `make_message(n)` | Construye el mensaje MIME con texto y HTML escapado a partir del contexto guardado. |
 | `smtp_send(message)` | Entrega el mensaje al servidor SMTP y detecta destinatarios rechazados. |
-| `deliver_one(database, sender=smtp_send)` | Reclama una notificación con SKIP LOCKED, envía fuera de la transacción y guarda aceptación o fallo. |
+| `deliver_one(database, sender=None, *, db=None)` | Envía fuera de la transacción y guarda aceptación o fallo; puede reutilizar la conexión HTTP para admitir pools de tamaño uno. |
 
 ### vetcare/services/pdf.py
 

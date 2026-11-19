@@ -36,6 +36,8 @@ let generation = 0;
 
 let pageRefreshTimer;
 
+let mailProcessing;
+
 let petCache = [],
     vetCache = [],
     invoiceAppointments = [];
@@ -80,6 +82,32 @@ async function api(path, options = {}) {
     }
 
     return data;
+}
+
+// Drena la cola en peticiones separadas: Cloud Run mantiene CPU durante cada envío.
+async function processMailQueue() {
+    if (mailProcessing) return mailProcessing;
+    mailProcessing = (async () => {
+        let processed = 0;
+        for (let i = 0; i < 5; i++) {
+            const result = await api('notificaciones/procesar/', {
+                method: 'POST',
+                body: '{}',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': vetcare.csrf(),
+                },
+            });
+            processed += result.procesadas;
+            if (!result.procesadas || !result.pendientes) break;
+        }
+        return processed;
+    })();
+    try {
+        return await mailProcessing;
+    } finally {
+        mailProcessing = null;
+    }
 }
 
 // Construye un campo escapando valores del usuario.
@@ -244,6 +272,18 @@ document.addEventListener('submit', async (event) => {
         sessionStorage.removeItem(storageKey);
         toast(result.message || 'Guardado correctamente.');
 
+        if (
+            /^(registrar\/cita\/|citas\/\d+\/editar\/|notificaciones\/\d+\/reintentar\/)/.test(
+                form.dataset.path,
+            )
+        ) {
+            processMailQueue().catch((error) =>
+                toast(
+                    `Los datos quedaron guardados. Revisa Notificaciones: ${error.message}`,
+                    true,
+                ),
+            );
+        }
         await success(result, form);
     } catch (error) {
         if (error.status && error.status < 500 && storageKey)
@@ -1217,7 +1257,7 @@ async function showInvoice(id) {
     );
 }
 
-// Presenta el estado de la cola y permite reintentar los fallos.
+// Procesa pendientes sin un worker local y muestra errores de la configuración desplegada.
 async function correos(token) {
     const d = await api('notificaciones/');
     if (token !== generation) return;
@@ -1225,10 +1265,29 @@ async function correos(token) {
         title(
             'COMUNICACIÓN CON LAS FAMILIAS',
             'Notificaciones por correo',
-            'El worker procesa los envíos fuera del registro de citas.',
+            'Los correos se envían en una petición separada después de guardar la cita.',
         ) +
-        `<section class="panel"><div class="panel-head"><h2>Últimas notificaciones</h2><button class="secondary" id="refresh-mail">Actualizar</button></div>${table(['Cita', 'Creada', 'Estado', 'Intentos', 'Diagnóstico', ''], d.notificaciones.map((n) => `<tr><td>#C${n.cita_id}</td><td>${esc(n.creada)}</td><td>${badge(n.estado)}</td><td>${n.intentos}</td><td>${esc(n.error || '—')}</td><td>${n.estado === 'Fallida' ? `<form id="retry-${n.id}">${submit('Reintentar')}</form>` : ''}</td></tr>`).join(''))}<p class="helper">Los mensajes “Sin correo” y “Demostración” no se envían. Los envíos fallidos pueden reintentarse después de corregir SMTP.</p></section>`;
+        `<section class="panel"><div class="panel-head"><h2>Últimas notificaciones</h2><div class="actions"><button id="process-mail" ${!d.correo?.configurada || !d.pendientes ? 'disabled' : ''}>Procesar pendientes</button><button class="secondary" id="refresh-mail">Actualizar</button></div></div><p class="helper" id="mail-status" role="status">${esc(d.correo?.diagnostico || '')}</p>${table(['Cita', 'Creada', 'Estado', 'Intentos', 'Diagnóstico', ''], d.notificaciones.map((n) => `<tr><td>#C${n.cita_id}</td><td>${esc(n.creada)}</td><td>${badge(n.estado)}</td><td>${n.intentos}</td><td>${esc(n.error || '—')}</td><td>${n.estado === 'Fallida' ? `<form id="retry-${n.id}">${submit('Reintentar')}</form>` : ''}</td></tr>`).join(''))}<p class="helper">Los mensajes “Sin correo” y “Demostración” no se envían. Los fallidos pueden reintentarse después de corregir la configuración.</p></section>`;
     document.querySelector('#refresh-mail').onclick = navigate;
+    async function process() {
+        const button = document.querySelector('#process-mail');
+        button.disabled = true;
+        button.textContent = 'Procesando…';
+        try {
+            await processMailQueue();
+            if (token === generation) await navigate();
+        } catch (error) {
+            if (token === generation) {
+                document.querySelector('#mail-status').textContent = error.message;
+            }
+        } finally {
+            if (button.isConnected) {
+                button.disabled = false;
+                button.textContent = 'Procesar pendientes';
+            }
+        }
+    }
+    document.querySelector('#process-mail').onclick = process;
     d.notificaciones
         .filter((n) => n.estado === 'Fallida')
         .forEach((n) =>
@@ -1239,6 +1298,10 @@ async function correos(token) {
                 navigate,
             ),
         );
+    pageRefreshTimer = setInterval(() => {
+        if (!document.hidden && !mailProcessing && !modal.open) navigate();
+    }, 15000);
+    if (d.correo?.configurada && d.pendientes) process();
 }
 
 const pages = {

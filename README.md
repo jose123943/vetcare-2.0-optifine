@@ -99,6 +99,28 @@ Completar `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, 
 
 Registrar o modificar una cita guarda una notificación transaccional. El worker la envía fuera de la petición web. El dashboard muestra pendientes/fallidos y permite reintentar tras corregir SMTP. La generación MIME y el procesamiento están probados con transporte controlado; la entrega a un buzón externo requiere configurar y verificar el proveedor real.
 
+### Correo en Google Cloud Run
+
+La interfaz activa ahora una **petición HTTP separada de envío** después de guardar o editar una cita y después de reintentar un mensaje. La cita queda confirmada antes de contactar con Gmail. En **Notificaciones** aparece **Procesar pendientes**, se procesa la cola al abrir la pestaña y se actualizan los estados cada 15 segundos mientras está visible. No necesitas mantener un worker en tu PC para este modo.
+
+Esta petición termina después del intento SMTP: no depende de un hilo que Cloud Run pueda suspender al finalizar la respuesta. [CPU y trabajo en segundo plano en Cloud Run](https://docs.cloud.google.com/run/docs/tips/general). Se reclama un mensaje por petición; el navegador continúa en lotes de hasta cinco y la pestaña de notificaciones sigue con los restantes. El worker independiente sigue siendo compatible y ambos consumidores usan la misma reclamación SQL para no enviar el mismo registro simultáneamente.
+
+El `.env` de tu equipo **no se despliega**. En Google Cloud Console → Cloud Run → tu servicio → **Editar y desplegar una revisión nueva** → **Variables y secretos**, configura:
+
+| Variable | Valor que debe tener en el servicio web |
+|---|---|
+| `EMAIL_HOST` | `smtp.gmail.com` |
+| `EMAIL_PORT` | `587` |
+| `EMAIL_USE_TLS` | `true` |
+| `EMAIL_USE_SSL` | `false` |
+| `EMAIL_HOST_USER` | Tu dirección completa de Gmail |
+| `EMAIL_HOST_PASSWORD` | Su contraseña de aplicación vigente de 16 caracteres, preferiblemente desde Secret Manager |
+| `DEFAULT_FROM_EMAIL` | La misma dirección que `EMAIL_HOST_USER` |
+
+Despliega la revisión con esos valores y el código actualizado. Abre **Notificaciones**: si faltan variables, la página indica sus nombres sin mostrar valores privados. **Configuración presente** sólo acredita validación local del formato; cada mensaje pasa a **Enviada** únicamente después de aceptación SMTP. **Pendiente, 0 intentos** significa que todavía no hay un intento registrado, no que Gmail haya aceptado el envío.
+
+Si cierras el navegador antes de activar el envío, la notificación sigue en MySQL y puede procesarse al abrir Notificaciones. Para consumir la cola permanentemente sin clientes conectados, configura un consumidor de nube independiente o tareas programadas autenticadas; este modo HTTP no acredita un servicio de tareas autónomo. Los datos `.invalid` siguen en **Demostración** y no se envían. Los entornos de pruebas rechazan el transporte real salvo cuando la prueba inyecta un receptor controlado.
+
 Después de configurar Gmail, detén el worker anterior con Ctrl+C y vuelve a iniciarlo para que lea el `.env` actualizado. En Notificaciones pulsa **Reintentar** en los mensajes fallidos y luego **Actualizar**. El worker nuevo comprueba la configuración antes de tomar mensajes de la cola; los errores de configuración y autenticación se muestran sin revelar respuestas privadas del proveedor. `Enviada` indica aceptación por el servidor SMTP, no confirmación de lectura o de ubicación en la bandeja de entrada.
 
 ## Pruebas y documentación

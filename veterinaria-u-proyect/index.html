@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f4ed">
+  <title>Veterinaria U Proyect</title>
+  <link rel="stylesheet" href="/estilos.css">
+  <script src="/script.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Veterinaria U Proyect, inicio">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 40 40" role="img">
+            <path d="M20 22c-4.4-4.2-10.2-1.1-8.8 3.5.8 2.8 3.8 3.6 8.8 7.1 5-3.5 8-4.3 8.8-7.1C30.2 20.9 24.4 17.8 20 22Z"/>
+            <ellipse cx="9.4" cy="14.3" rx="3.1" ry="4.1" transform="rotate(-24 9.4 14.3)"/>
+            <ellipse cx="17.1" cy="10.2" rx="3.1" ry="4.1" transform="rotate(-8 17.1 10.2)"/>
+            <ellipse cx="25.5" cy="10.6" rx="3.1" ry="4.1" transform="rotate(11 25.5 10.6)"/>
+            <ellipse cx="32" cy="15.4" rx="3.1" ry="4.1" transform="rotate(27 32 15.4)"/>
+          </svg>
+        </span>
+        <span class="brand-copy">
+          <strong>Veterinaria <span>U</span> Proyect</strong>
+          <small>Consultas claras, mascotas felices</small>
+        </span>
+      </a>
+
+      <div class="topbar-right">
+        <span class="api-status" id="estado-api">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span id="texto-estado-api">Conectando</span>
+        </span>
+        <span class="topbar-label">Panel de atención</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="welcome-row" aria-labelledby="titulo-pagina">
+        <div>
+          <p class="eyebrow">CLÍNICA VETERINARIA · MAICAO</p>
+          <h1 id="titulo-pagina">Control de consultas</h1>
+          <p class="welcome-copy">Todo lo importante de cada visita, en un solo lugar.</p>
+        </div>
+        <div class="today-pill">
+          <span class="today-icon" aria-hidden="true">◷</span>
+          <span id="fecha-hoy">Hoy</span>
+        </div>
+      </section>
+
+      <section class="stats-grid" aria-label="Resumen de consultas">
+        <article class="stat-card stat-card-main">
+          <span class="stat-icon" aria-hidden="true">✳</span>
+          <div>
+            <p>Consultas registradas</p>
+            <strong id="total-consultas">—</strong>
+          </div>
+          <span class="stat-note">en el sistema</span>
+        </article>
+        <article class="stat-card">
+          <span class="stat-icon stat-icon-peach" aria-hidden="true">$</span>
+          <div>
+            <p>Por cobrar</p>
+            <strong id="total-por-cobrar">—</strong>
+          </div>
+          <span class="stat-note">consultas sin pagar</span>
+        </article>
+        <article class="stat-card">
+          <span class="stat-icon stat-icon-blue" aria-hidden="true">↗</span>
+          <div>
+            <p>Abonos por solicitar</p>
+            <strong id="total-abonos">—</strong>
+          </div>
+          <span class="stat-note">más de $50.000</span>
+        </article>
+      </section>
+
+      <div class="content-grid">
+        <section class="panel consultations-panel" aria-labelledby="titulo-listado">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">REGISTRO</p>
+              <h2 id="titulo-listado">Consultas recientes</h2>
+            </div>
+            <button class="button button-quiet" id="boton-reintentar" type="button" hidden>
+              Reintentar
+            </button>
+          </div>
+
+          <div class="list-tools">
+            <label class="search-box">
+              <span aria-hidden="true">⌕</span>
+              <span class="sr-only">Buscar consulta</span>
+              <input id="busqueda" type="search" placeholder="Buscar mascota o motivo…">
+            </label>
+            <div class="filter-tabs" role="group" aria-label="Filtrar consultas">
+              <button class="filter-button active" type="button" data-filtro="todas" aria-pressed="true">Todas</button>
+              <button class="filter-button" type="button" data-filtro="pendientes" aria-pressed="false">Pendientes</button>
+              <button class="filter-button" type="button" data-filtro="pagadas" aria-pressed="false">Pagadas</button>
+            </div>
+          </div>
+
+          <p class="feedback" id="mensaje" role="status" aria-live="polite" hidden></p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Mascota</th>
+                  <th scope="col">Motivo</th>
+                  <th scope="col">Valor</th>
+                  <th scope="col">Estado</th>
+                  <th scope="col"><span class="sr-only">Acciones</span></th>
+                </tr>
+              </thead>
+              <tbody id="lista-consultas">
+                <tr><td class="table-message" colspan="5">Cargando consultas…</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="list-footnote" id="contador-lista"></p>
+        </section>
+
+        <aside class="side-column">
+          <section class="panel form-panel" aria-labelledby="titulo-formulario">
+            <div class="panel-heading form-heading">
+              <div>
+                <p class="eyebrow" id="etiqueta-formulario">NUEVA VISITA</p>
+                <h2 id="titulo-formulario">Registrar consulta</h2>
+              </div>
+              <span class="form-mark" aria-hidden="true">+</span>
+            </div>
+
+            <form id="formulario-consulta">
+              <label class="field">
+                <span>Nombre de la mascota</span>
+                <input name="nombreMascota" type="text" maxlength="120" placeholder="Ej. Luna" required>
+              </label>
+              <label class="field">
+                <span>Motivo de consulta</span>
+                <input name="motivoConsulta" type="text" maxlength="200" placeholder="Ej. Vacunación anual" required>
+              </label>
+              <div class="field-row">
+                <label class="field">
+                  <span>Valor (COP)</span>
+                  <input name="valorConsulta" type="number" min="0" max="99999999.99" step="0.01" placeholder="60000" required>
+                </label>
+                <label class="field">
+                  <span>Veterinario</span>
+                  <input name="veterinarioAsignado" type="text" maxlength="120" placeholder="Opcional">
+                </label>
+              </div>
+              <label class="check-field">
+                <input name="consultaPagada" type="checkbox">
+                <span class="check-custom" aria-hidden="true"></span>
+                <span>Consulta pagada</span>
+              </label>
+              <div class="form-actions">
+                <button class="button button-primary" id="boton-guardar" type="submit">
+                  <span aria-hidden="true">＋</span> Guardar consulta
+                </button>
+                <button class="button button-cancel" id="boton-cancelar" type="button" hidden>Cancelar</button>
+              </div>
+            </form>
+          </section>
+
+          <section class="rule-card" aria-labelledby="titulo-regla">
+            <div class="rule-topline">
+              <span class="rule-icon" aria-hidden="true">↗</span>
+              <span class="rule-label">REGLA DE NEGOCIO</span>
+            </div>
+            <h2 id="titulo-regla">Abono pendiente</h2>
+            <p>Si una consulta cuesta más de <strong>$50.000</strong> y sigue sin pagar, aparece aquí para solicitar un abono. Las urgencias se atienden sin retraso.</p>
+            <button class="button button-rule" id="boton-reporte" type="button">
+              Ver consultas que aplican <span aria-hidden="true">→</span>
+            </button>
+            <div class="report-results" id="resultados-reporte" hidden>
+              <p class="report-title" id="titulo-resultados"></p>
+              <ul id="lista-reporte"></ul>
+            </div>
+          </section>
+        </aside>
+      </div>
+
+      <footer class="page-footer">
+        <span>Veterinaria U Proyect</span>
+        <span>Hecho para cuidar mejor 🐾</span>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>

@@ -18,6 +18,8 @@ private_backups/
 *.dump
 dist/
 build/
+veterinaria-u-proyect/node_modules/
+!veterinaria-u-proyect/veterinaria.sql
 # Capturas y PDF de pruebas: se generan al ejecutar los recorridos del navegador.
 docs/evidencias/*.png
 docs/evidencias/*.pdf

@@ -1,4 +1,4 @@
-# Documentos PDF a partir de facturas verificadas y recursos p?blicos.
+# Construye una factura PDF a partir de los datos y los importes guardados.
 import os
 from decimal import Decimal
 from io import BytesIO

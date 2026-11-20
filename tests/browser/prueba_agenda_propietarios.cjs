@@ -1,4 +1,4 @@
-/* Usa únicamente el servidor y la base aislados de las pruebas. */
+// Comprueba buscadores, citas y medios de pago en el navegador de pruebas.
 const { chromium } = require(process.env.VETCARE_PLAYWRIGHT_MODULE);
 const fs = require('fs'),
     os = require('os'),
@@ -6,7 +6,9 @@ const fs = require('fs'),
     { execFileSync } = require('child_process');
 const assert = require('node:assert/strict');
 const { randomUUID } = require('crypto');
+// Abre Edge con datos de prueba y conserva los errores para comprobar el recorrido.
 (async () => {
+    // Ejecuta el navegador sin abrir ventanas para el usuario.
     const browser = await chromium.launch({
         executablePath:
             'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
@@ -212,6 +214,7 @@ const { randomUUID } = require('crypto');
             fullPage: true,
         });
         assert.deepEqual(errors, []);
+        // Resume el resultado del recorrido para facilitar la revisión.
         console.log(
             'OK: propietarios al abrir y por documento, selección por teclado, búsqueda libre de mascota, estado Programada, tres métodos de pago y PDF, cambio de método, Atendida sin recargar y móvil.',
         );

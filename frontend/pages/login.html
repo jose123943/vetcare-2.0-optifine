@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- Pantalla donde el personal introduce su usuario y contraseña. -->
 <html lang="es">
     <!-- Metadatos de la pantalla y hojas de estilo locales. -->
     <head>
@@ -10,7 +11,7 @@
     </head>
 
     <body data-screen="login">
-        <!-- Contenido principal que utiliza el m?dulo de esta pantalla. -->
+        <!-- El formulario envía el acceso con la protección de sesión preparada por bootstrap.js. -->
         <main class="login-page" style="padding: 0; max-width: none">
             <section class="login-panel">
                 <a class="brand" href="/"
@@ -48,7 +49,7 @@
                         >Conoce a los compañeros en adopción ♡</a
                     >
                 </p>
-                <!-- Informaci?n de cierre y contexto del servicio. -->
+                <!-- Información de cierre y contexto del servicio. -->
                 <footer>
                     Acceso exclusivo para el equipo administrativo de VetCare.
                 </footer>
@@ -65,7 +66,7 @@
                 </p>
             </section>
         </main>
-        <!-- Inicio de sesi?n, CSRF y carga de los m?dulos JavaScript necesarios. -->
+        <!-- Inicio de sesión, CSRF y carga de los módulos JavaScript necesarios. -->
         <script src="/static/js/bootstrap.js" defer></script>
     </body>
 </html>

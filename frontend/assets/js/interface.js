@@ -1,11 +1,13 @@
-// Presentaci?n del men? e indicadores; no modifica datos cl?nicos.
+// Controla el menú y las animaciones visuales del dashboard.
 'use strict';
+// Permite ampliar o contraer el menú para aprovechar el espacio de la pantalla.
 document
     .querySelector('#sidebar-toggle')
     ?.addEventListener('click', (event) => {
         const compact = document.body.classList.toggle('sidebar-compact');
         event.currentTarget.setAttribute('aria-expanded', String(!compact));
     });
+// Anima los indicadores nuevos y respeta la preferencia de reducir el movimiento.
 const animateNumbers = new MutationObserver((records) => {
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     for (const record of records)

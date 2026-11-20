@@ -1,5 +1,5 @@
-/* Cat?logo p?blico, encuesta, resultado y tarjetas administrativas de adopci?n. */
-/* Fondo y estructura del cat?logo p?blico. */
+/* Da estilo al catálogo, la encuesta y los resultados de adopción. */
+/* Fondo y estructura del catálogo público. */
 .adoption-public {
     background: #f8fbf9;
 }
@@ -23,7 +23,7 @@
     margin: auto;
     padding: 0 32px;
 }
-/* Presentaci?n y llamada a consultar mascotas. */
+/* Presentación y llamada a consultar mascotas. */
 .adoption-hero {
     position: relative;
     display: grid;
@@ -150,7 +150,7 @@
 .catalog-filters select {
     width: 190px;
 }
-/* Distribuci?n de fichas de mascotas disponibles. */
+/* Distribución de fichas de mascotas disponibles. */
 .adoption-cards {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -306,7 +306,7 @@
     max-width: 760px;
     padding: 36px 22px;
 }
-/* Presentaci?n de evaluaci?n y recomendaciones. */
+/* Presentación de evaluación y recomendaciones. */
 .result-card {
     text-align: center;
     padding: 45px 35px;
@@ -428,13 +428,13 @@
     grid-template-columns: 1fr 1fr;
     gap: 15px;
 }
-/* Transici?n visual; los datos y sus valores finales no cambian. */
+/* Da un movimiento suave a la presentación del catálogo. */
 @keyframes pet-float {
     50% {
         transform: translateY(-9px) rotate(1deg);
     }
 }
-/* Transici?n visual; los datos y sus valores finales no cambian. */
+/* Hace aparecer las tarjetas de mascotas de forma gradual. */
 @keyframes card-in {
     from {
         opacity: 0;
@@ -445,7 +445,7 @@
         transform: translateY(0);
     }
 }
-/* Adaptaci?n a tama?o de pantalla o preferencias de accesibilidad. */
+/* Evita desbordamientos y facilita el uso en pantallas más pequeñas. */
 @media (max-width: 900px) {
     .adoption-hero {
         padding: 35px;
@@ -469,7 +469,7 @@
         grid-template-columns: repeat(2, 1fr);
     }
 }
-/* Adaptaci?n a tama?o de pantalla o preferencias de accesibilidad. */
+/* Evita desbordamientos y facilita el uso en pantallas más pequeñas. */
 @media (max-width: 600px) {
     .adoption-main {
         padding: 0 16px;
@@ -542,7 +542,7 @@
         grid-template-columns: 1fr;
     }
 }
-/* Adaptaci?n a tama?o de pantalla o preferencias de accesibilidad. */
+/* Reduce animaciones cuando el usuario prefiere menos movimiento. */
 @media (prefers-reduced-motion: reduce) {
     * {
         animation: none !important;
@@ -561,7 +561,7 @@
         score-fill 1.1s ease-out both,
         card-in 0.5s both;
 }
-/* Transici?n visual; los datos y sus valores finales no cambian. */
+/* Muestra gradualmente la puntuación de la evaluación. */
 @keyframes score-fill {
     from {
         --score: 0;

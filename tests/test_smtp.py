@@ -1,3 +1,4 @@
+# Comprueba el envío de un correo a un receptor local que simula un servidor SMTP.
 """Envía MIME por un socket SMTP local real, sin destinatarios externos."""
 
 import os
@@ -11,7 +12,9 @@ from unittest.mock import patch
 from vetcare.services.mail import make_message, smtp_send
 
 
+# Simula un servidor de correo y conserva los mensajes solamente en memoria.
 class Receiver(socketserver.StreamRequestHandler):
+    # Responde al protocolo de correo para que la prueba no necesite contactar con Internet.
     def handle(self):
         self.wfile.write(b"220 localhost SMTP test\r\n")
         while raw := self.rfile.readline():
@@ -36,8 +39,9 @@ class Receiver(socketserver.StreamRequestHandler):
                 self.wfile.write(b"502 Command not supported\r\n")
 
 
+# Agrupa las pruebas de envío mediante un receptor local.
 class SMTPTests(unittest.TestCase):
-    # Comprueba la regresi?n de real smtp transport on loopback.
+    # Comprueba el correo completo contra un receptor local, sin destinatarios externos.
     def test_real_smtp_transport_on_loopback(self):
         with socketserver.ThreadingTCPServer(("127.0.0.1", 0), Receiver) as receiver:
             receiver.messages = []

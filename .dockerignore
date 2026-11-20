@@ -1,3 +1,4 @@
+# Excluye secretos, archivos de desarrollo y datos privados de la construcción Docker.
 .git
 .venv
 .venv-wsgi

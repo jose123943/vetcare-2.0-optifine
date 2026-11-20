@@ -1,4 +1,4 @@
-# Contexto de petici?n, respuestas JSON, cookies y paginaci?n compartida.
+# Prepara los datos de cada petición y las respuestas JSON que utiliza la interfaz.
 import json
 from contextlib import ExitStack
 from datetime import date, datetime, time, timedelta
@@ -30,6 +30,7 @@ def response_json(value, status=200):
     )
 
 
+# Reúne petición, sesión, cookies y conexión para atender una solicitud.
 class Context:
     # Prepara petición, límites de carga, sesión, cookies y gestión de recursos.
     def __init__(self, app, environ):

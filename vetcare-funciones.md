@@ -1,10 +1,10 @@
 # VetCare: funciones, pestañas y funcionamiento
 
-Guía de la aplicación Python WSGI + MySQL, actualizada el **17 de noviembre de 2026**. Los registros de demostración son ficticios y no constituyen indicaciones clínicas, certificados ni facturas electrónicas.
+Guía de la aplicación Python WSGI + MySQL, actualizada el **19 de noviembre de 2026**. Los registros de demostración son ficticios y no constituyen indicaciones clínicas, certificados ni facturas electrónicas.
 
-El [mapa del proyecto](docs/ESTRUCTURA.md) explica las carpetas actuales. El código incluye comentarios sobre funciones y bloques; los informes y capturas están en `docs/evidencias/`. La [guía de Railway](docs/RAILWAY.md) describe la preparación y los requisitos de publicación.
+El [mapa del proyecto](docs/ESTRUCTURA.md) resume para qué sirve cada archivo y carpeta. Los comentarios breves del código explican sus funciones y bloques principales; los informes y capturas están en `docs/evidencias/`. La [guía de Railway](docs/RAILWAY.md) describe la preparación y los requisitos de publicación.
 
-**Actualización:** la última limpieza deja la base operativa vacía, conservando todos los superusuarios y la configuración necesaria. La demostración descrita más abajo es opcional y no se carga al iniciar. Véase [limpieza del proyecto y reglas actuales](docs/LIMPIEZA_PROYECTO.md).
+**Datos de ejemplo:** las cantidades descritas más abajo corresponden a la demostración inicial. Las cargas y limpiezas posteriores son operaciones expresas y no se ejecutan al iniciar. Consulta la aplicación para conocer las cantidades actuales y [la guía de limpieza](docs/LIMPIEZA_PROYECTO.md) para entender esa herramienta.
 
 ## 1. Abrir el programa
 
@@ -58,7 +58,7 @@ El menú cambia el contenido central mediante JavaScript. Cada sección pide JSO
 
 ## 4. Resumen
 
-Muestra citas del día, clientes activos, citas pendientes y vacunas cuya fecha de vencimiento ya se alcanzó. La tabla de pendientes incluye también citas de otras fechas; las vencidas se identifican visualmente y se conserva su estado hasta que el equipo lo cambie.
+Muestra citas del día, clientes activos, citas pendientes y vacunas cuya fecha de vencimiento ya se alcanzó. La tabla de pendientes incluye también citas de otras fechas; las citas que terminan pasan automáticamente a Atendida.
 
 **Agendar cita** abre el formulario de agenda. **Ver detalle** permite consultar paciente, propietario, profesional, fecha, motivo, observaciones y notificaciones. Los indicadores provienen de MySQL y cambian al guardar registros.
 
@@ -187,7 +187,7 @@ Una evaluación aprobada permite **Autorizar**, después de confirmar bienestar 
 
 ## 15. Datos de demostración y limpieza autorizada
 
-La carga siguiente describe la demostración opcional anterior. La última operación solicitada utiliza `scripts/limpiar_datos.py --aplicar`: vacía datos operativos, verifica un respaldo y conserva los superusuarios sin volver a cargar ejemplos. `docs/evidencias/limpieza-base.json` contiene los conteos posteriores.
+La carga siguiente describe la demostración inicial opcional. Las cantidades operativas pueden variar después de otras cargas o del uso de la aplicación. `scripts/limpiar_datos.py --aplicar` vacía datos operativos, verifica un respaldo y conserva los superusuarios sin volver a cargar ejemplos; `docs/evidencias/limpieza-base.json` conserva el resultado histórico de una ejecución de esa herramienta.
 
 La preparación conserva **todos los campos y hashes de los superusuarios**, sus relaciones de permisos, la configuración del cuestionario y los metadatos necesarios del esquema. Elimina las cuentas no superusuarias y los datos operativos anteriores. No borra tablas, no recrea MySQL y no modifica la configuración privada de Gmail/MySQL.
 
@@ -417,7 +417,7 @@ Funciones documentadas: **169**.
 | Función | Qué hace |
 |---|---|
 | `NOW()` | Obtiene fecha/hora de la clínica en America/Bogota. |
-| `appointment_order()` | Comparte el orden de fecha/hora de agenda, resumen y selectores: hoy y futuras primero; después el historial, del más reciente al más antiguo. |
+| `appointment_order()` | Ordena primero las citas de hoy y futuras; después muestra el historial desde la más reciente. |
 | `pet_data(m)` | Serializa una mascota con propietario y datos de contacto para las vistas administrativas. |
 | `owner(c)` | Serializa los campos de un cliente. |
 | `time_value(value)` | Normaliza el TIME de MySQL a una hora Python. |
@@ -462,14 +462,14 @@ Funciones documentadas: **169**.
 | `smtp_connection()` | Abre SMTP con TLS/SSL y autentica cuando corresponde; cierra la conexión al terminar. |
 | `check_smtp_connection()` | Comprueba SMTP y autenticación mediante NOOP, sin enviar mensajes. |
 | `mail_error(exc)` | Traduce errores conocidos a diagnósticos seguros sin respuestas privadas del proveedor. |
+| `configuration_status(ctx)` | Explica qué configuración de correo falta sin revelar sus valores privados. |
 | `list_messages(ctx)` | Consulta estados e intentos de las notificaciones recientes. |
-| `configuration_status(ctx)` | Indica qué configuración SMTP falta, sin exponer valores, y bloquea transporte real en pruebas. |
-| `process_pending(ctx)` | Procesa un pendiente dentro de una petición HTTP autenticada compatible con Cloud Run. |
-| `claim_message(db)` | Reclama un solo pendiente con SKIP LOCKED y confirma su estado antes de contactar con Gmail. |
+| `process_pending(ctx)` | Procesa un correo pendiente dentro de una petición web autorizada. |
 | `retry(ctx, message_id)` | Devuelve una notificación fallida a Pendiente para un nuevo intento. |
 | `make_message(n)` | Construye el mensaje MIME con texto y HTML escapado a partir del contexto guardado. |
 | `smtp_send(message)` | Entrega el mensaje al servidor SMTP y detecta destinatarios rechazados. |
-| `deliver_one(database, sender=None, *, db=None)` | Envía fuera de la transacción y guarda aceptación o fallo; puede reutilizar la conexión HTTP para admitir pools de tamaño uno. |
+| `claim_message(db)` | Reserva un mensaje pendiente para que otro proceso no lo envíe al mismo tiempo. |
+| `deliver_one(database, sender=None, *, db=None)` | Reclama una notificación con SKIP LOCKED, envía fuera de la transacción y guarda aceptación o fallo. |
 
 ### vetcare/services/pdf.py
 

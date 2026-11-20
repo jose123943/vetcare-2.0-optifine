@@ -1,4 +1,4 @@
-# Migraciones aditivas con bloqueo y verificaci?n de checksums.
+# Aplica cambios pendientes de estructura SQL y comprueba los ya registrados.
 import hashlib
 
 

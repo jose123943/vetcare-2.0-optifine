@@ -1,3 +1,4 @@
+# Comprueba que la web arranque con Gunicorn en Linux usando una base de pruebas.
 """Arranque real de Gunicorn en Linux, exclusivamente con una base test_vetcare_."""
 
 import argparse

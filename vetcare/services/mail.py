@@ -1,4 +1,4 @@
-# Configuraci?n SMTP segura, cola transaccional y env?o de notificaciones.
+# Guarda el estado de las notificaciones y envía los mensajes por correo.
 import json
 import os
 import smtplib
@@ -14,6 +14,7 @@ from ..db import update
 from ..validation import Problem, found
 
 
+# Distingue fallos de configuración de correo con mensajes seguros para el usuario.
 class MailConfigurationError(RuntimeError):
     """Mensaje controlado sin valores privados de la configuración."""
 

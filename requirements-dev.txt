@@ -1,3 +1,4 @@
+# Añade las bibliotecas utilizadas para comprobar el proyecto durante el desarrollo.
 -r requirements.txt
 pypdf==7.1.0
 # Navegador opcional: npm install playwright-core en un directorio de herramientas.

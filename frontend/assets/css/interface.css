@@ -1,4 +1,4 @@
-/* Mejoras de interacci?n, buscadores, men? adaptable y movimiento reducido. */
+/* Ajusta el menú, los buscadores y las animaciones a distintas pantallas. */
 /* Variables de tema y valores compartidos. */
 :root {
     --green: #128773;
@@ -9,7 +9,7 @@
     background: linear-gradient(145deg, #16a782, #137889);
     box-shadow: 0 5px 14px #158d7020;
 }
-/* Navegaci?n lateral y marca de la cl?nica. */
+/* Navegación lateral y marca de la clínica. */
 .sidebar {
     transition: width 0.24s;
     padding-top: 24px;
@@ -47,7 +47,7 @@
     background: #edf6f1;
     color: #277f69;
 }
-/* ?rea administrativa y distribuci?n del contenido. */
+/* Área administrativa y distribución del contenido. */
 .workspace {
     transition: margin-left 0.24s;
 }
@@ -60,7 +60,7 @@
 .eyebrow {
     color: #228e79;
 }
-/* T?tulos y acciones de cada secci?n. */
+/* Títulos y acciones de cada sección. */
 .page-heading {
     animation: v2-enter 0.35s both;
 }
@@ -185,7 +185,7 @@ dialog[open] {
 .login-panel {
     animation: v2-enter 0.4s;
 }
-/* Transici?n visual; los datos y sus valores finales no cambian. */
+/* Hace aparecer suavemente el contenido al abrir una pestaña. */
 @keyframes v2-enter {
     from {
         opacity: 0;
@@ -196,7 +196,7 @@ dialog[open] {
         transform: translateY(0);
     }
 }
-/* Transici?n visual; los datos y sus valores finales no cambian. */
+/* Hace aparecer la ventana de detalle sin un cambio visual brusco. */
 @keyframes v2-modal {
     from {
         opacity: 0;
@@ -207,7 +207,7 @@ dialog[open] {
         transform: translateY(0) scale(1);
     }
 }
-/* Transici?n visual; los datos y sus valores finales no cambian. */
+/* Hace visible el aviso temporal de una operación. */
 @keyframes v2-toast {
     from {
         opacity: 0;
@@ -218,13 +218,13 @@ dialog[open] {
         transform: translateX(0);
     }
 }
-/* Transici?n visual; los datos y sus valores finales no cambian. */
+/* Anima suavemente el indicador de estado de la interfaz. */
 @keyframes v2-breathe {
     50% {
         transform: translateY(-7px);
     }
 }
-/* Adaptaci?n a tama?o de pantalla o preferencias de accesibilidad. */
+/* Evita desbordamientos y facilita el uso en pantallas más pequeñas. */
 @media (max-width: 700px) {
     .sidebar-toggle {
         display: none;
@@ -258,7 +258,7 @@ dialog[open] {
         white-space: nowrap;
     }
 }
-/* Adaptaci?n a tama?o de pantalla o preferencias de accesibilidad. */
+/* Reduce animaciones cuando el usuario prefiere menos movimiento. */
 @media (prefers-reduced-motion: reduce) {
     * {
         animation: none !important;
@@ -309,14 +309,14 @@ dialog[open] {
     padding: 10px;
     margin: 0;
 }
-/* Adaptaci?n a tama?o de pantalla o preferencias de accesibilidad. */
+/* Evita desbordamientos y facilita el uso en pantallas más pequeñas. */
 @media (max-width: 700px) {
     .search-row .owner-search {
         flex-basis: 100%;
         width: 100%;
     }
 }
-/* Adaptaci?n a tama?o de pantalla o preferencias de accesibilidad. */
+/* Evita desbordamientos y facilita el uso en pantallas más pequeñas. */
 @media (max-width: 700px) {
     .search-row {
         flex-wrap: wrap;

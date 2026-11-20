@@ -1,4 +1,4 @@
-# HTTP, rutas protegidas, idempotencia y archivos de la aplicaci?n.
+# Recibe las peticiones de la web, revisa permisos y las dirige al servicio adecuado.
 import hashlib
 import json
 import logging
@@ -25,6 +25,7 @@ from .validation import Problem, found
 logger = logging.getLogger("vetcare")
 
 
+# Reúne las rutas de la web y sus controles de acceso.
 class Application:
     # Crea el pool, el mapa de rutas y el tratamiento del proxy según el entorno.
     def __init__(self, config=None):
@@ -55,6 +56,7 @@ class Application:
         start = time.monotonic()
         ctx = Context(self, environ)
         try:
+            # Comprueba el dominio y la conexión segura antes de atender la operación.
             hostname = ctx.request.host.split(":", 1)[0]
             if hostname not in self.config.hosts:
                 raise Problem("Host no autorizado.", 400)
@@ -69,6 +71,7 @@ class Application:
             else:
                 endpoint, args = self.router.bind_to_environ(environ).match()
                 fn, staff, write = self.handlers[endpoint]
+                # Los permisos y la protección del formulario se comprueban también en el servidor.
                 if staff:
                     security.admin(ctx)
                 if ctx.request.method not in ("GET", "HEAD", "OPTIONS"):
@@ -77,6 +80,7 @@ class Application:
                 response = (
                     result if hasattr(result, "status_code") else response_json(result)
                 )
+        # Devuelve mensajes comprensibles sin mostrar consultas SQL ni datos privados.
         except Problem as exc:
             response = response_json(
                 {"status": "error", "message": exc.message}, exc.status
@@ -155,6 +159,7 @@ class Application:
         key = ctx.request.headers.get("Idempotency-Key", "")
         if not key or len(key) > 100:
             raise Problem("Falta la clave de operación. Recarga el formulario.")
+        # Compara contenido y archivos para reconocer un reenvío de la misma operación.
         file_hashes = {}
         for name, upload in ctx.request.files.items():
             digest = hashlib.sha256()
@@ -172,6 +177,7 @@ class Application:
         ).hexdigest()
         inserted = False
         try:
+            # Guarda el cambio y su respuesta juntos para evitar registros parciales o duplicados.
             with ctx.db.atomic():
                 op = insert(
                     ctx.db,
@@ -401,6 +407,7 @@ class Application:
         add("GET", "/adopciones/", lambda ctx: self.html(ctx, "catalog"))
         add("GET", "/adopciones/solicitud/<uuid:code>/", self.own_html)
         add("GET", "/adopciones/fotos/<int:pet_id>/", self.photo)
+        # Consultas de las pestañas administrativas: requieren acceso del personal.
         read = [
             ("dashboard/", clinic.dashboard),
             ("mascotas/", clinic.pets),
@@ -425,6 +432,7 @@ class Application:
             ("facturas/<int:invoice_id>/pdf/", self.invoice_pdf),
             ("notificaciones/", mail.list_messages),
         ]
+        # Operaciones que modifican datos: requieren formulario autorizado y control de duplicados.
         writes = [
             ("POST", "registrar/cliente-mascota/", clinic.register_family),
             ("POST", "clientes/<int:customer_id>/agregar-mascota/", clinic.add_pet),
@@ -446,6 +454,7 @@ class Application:
             add(method, "/inicio/api/" + path, fn, admin=True, write=True)
         # El envío confirma su propia reclamación antes de SMTP; no mantener una transacción HTTP abierta.
         add("POST", "/inicio/api/notificaciones/procesar/", mail.process_pending, admin=True)
+        # Rutas nuevas que ofrecen las mismas funciones a otros clientes de la API.
         for method, path, fn in [
             ("GET", "clientes", clinic.customers),
             ("GET", "clientes/<int:customer_id>", clinic.customers),
@@ -480,6 +489,7 @@ class Application:
             ("POST", "facturas", billing.save),
         ]:
             add(method, "/api/" + path, fn, admin=True, write=True)
+        # El catálogo es público; sus acciones administrativas conservan permisos propios.
         for prefix in ["/adopciones/api/", "/api/adopciones/"]:
             add("GET", prefix + "mascotas/<int:pet_id>/", adoptions.public_pet)
             add("GET", prefix + "catalogo/", adoptions.catalog)

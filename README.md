@@ -1,6 +1,6 @@
 # VetCare · Python WSGI + MySQL
 
-[Mapa de carpetas y bloques de código](docs/ESTRUCTURA.md) · [Publicación en Railway](docs/RAILWAY.md)
+[Para qué sirve cada archivo y carpeta](docs/ESTRUCTURA.md) · [Publicación en Railway](docs/RAILWAY.md)
 
 El frontend está separado en `frontend/assets/css`, `js` e `images`; las pruebas de navegador están en `tests/browser` y los informes en `docs/evidencias`. Los bloques Python, JavaScript, CSS y HTML incluyen explicaciones sobre su responsabilidad.
 
@@ -12,7 +12,7 @@ El frontend está separado en `frontend/assets/css`, `js` e `images`; las prueba
 .\.venv-wsgi\Scripts\python.exe scripts/empaquetar_wsgi.py
 ```
 
-`dist/VetCare-web.zip` contiene el código necesario para publicar, sin credenciales, entornos ni evidencias pesadas. El paquete `VetCare-WSGI-railway.zip` conserva también los informes y capturas. Docker construye únicamente los directorios de ejecución y prepara gzip para CSS/JS; no requiere Node ni conexión SQL durante el build.
+`dist/VetCare-web.zip` contiene el código necesario para publicar, sin credenciales, entornos ni evidencias pesadas. El paquete `VetCare-WSGI-railway.zip` conserva también los informes y las evidencias disponibles al generarlo. Los ZIP se crean mediante el comando anterior; las distribuciones antiguas y las capturas de pruebas regenerables se retiraron del código fuente. Docker construye únicamente los directorios de ejecución y prepara gzip para CSS/JS; no requiere Node ni conexión SQL durante el build.
 
 La configuración de Railway está preparada en los archivos raíz. El despliegue público requiere configurar las referencias MySQL, la firma privada, el dominio y el volumen, según [la guía](docs/RAILWAY.md). Gmail por SMTP necesita un plan que habilite SMTP en Railway; la guía enlaza la restricción oficial.
 
@@ -24,7 +24,7 @@ Los buscadores de Clientes y mascotas y Agendar cita despliegan propietarios sin
 
 Las facturas utilizan un selector de **Transferencia**, **Efectivo** o **Tarjeta**. [Detalle de la limpieza y reglas actuales](docs/LIMPIEZA_PROYECTO.md).
 
-La última limpieza deja la base operativa vacía, conservando todos los superusuarios y el cuestionario. Para previsualizar otra limpieza: `python scripts/limpiar_datos.py`. Sólo `--aplicar` respalda y vacía datos; nunca se ejecuta al iniciar.
+La herramienta de limpieza vacía los datos operativos y conserva todos los superusuarios y el cuestionario. Para previsualizarla: `python scripts/limpiar_datos.py`. Sólo `--aplicar` respalda y vacía datos; nunca se ejecuta al iniciar. Los conteos de informes anteriores describen su ejecución, no necesariamente los datos actuales.
 
 Para previsualizar la carga ficticia: `python scripts/preparar_demostracion.py`. La opción explícita `--aplicar` respalda y reemplaza datos operativos, conserva superusuarios/configuración y carga cinco clientes con nueve mascotas, cinco veterinarios, citas, facturas, vacunas, tratamientos y mascotas/solicitudes de adopción. Nunca se ejecuta automáticamente al iniciar la aplicación. Los correos de demostración no se envían.
 

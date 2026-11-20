@@ -1,3 +1,4 @@
+# Comprueba la agenda, los buscadores, los pagos y la limpieza con datos aislados.
 """Reglas de agenda, filtro exacto de propietario, pagos y limpieza, en MySQL aislado."""
 
 import unittest
@@ -21,6 +22,7 @@ from vetcare.services.scheduler import start_monitor, stop_monitor
 from .support import client, family, provision, write
 
 
+# Agrupa las pruebas de agenda, propietarios, pagos y limpieza.
 class AgendaPaymentTests(unittest.TestCase):
     # Prepara el entorno y los datos aislados requeridos por este grupo de pruebas.
     @classmethod
@@ -33,6 +35,7 @@ class AgendaPaymentTests(unittest.TestCase):
     def tearDownClass(cls):
         cls.app.database.close()
 
+    # Crea los datos y la cita que necesita esta prueba de agenda.
     def appointment(self, **changes):
         owner = write(self.c, "/api/clientes", family(count=2)).json["cliente_id"]
         pet = self.c.get(f"/api/clientes/{owner}/mascotas").json["mascotas"][0]["id"]
@@ -60,7 +63,7 @@ class AgendaPaymentTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200, response.json)
         return data, response.json["cita"]
 
-    # Comprueba la regresi?n de only programada on creation.
+    # Comprueba que toda cita nueva tenga únicamente el estado Programada.
     def test_01_only_programada_on_creation(self):
         data, appointment = self.appointment()
         self.assertEqual(appointment["estado"], "Programada")
@@ -72,7 +75,7 @@ class AgendaPaymentTests(unittest.TestCase):
                 400,
             )
 
-    # Comprueba la regresi?n de finishing time and colombia timezone.
+    # Comprueba el cambio a Atendida al terminar la cita con la hora de Colombia.
     def test_02_finishing_time_and_colombia_timezone(self):
         _, appointment = self.appointment()
         with self.app.database.lease() as db:
@@ -98,7 +101,7 @@ class AgendaPaymentTests(unittest.TestCase):
                 db.one("SELECT COUNT(*) AS n FROM pagInicio_notificacion")["n"], before
             )
 
-    # Comprueba la regresi?n de agenda get persists completion and preserves cancelled.
+    # Comprueba que la agenda cierre citas terminadas y conserve las canceladas.
     def test_03_agenda_get_persists_completion_and_preserves_cancelled(self):
         data, appointment = self.appointment(hora="11:00")
         cancelled = write(self.c, "/api/citas", dict(data, hora="12:00")).json["cita"]
@@ -127,7 +130,7 @@ class AgendaPaymentTests(unittest.TestCase):
                 "Cancelada",
             )
 
-    # Comprueba la regresi?n de owner list search and exact pet filter.
+    # Comprueba la búsqueda de propietarios y la selección exacta de sus mascotas.
     def test_04_owner_list_search_and_exact_pet_filter(self):
         data, _ = self.appointment()
         other, _ = self.appointment()
@@ -148,7 +151,7 @@ class AgendaPaymentTests(unittest.TestCase):
             self.c.get("/api/mascotas?cliente_id=malicioso").status_code, 400
         )
 
-    # Comprueba la regresi?n de three payment methods detail change and pdf.
+    # Comprueba los tres medios de pago en el registro, el detalle y el PDF.
     def test_05_three_payment_methods_detail_change_and_pdf(self):
         _, appointment = self.appointment()
         for method in ["Transferencia", "Efectivo", "Tarjeta"]:
@@ -188,7 +191,7 @@ class AgendaPaymentTests(unittest.TestCase):
                 "Tarjeta",
             )
 
-    # Comprueba la regresi?n de invalid payment does not insert invoice.
+    # Comprueba que un medio de pago inválido no genere una factura.
     def test_06_invalid_payment_does_not_insert_invoice(self):
         _, appointment = self.appointment()
         with self.app.database.lease() as db:
@@ -210,7 +213,7 @@ class AgendaPaymentTests(unittest.TestCase):
         with self.app.database.lease() as db:
             self.assertEqual(db.one("SELECT COUNT(*) AS n FROM factura")["n"], before)
 
-    # Comprueba la regresi?n de periodic monitor does not require smtp.
+    # Comprueba que el cierre automático de citas funcione sin depender del correo.
     def test_07_periodic_monitor_does_not_require_smtp(self):
         database = MagicMock()
         done = Event()
@@ -226,7 +229,7 @@ class AgendaPaymentTests(unittest.TestCase):
             self.assertFalse(monitor[1].is_alive())
             complete.assert_called_once()
 
-    # Comprueba la regresi?n de clear operational data preserves superusers and can rollback.
+    # Comprueba que la limpieza conserve superusuarios y pueda deshacerse si falla.
     def test_08_clear_operational_data_preserves_superusers_and_can_rollback(self):
         with self.app.database.lease() as db:
             before = table_counts(db)
@@ -247,7 +250,7 @@ class AgendaPaymentTests(unittest.TestCase):
             with db.atomic():
                 prepare_demo(db, datetime(2026, 11, 17).date())
 
-    # Comprueba el orden real por fecha/hora en agenda, selectores y páginas completas.
+    # Comprueba el mismo orden de citas en agenda, selectores y páginas adicionales.
     def test_09_appointment_order_shared_by_lists_and_selectors(self):
         data, _ = self.appointment(fecha="2027-03-30", hora="15:00")
         today = date(2027, 3, 1)
@@ -289,6 +292,7 @@ class AgendaPaymentTests(unittest.TestCase):
                 (data["mascota"],),
             )
 
+        # Calcula el orden esperado de las citas para comparar distintas pantallas.
         def key(row):
             stamp = datetime.fromisoformat(f"{row['fecha']}T{row['hora']}")
             past = stamp.date() < today

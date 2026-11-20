@@ -1,3 +1,4 @@
+# Prepara la imagen de ejecución de VetCare para publicarla en un servidor.
 FROM python:3.12-slim
 # Entorno de ejecución: salida inmediata y sin cachés Python en la imagen.
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_DISABLE_PIP_VERSION_CHECK=1

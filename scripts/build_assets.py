@@ -1,3 +1,4 @@
+# Genera copias comprimidas de CSS y JavaScript para cargar la web más rápido.
 """Precomprime CSS/JavaScript de forma reproducible; el código fuente sigue legible."""
 
 import gzip

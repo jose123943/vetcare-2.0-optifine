@@ -1,3 +1,4 @@
+# Prepara datos y una sesión temporal para los recorridos de navegador.
 """Prepara sólo la base aislada registrada por las pruebas."""
 
 import argparse

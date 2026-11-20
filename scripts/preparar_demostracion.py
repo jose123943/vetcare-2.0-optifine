@@ -1,3 +1,4 @@
+# Previsualiza los ejemplos; solo --aplicar respalda y carga la demostración.
 """Previsualiza o aplica la limpieza y carga de demostración con respaldo privado."""
 
 import argparse

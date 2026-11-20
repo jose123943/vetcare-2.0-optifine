@@ -1,3 +1,4 @@
+# Abre un servidor local conectado exclusivamente a una base de pruebas.
 """Servidor del navegador limitado a la base aislada creada por las pruebas."""
 
 import json

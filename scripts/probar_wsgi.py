@@ -1,3 +1,4 @@
+# Ejecuta las pruebas en bases aisladas y guarda un resumen de sus resultados.
 """Ejecuta integración real y guarda evidencia sin secretos ni fixtures."""
 
 import json
@@ -8,6 +9,7 @@ from pathlib import Path
 
 root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(root))
+# Reúne las comprobaciones de clínica, correo, sesiones, agenda y publicación.
 suite = unittest.defaultTestLoader.loadTestsFromNames(
     [
         "tests.test_wsgi",
@@ -18,6 +20,7 @@ suite = unittest.defaultTestLoader.loadTestsFromNames(
         "tests.test_deployment",
     ]
 )
+# Conserva el detalle y un resumen de la ejecución para poder revisar sus resultados.
 start = time.monotonic()
 with (root / "docs/evidencias/wsgi-pruebas.txt").open("w", encoding="utf-8") as stream:
     result = unittest.TextTestRunner(stream=stream, verbosity=2).run(suite)

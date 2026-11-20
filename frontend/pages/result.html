@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- Pantalla privada donde el solicitante consulta su evaluación de adopción. -->
 <html lang="es">
     <!-- Metadatos de la pantalla y hojas de estilo locales. -->
     <head>
@@ -9,7 +10,7 @@
         <link rel="stylesheet" href="/static/css/adoptions.css" />
     </head>
     <body class="adoption-public" data-screen="result">
-        <!-- Contenido principal que utiliza el m?dulo de esta pantalla. -->
+        <!-- La API comprueba al solicitante antes de mostrar su resultado y recomendaciones. -->
         <main class="result-page">
             <a class="brand" href="/adopciones/">✚ VetCare</a>
             <section class="result-card">
@@ -31,7 +32,7 @@
                 </p>
             </section>
         </main>
-        <!-- Inicio de sesi?n, CSRF y carga de los m?dulos JavaScript necesarios. -->
+        <!-- Inicio de sesión, CSRF y carga de los módulos JavaScript necesarios. -->
         <script src="/static/js/bootstrap.js" defer></script>
     </body>
 </html>

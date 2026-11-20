@@ -1,10 +1,13 @@
+// Comprueba altas, cambios, eliminaciones protegidas y fotografías en el navegador de pruebas.
 const { chromium } = require(process.env.VETCARE_PLAYWRIGHT_MODULE),
     fs = require('fs'),
     path = require('path'),
     os = require('os'),
     assert = require('node:assert/strict');
 
+// Abre Edge con datos de prueba y conserva los errores para comprobar el recorrido.
 (async () => {
+    // Ejecuta el navegador sin abrir ventanas para el usuario.
     const browser = await chromium.launch({
         executablePath:
             'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
@@ -66,6 +69,7 @@ const { chromium } = require(process.env.VETCARE_PLAYWRIGHT_MODULE),
 
     const token = Date.now().toString();
 
+    // Envía los cambios de prueba con los mismos controles de seguridad que la interfaz.
     async function write(url, data, method = 'POST') {
         const r = await context.request.fetch(url, {
             method,
@@ -171,6 +175,7 @@ const { chromium } = require(process.env.VETCARE_PLAYWRIGHT_MODULE),
     });
 
     assert.deepEqual(errors, []);
+    // Resume el resultado del recorrido para facilitar la revisión.
     console.log(
         'Navegador: editar/eliminar cliente con protección de historiales, alta/edición/baja de veterinario y alta de mascota en adopción con foto: OK.',
     );

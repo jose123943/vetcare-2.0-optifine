@@ -1,4 +1,4 @@
-# Servidor Linux, par?metros de concurrencia y ciclo de vida del monitor.
+# Configura el servidor Linux que publica VetCare y mantiene el monitor de citas.
 import os
 import secrets
 

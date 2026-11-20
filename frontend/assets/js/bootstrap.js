@@ -1,4 +1,4 @@
-// Inicio com?n: sesi?n, CSRF y m?dulos requeridos por cada pantalla.
+// Prepara la sesión y carga los módulos JavaScript que necesita cada pantalla.
 'use strict';
 window.vetcare = {
     csrf: () =>
@@ -11,7 +11,7 @@ window.vetcare = {
 };
 (async () => {
     const screen = document.body.dataset.screen;
-    // Carga los m?dulos de la pantalla en el orden de sus dependencias.
+    // Carga los módulos de la pantalla en el orden de sus dependencias.
     function load(path) {
         return new Promise((resolve, reject) => {
             const s = document.createElement('script');

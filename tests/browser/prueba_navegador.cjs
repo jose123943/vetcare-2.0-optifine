@@ -1,4 +1,4 @@
-/* Ejecutar con VETCARE_PLAYWRIGHT_MODULE apuntando a playwright-core de pruebas. */
+// Recorre el registro clínico, la agenda, la factura PDF y el cierre de sesión.
 
 const { chromium } = require(process.env.VETCARE_PLAYWRIGHT_MODULE);
 
@@ -8,7 +8,9 @@ const fs = require('fs'),
 
 const assert = require('node:assert/strict');
 
+// Abre Edge con datos de prueba y conserva los errores para comprobar el recorrido.
 (async () => {
+    // Ejecuta el navegador sin abrir ventanas para el usuario.
     const browser = await chromium.launch({
         executablePath:
             'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
@@ -186,6 +188,7 @@ const assert = require('node:assert/strict');
     assert.equal(new URL(page.url()).pathname, '/');
 
     assert.deepEqual(errors, []);
+    // Resume el resultado del recorrido para facilitar la revisión.
     console.log(
         'Navegador: registro de 3 mascotas, agenda, factura PDF, móvil y cierre de sesión: OK.',
     );

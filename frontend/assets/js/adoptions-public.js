@@ -1,4 +1,4 @@
-// Cat?logo y encuesta de adopci?n para visitantes.
+// Muestra el catálogo público y guía al visitante por la encuesta de adopción.
 'use strict';
 
 const escapeText = (v) =>
@@ -21,7 +21,7 @@ let pets = [],
     nextPage = null,
     catalogSequence = 0;
 
-// Presenta un aviso p?blico sin datos internos.
+// Presenta un aviso público sin datos internos.
 function message(text) {
     const box = document.querySelector('#public-toast');
     box.textContent = text;
@@ -29,7 +29,7 @@ function message(text) {
     setTimeout(() => (box.style.display = 'none'), 7000);
 }
 
-// Consulta la API p?blica y transforma errores en mensajes comprensibles.
+// Consulta la API pública y transforma errores en mensajes comprensibles.
 async function request(path, options = {}) {
     const r = await fetch('/adopciones/api/' + path, {
         credentials: 'same-origin',
@@ -220,7 +220,7 @@ async function start(p) {
     dialog.showModal();
 }
 
-// Carga el cat?logo y abre la encuesta indicada en la direcci?n.
+// Carga el catálogo y abre la encuesta indicada en la dirección.
 async function initialize() {
     await load();
 

@@ -1,4 +1,4 @@
-# Prepara un entorno propio y conserva la configuración privada existente.
+# Prepara el entorno Python, instala dependencias y comprueba la configuración local.
 $ErrorActionPreference = 'Stop'
 $env:PYTHONDONTWRITEBYTECODE = '1'
 Set-Location -LiteralPath $PSScriptRoot

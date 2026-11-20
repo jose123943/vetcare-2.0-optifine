@@ -1,3 +1,4 @@
+# Solicita y comprueba las credenciales de Gmail antes de guardarlas localmente.
 """Asistente privado para Gmail: comprueba SMTP sin enviar correos."""
 
 import argparse

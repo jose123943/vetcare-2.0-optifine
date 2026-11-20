@@ -1,10 +1,12 @@
-/* Sólo contra el servidor de pruebas y sus cookies temporales. */
+// Comprueba la sesión activa y la encuesta directa de una mascota con datos ficticios.
 const { chromium } = require(process.env.VETCARE_PLAYWRIGHT_MODULE);
 const fs = require('fs'),
     os = require('os'),
     path = require('path');
 const assert = require('node:assert/strict');
+// Abre Edge con datos de prueba y conserva los errores para comprobar el recorrido.
 (async () => {
+    // Ejecuta el navegador sin abrir ventanas para el usuario.
     const browser = await chromium.launch({
         executablePath:
             'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
@@ -123,6 +125,7 @@ const assert = require('node:assert/strict');
         const protectedRoute = await context.request.get('/api/clientes');
         assert.equal(protectedRoute.status(), 401);
         assert.deepEqual(errors, []);
+        // Resume el resultado del recorrido para facilitar la revisión.
         console.log(
             'OK: sesión al navegar y recargar, encuesta directa desde adopciones, 21 respuestas, resultado, móvil y cierre de sesión.',
         );

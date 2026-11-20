@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- Pantalla pública para conocer mascotas y solicitar una adopción. -->
 <html lang="es">
     <!-- Metadatos de la pantalla y hojas de estilo locales. -->
     <head>
@@ -22,7 +23,7 @@
             </nav>
         </header>
 
-        <!-- Contenido principal que utiliza el m?dulo de esta pantalla. -->
+        <!-- Presenta el proceso de adopción y el listado público de mascotas disponibles. -->
 
         <main class="adoption-main">
             <section class="adoption-hero">
@@ -82,6 +83,7 @@
                 </article>
             </section>
 
+            <!-- La búsqueda y las tarjetas se actualizan desde la API pública. -->
             <section id="catalogo">
                 <div class="page-heading">
                     <div>
@@ -134,7 +136,7 @@
             </section>
         </main>
 
-        <!-- Informaci?n de cierre y contexto del servicio. -->
+        <!-- Información de cierre y contexto del servicio. -->
 
         <footer class="adoption-footer">
             <strong>VetCare 2.0</strong>
@@ -142,7 +144,7 @@
             <a href="/">Acceso administrativo</a>
         </footer>
 
-        <!-- Formulario o detalle modal, separado del contenido principal. -->
+        <!-- La encuesta de la mascota elegida se abre aquí, sin salir del catálogo. -->
 
         <dialog id="application" aria-labelledby="application-title">
             <div class="modal-head">
@@ -158,7 +160,7 @@
             <div id="application-content"></div>
         </dialog>
         <div id="public-toast" role="status" aria-live="polite"></div>
-        <!-- Inicio de sesi?n, CSRF y carga de los m?dulos JavaScript necesarios. -->
+        <!-- Inicio de sesión, CSRF y carga de los módulos JavaScript necesarios. -->
         <script src="/static/js/bootstrap.js" defer></script>
     </body>
 </html>

@@ -1,3 +1,4 @@
+# Muestra qué datos se limpiarían; solo --aplicar respalda y ejecuta la limpieza.
 """Vacía datos operativos con respaldo, conservando superusuarios y configuración."""
 
 import argparse

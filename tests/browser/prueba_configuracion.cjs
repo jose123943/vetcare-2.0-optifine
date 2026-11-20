@@ -1,6 +1,9 @@
+// Comprueba cuentas, cuestionarios y vacunas desde el navegador de pruebas.
 const { chromium } = require(process.env.VETCARE_PLAYWRIGHT_MODULE),
     assert = require('node:assert/strict');
+// Abre Edge con datos de prueba y conserva los errores para comprobar el recorrido.
 (async () => {
+    // Ejecuta el navegador sin abrir ventanas para el usuario.
     const browser = await chromium.launch({
         executablePath:
             'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
@@ -73,6 +76,7 @@ const { chromium } = require(process.env.VETCARE_PLAYWRIGHT_MODULE),
         .click();
     await page.getByText('Vacuna navegador', { exact: true }).waitFor();
     assert.deepEqual(errors, []);
+    // Resume el resultado del recorrido para facilitar la revisión.
     console.log(
         'Navegador: login real del usuario sintético, cuentas, borrador, edición, publicación y vacuna: OK.',
     );

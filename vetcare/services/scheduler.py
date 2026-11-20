@@ -1,4 +1,4 @@
-# Monitor peri?dico de citas finalizadas, independiente del correo.
+# Marca como atendidas las citas que ya terminaron, usando la hora de Colombia.
 """Finalización periódica de citas, independiente del transporte de correo."""
 
 import logging

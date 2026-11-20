@@ -1,4 +1,4 @@
-// Cuentas, propietarios y versiones de cuestionarios.
+// Permite administrar propietarios, cuentas del equipo y versiones de la encuesta.
 'use strict';
 // Mantiene datos del propietario y protege su historial al eliminar.
 function editOwner(c) {
@@ -35,7 +35,7 @@ function editOwner(c) {
         'DELETE',
     );
 }
-// Carga cuestionarios y cuentas seg?n los permisos del usuario.
+// Carga cuestionarios y cuentas según los permisos del usuario.
 async function configuration(token) {
     app.innerHTML =
         title(
@@ -177,7 +177,7 @@ function editAccount(u = {}) {
         u.id ? 'PUT' : 'POST',
     );
 }
-// Muestra criterios, preguntas y publicaci?n de una versi?n.
+// Muestra criterios, preguntas y publicación de una versión.
 async function viewVersion(id) {
     const { cuestionario: q } = await api(
         `/adopciones/api/admin/cuestionarios/${id}/`,

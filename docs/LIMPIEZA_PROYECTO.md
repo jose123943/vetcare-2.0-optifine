@@ -1,8 +1,30 @@
-# Limpieza y reglas de agenda · 17 de noviembre de 2026
+# Limpieza del proyecto
+
+## Limpieza de archivos · 20 de noviembre de 2026
+
+La revisión de importaciones, recursos de la interfaz, puntos de entrada y configuración confirmó que los módulos y dependencias declaradas siguen en uso. Se retiraron únicamente archivos generados, cachés y carpetas que habían quedado vacías.
+
+| Grupo retirado | Motivo |
+|---|---|
+| ZIP de `dist/` | Distribuciones antiguas; se reconstruyen con `scripts/empaquetar_wsgi.py`. |
+| Contenido generado de `build/` | Gzip y manifest de una construcción anterior; `scripts/build_assets.py` y Docker los regeneran. |
+| Cachés `__pycache__` y `.ruff_cache` del código propio | Archivos temporales que Python y las herramientas pueden volver a crear. |
+| 19 capturas y PDF de `docs/evidencias/` | Salidas de pruebas que se regeneran; los informes JSON y de texto se conservan. |
+| Carpetas antiguas vacías bajo `frontend/assets/` | Restos de la organización anterior sin archivos ni referencias activas. |
+
+Se eliminaron **87 archivos y 11 carpetas seleccionadas**, con **7.834.963 bytes** liberados, aproximadamente **7,8 MB**. Las subcarpetas de esos destinos también se retiraron. El respaldo privado `limpieza_archivos_20261120_090957_949.zip` conserva los archivos y un manifiesto; sus SHA-256 se comprobaron antes de borrar. Está fuera del proyecto, en `.codex/backups/vetcare` del usuario.
+
+Se conservan el entorno `.venv-wsgi`, la configuración `.env`, las fotos de `media/`, las migraciones SQL aplicadas, todos los módulos de ejecución, las pruebas, los comentarios del código y las guías y PDF solicitados. Esta limpieza no ejecuta operaciones sobre la base de datos. Las nuevas capturas y PDF de pruebas quedan excluidos de Git.
+
+La aplicación puede servir los recursos originales cuando no existe `build/`; la construcción de producción vuelve a generar sus variantes gzip. Los comandos de empaquetado crean `dist/` cuando se necesitan paquetes nuevos.
+
+Comprobaciones posteriores: **16 pruebas locales correctas**, referencias estáticas válidas, dependencias sin conflictos y análisis de importaciones sin avisos. Se verificaron respuestas 200 de salud, disponibilidad de MySQL y cinco recursos públicos. Se generó una factura PDF ficticia en memoria y un ZIP web temporal de 94 archivos, sin secretos. Los 132 archivos conservados fuera de las actualizaciones previstas de documentación coinciden con sus hashes iniciales; se revisaron 113 enlaces locales. La comprobación de MySQL utilizó únicamente la consulta de disponibilidad y no modificó registros ni envió correos.
+
+## Registro anterior · 17 de noviembre de 2026
 
 La aplicación mantiene su arquitectura Python WSGI, HTML/CSS/JavaScript y MySQL. La revisión de referencias retiró archivos heredados sin uso y un paquete generado que había quedado desactualizado.
 
-## Archivos retirados
+### Archivos retirados
 
 | Archivo | Motivo |
 |---|---|
@@ -16,7 +38,7 @@ Antes de retirarlos se creó un archivo ZIP privado, se verificó su integridad 
 
 La eliminación de las cachés locales `__pycache__` del código propio y `.ruff_cache` fue bloqueada por la revisión automática de herramientas, incluso al limitar los destinos a rutas verificadas del proyecto. El motivo devuelto fue bloqueo de política, sin detalle adicional. Esas cachés permanecen excluidas de Git y no afectan el funcionamiento. Se mantienen el entorno virtual, `.env`, fotografías, migraciones SQL aplicadas, pruebas y documentación de recuperación.
 
-## Dependencias
+### Dependencias
 
 La auditoría de importaciones y puntos de entrada no detectó dependencias declaradas de ejecución que puedan eliminarse sin perder funciones:
 
@@ -34,7 +56,7 @@ La auditoría de importaciones y puntos de entrada no detectó dependencias decl
 
 No se actualizaron versiones ni se eliminaron dependencias transitivas a ciegas. El monitor de citas utiliza `threading` de la biblioteca estándar.
 
-## Comportamiento actualizado
+### Comportamiento actualizado en esa entrega
 
 - En **Clientes y mascotas** y **Agendar cita**, el buscador despliega propietarios al recibir el foco, filtra por lo escrito y permite seleccionar con ratón o flechas/Enter. Escape cierra la lista. Los documentos e identificadores distinguen nombres repetidos.
 - Elegir un propietario en Clientes y mascotas filtra por su identificador exacto. Escribir de nuevo vuelve a la búsqueda libre de paciente, nombre, documento, teléfono o correo. La selección en Agendar sólo carga los pacientes de esa persona.
@@ -43,7 +65,7 @@ No se actualizaron versiones ni se eliminaron dependencias transitivas a ciegas.
 - La agenda visible consulta cambios cada 15 segundos, conserva las páginas cargadas y evita refrescar mientras un modal está abierto. El cambio automático no genera correos adicionales.
 - El método de pago es un selector de **Transferencia**, **Efectivo** o **Tarjeta**, tanto al crear la factura como al actualizarla. Python valida las mismas opciones y el PDF muestra el método guardado.
 
-## Vaciar los datos operativos
+### Vaciar los datos operativos
 
 Detener el servidor y el worker antes de aplicar una limpieza. Este comando sólo muestra conteos:
 

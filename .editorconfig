@@ -1,4 +1,4 @@
-# Reglas de edición del código; los SQL aplicados conservan sus bytes.
+# Unifica el formato del código y protege los bytes de los SQL ya aplicados.
 root = true
 
 [*]

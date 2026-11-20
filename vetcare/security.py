@@ -1,4 +1,4 @@
-# Contrase?as, sesiones, permisos, CSRF y l?mites de autenticaci?n.
+# Controla el acceso, las contraseñas, las sesiones y los permisos de cada usuario.
 import base64
 import hashlib
 import json
@@ -14,7 +14,9 @@ from passlib.hash import django_argon2, django_pbkdf2_sha1, django_pbkdf2_sha256
 from .db import insert
 from .validation import Problem
 
+# Verifica contraseñas mediante una biblioteca especializada, sin guardarlas en texto legible.
 hasher = PasswordHasher()
+# Mantiene una comprobación comparable cuando el usuario no existe para no revelar cuentas por tiempos.
 DUMMY_HASH = hasher.hash(secrets.token_urlsafe(24))
 
 

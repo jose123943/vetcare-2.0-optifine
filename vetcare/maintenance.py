@@ -1,4 +1,4 @@
-# Respaldos privados consistentes y evidencia de integridad sin datos personales.
+# Crea respaldos privados y comprueba la integridad de los datos.
 """Copias privadas y comprobación de datos; no publica filas ni contraseñas."""
 
 import base64

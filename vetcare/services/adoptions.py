@@ -1,4 +1,4 @@
-# Cat?logo, cuestionarios, evaluaci?n de solicitudes y entrega responsable.
+# Gestiona mascotas para adoptar, encuestas, evaluaciones, autorizaciones y entregas.
 import hashlib
 import json
 import secrets

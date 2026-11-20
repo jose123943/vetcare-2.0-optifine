@@ -1,3 +1,4 @@
+# Compara la base de datos con un respaldo privado sin publicar sus registros.
 """Compara todas las tablas del respaldo original sin exponer sus filas."""
 
 import gzip
@@ -36,7 +37,6 @@ def compare(path):
                 )
             )
 
-            # Se ordenan por PK para neutralizar el orden de lectura del respaldo.
             # Ordena registros serializados para comparar respaldos sin depender del orden físico.
             def sort(records):
                 return sorted(

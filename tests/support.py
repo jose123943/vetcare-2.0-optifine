@@ -1,3 +1,4 @@
+# Prepara aplicaciones, cuentas y datos ficticios para probar sin alterar la base operativa.
 """Fixtures sintéticos exclusivamente en una base aislada; nunca vacían Railway."""
 
 import json
@@ -20,6 +21,7 @@ PASSWORD = "Fixture-only-for-tests-2026"
 USERNAME = "wsgi-test-admin"
 
 
+# Crea una base aislada y una cuenta ficticia para ejecutar las pruebas.
 def provision(name=None):
     name = name or "test_vetcare_wsgi_" + uuid.uuid4().hex[:12]
     config = Config.load(database=name, testing=True)
@@ -68,6 +70,7 @@ def provision(name=None):
     return create_app(config), uid
 
 
+# Prepara un cliente HTTP y, cuando se solicita, inicia su sesión de prueba.
 def client(app, login=True):
     c = Client(app, Response)
     c.get("/api/session")
@@ -81,6 +84,7 @@ def client(app, login=True):
     return c
 
 
+# Envía una operación de prueba con los controles de formulario y de duplicados.
 def write(c, path, data, key=None, method="POST"):
     return c.open(
         path,
@@ -93,6 +97,7 @@ def write(c, path, data, key=None, method="POST"):
     )
 
 
+# Construye los datos ficticios de un propietario con varias mascotas.
 def family(document=None, count=3):
     return dict(
         nombre="Familia",
@@ -116,6 +121,7 @@ def family(document=None, count=3):
     )
 
 
+# Construye una ficha ficticia de mascota para probar el catálogo de adopciones.
 def adoption_pet():
     return dict(
         nombre="Compañera de pruebas",
@@ -135,6 +141,7 @@ def adoption_pet():
     )
 
 
+# Construye una solicitud ficticia con todas las respuestas de la encuesta.
 def applicant(q):
     return dict(
         cuestionario=q["id"],

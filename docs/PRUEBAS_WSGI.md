@@ -2,6 +2,8 @@
 
 Pruebas realizadas en Windows, Python 3.14, MySQL 8.4.13 de Railway y un entorno `.venv-wsgi` sin Django. Las pruebas automatizadas usan bases nuevas con prefijo `test_vetcare_`, separadas de la base operativa. Las cargas de demostración y limpiezas operativas corresponden a peticiones expresas del propietario.
 
+**Conservación de evidencias:** los JSON y las salidas de texto siguientes permanecen en el proyecto. Las capturas y los PDF sintéticos de esas ejecuciones se archivaron durante la limpieza del 20 de noviembre de 2026 y se pueden regenerar con los recorridos de navegador. [Detalle del archivo de evidencias](evidencias/README.md).
+
 ## Entrega actual: organización y preparación web
 
 La suite actual pasó **63 pruebas, sin fallos, errores ni omisiones**, en 494,002 segundos. Los ocho casos nuevos comprueban rutas estáticas, configuración de producción, gzip frente a texto, calidad de `Accept-Encoding`, HEAD, ETag/304, rechazo de rutas inválidas y construcción repetible de recursos. Evidencia: `evidencias/wsgi_pruebas.json`, `evidencias/wsgi-pruebas.txt`.

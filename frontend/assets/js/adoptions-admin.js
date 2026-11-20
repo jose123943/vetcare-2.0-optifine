@@ -1,4 +1,4 @@
-// Gesti?n privada del cat?logo y del proceso de adopci?n.
+// Permite al equipo gestionar mascotas en adopción, solicitudes y entregas.
 'use strict';
 
 let adoptionPets = [],
@@ -29,7 +29,7 @@ async function adoptionAdmin(token) {
     petPage = 1;
     applicationPage = 1;
 
-    // Carga una p?gina de mascotas y enlaza edici?n, fotos y encuesta.
+    // Carga una página de mascotas y enlaza edición, fotos y encuesta.
     async function loadPets(append = false) {
         const d = await api(
             `/adopciones/api/admin/mascotas/?pagina=${append ? petPage : 1}`,
@@ -65,7 +65,7 @@ async function adoptionAdmin(token) {
             );
     }
 
-    // Carga solicitudes seg?n el filtro de evaluaci?n.
+    // Carga solicitudes según el filtro de evaluación.
     async function loadApplications(append = false) {
         const filter = document.querySelector('[name=approved-filter]').value;
         const d = await api(
@@ -117,7 +117,7 @@ async function adoptionAdmin(token) {
     await Promise.all([loadPets(), loadApplications()]);
 }
 
-// Crea o edita una ficha p?blica de adopci?n.
+// Crea o edita una ficha pública de adopción.
 function editAdoptionPet(p = {}) {
     openModal(
         p.id ? 'Editar mascota de adopción' : 'Registrar mascota de adopción',
@@ -188,7 +188,7 @@ function adoptionPhoto(id) {
     );
 }
 
-// Consulta respuestas y registra revisi?n, autorizaci?n, rechazo o entrega.
+// Consulta respuestas y registra revisión, autorización, rechazo o entrega.
 async function reviewApplication(id) {
     const d = await api(`/adopciones/api/admin/solicitudes/${id}/`),
         s = d.solicitud;
@@ -253,7 +253,7 @@ async function reviewApplication(id) {
         );
 }
 
-// Prepara una versi?n nueva del cuestionario con pesos que suman cien.
+// Prepara una versión nueva del cuestionario con pesos que suman cien.
 async function editWeights() {
     const q = await api('/adopciones/api/cuestionario/');
     openModal(

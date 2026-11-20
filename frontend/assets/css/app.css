@@ -1,4 +1,4 @@
-/* Base visual: colores, controles, estructura del dashboard y pantalla de acceso. */
+/* Define los colores, formularios, tablas y distribución básica de la aplicación. */
 /* Variables de tema y valores compartidos. */
 :root {
     --green: #147966;
@@ -83,7 +83,7 @@ button.small {
     font-size: 12px;
     padding: 7px 11px;
 }
-/* Navegaci?n lateral y marca de la cl?nica. */
+/* Navegación lateral y marca de la clínica. */
 .sidebar {
     width: 248px;
     background: #fff;
@@ -179,7 +179,7 @@ nav a:hover {
     color: var(--muted);
     padding: 8px 0;
 }
-/* ?rea administrativa y distribuci?n del contenido. */
+/* Área administrativa y distribución del contenido. */
 .workspace {
     margin-left: 248px;
 }
@@ -245,7 +245,7 @@ small {
     color: var(--green);
     margin-bottom: 12px;
 }
-/* T?tulos y acciones de cada secci?n. */
+/* Títulos y acciones de cada sección. */
 .page-heading {
     display: flex;
     justify-content: space-between;
@@ -404,7 +404,7 @@ td .actions {
     color: #97b5a8;
     margin-bottom: 12px;
 }
-/* Distribuci?n de campos y formularios. */
+/* Distribución de campos y formularios. */
 .form-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -606,7 +606,7 @@ dialog::backdrop {
     animation: spin 0.6s linear infinite;
     margin-right: 8px;
 }
-/* Transici?n visual; los datos y sus valores finales no cambian. */
+/* Gira el indicador de espera para mostrar que una operación sigue en curso. */
 @keyframes spin {
     to {
         transform: rotate(360deg);
@@ -678,7 +678,7 @@ dialog::backdrop {
     color: var(--muted);
     font-size: 11px;
 }
-/* Adaptaci?n a tama?o de pantalla o preferencias de accesibilidad. */
+/* Evita desbordamientos y facilita el uso en pantallas más pequeñas. */
 @media (max-width: 1100px) {
     .sidebar {
         width: 212px;
@@ -709,7 +709,7 @@ dialog::backdrop {
         grid-template-columns: repeat(2, 1fr);
     }
 }
-/* Adaptaci?n a tama?o de pantalla o preferencias de accesibilidad. */
+/* Evita desbordamientos y facilita el uso en pantallas más pequeñas. */
 @media (max-width: 700px) {
     .sidebar {
         position: static;
@@ -814,7 +814,7 @@ dialog::backdrop {
         max-width: 100%;
     }
 }
-/* Adaptaci?n a tama?o de pantalla o preferencias de accesibilidad. */
+/* Reduce animaciones cuando el usuario prefiere menos movimiento. */
 @media (prefers-reduced-motion: reduce) {
     * {
         animation: none !important;

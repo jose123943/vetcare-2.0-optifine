@@ -1,4 +1,4 @@
-# Mantener los textos estables al clonar en Windows y Linux.
+# Conserva correctamente los archivos de texto, binarios y migraciones al clonar.
 * text=auto eol=lf
 
 # No convertir saltos de línea dentro de documentos e imágenes.

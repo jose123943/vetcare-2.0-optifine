@@ -1,10 +1,11 @@
-// Gesti?n administrativa: cl?nica, agenda, historiales, facturaci?n y correos.
+// Conecta las pestañas de la clínica con sus formularios, listados y notificaciones.
 'use strict';
 
 const app = document.querySelector('#app');
 
 const modal = document.querySelector('#modal');
 
+// Escapa el texto recibido antes de insertarlo en HTML para evitar contenido ejecutable.
 const esc = (value) =>
     String(value ?? '').replace(
         /[&<>"']/g,
@@ -18,33 +19,39 @@ const esc = (value) =>
             })[c],
     );
 
+// Presenta los importes en pesos colombianos de forma uniforme.
 const cop = (value) =>
     new Intl.NumberFormat('es-CO', {
         style: 'currency',
         currency: 'COP',
     }).format(Number(value));
 
+// Presenta los estados con la etiqueta visual que les corresponde.
 const badge = (state) =>
     `<span class="badge ${esc(state)}">${esc(state)}</span>`;
 
+// Usa la fecha de Colombia aunque el navegador esté en otra zona horaria.
 const today = () =>
     new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota' }).format(
         new Date(),
     );
 
+// Descarta respuestas anteriores si el usuario cambia de pestaña durante una consulta.
 let generation = 0;
 
 let pageRefreshTimer;
 
+// Comparte el envío en curso para no iniciar varios lotes desde el mismo navegador.
 let mailProcessing;
 
 let petCache = [],
     vetCache = [],
     invoiceAppointments = [];
 
+// Relaciona formularios con sus acciones sin retener los elementos que ya se retiraron de la pantalla.
 const handlers = new WeakMap();
 
-// Presenta avisos temporales de ?xito o error.
+// Presenta avisos temporales de éxito o error.
 function toast(text, error = false) {
     const node = document.createElement('div');
     node.className = `toast ${error ? 'error' : ''}`;
@@ -115,39 +122,39 @@ function field(name, label, type = 'text', value = '', extra = '') {
     return `<label>${esc(label)}<input name="${esc(name)}" type="${type}" value="${esc(value)}" ${extra}></label>`;
 }
 
-// Construye un selector con sus opciones y selecci?n actual.
+// Construye un selector con sus opciones y selección actual.
 function select(name, label, options, value = '', extra = '') {
     return `<label>${esc(label)}<select name="${esc(name)}" ${extra}>${options.map(([v, t]) => `<option value="${esc(v)}" ${String(v) === String(value) ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select></label>`;
 }
 
-// Construye un ?rea de texto segura.
+// Construye un área de texto segura.
 function area(name, label, value = '', extra = '') {
     return `<label class="full">${esc(label)}<textarea name="${name}" ${extra}>${esc(value)}</textarea></label>`;
 }
 
-// Compone el t?tulo y las acciones de cada pesta?a.
+// Compone el título y las acciones de cada pestaña.
 function title(kicker, name, desc, actions = '') {
     return `<div class="page-heading"><div><div class="eyebrow">${kicker}</div><h1>${name}</h1><p>${desc}</p></div><div class="actions">${actions}</div></div>`;
 }
 
-// Presenta filas o el estado vac?o de una tabla.
+// Presenta filas o el estado vacío de una tabla.
 function table(headers, rows, empty = 'Aún no hay registros para mostrar.') {
     return `<div class="table-wrap"><table><thead><tr>${headers.map((h) => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows || `<tr><td colspan="${headers.length}"><div class="empty"><span>♧</span>${empty}</div></td></tr>`}</tbody></table></div>`;
 }
 
-// Incluye el diagn?stico del formulario y su bot?n de guardado.
+// Incluye el diagnóstico del formulario y su botón de guardado.
 function submit(text = 'Guardar') {
     return `<div class="form-error" role="alert"></div><div class="form-actions"><button type="submit">${text}</button></div>`;
 }
 
-// Abre el di?logo reutilizable con el contenido del m?dulo.
+// Abre el diálogo reutilizable con el contenido del módulo.
 function openModal(name, html) {
     document.querySelector('#modal-title').textContent = name;
     document.querySelector('#modal-content').innerHTML = html;
     if (!modal.open) modal.showModal();
 }
 
-// Asocia cada elemento de formulario a su operaci?n y libera referencias al retirarlo.
+// Asocia cada elemento de formulario a su operación y libera referencias al retirarlo.
 function bindForm(
     id,
     path,
@@ -162,9 +169,7 @@ function bindForm(
     handlers.set(form, { transform, success });
 }
 
-// Un único listener para todas las escrituras. Reutiliza la clave ante error de red.
-
-// Guarda formularios con CSRF e idempotencia y restaura los controles tras un error.
+// Guarda formularios con protección contra falsificaciones y reenvíos; libera los botones al terminar.
 document.addEventListener('submit', async (event) => {
     const form = event.target;
 
@@ -300,7 +305,7 @@ document.addEventListener('submit', async (event) => {
     }
 });
 
-// Gestiona cierres de di?logo y eliminaci?n de filas todav?a sin guardar.
+// Gestiona cierres de diálogo y eliminación de filas todavía sin guardar.
 document.addEventListener('click', (event) => {
     if (event.target.closest('[data-close]')) modal.close();
 
@@ -363,7 +368,7 @@ function ownerFields(c = {}) {
     );
 }
 
-// Agrupa los campos de una mascota para alta o edici?n.
+// Agrupa los campos de una mascota para alta o edición.
 function petFields(m = {}, edit = false) {
     return (
         field(
@@ -415,7 +420,7 @@ function petFields(m = {}, edit = false) {
     );
 }
 
-// Sincroniza n?meros y cantidad de fichas de pacientes.
+// Sincroniza números y cantidad de fichas de pacientes.
 function renumberPets() {
     document
         .querySelectorAll('#pets .pet-card')
@@ -427,7 +432,7 @@ function renumberPets() {
     if (n) n.value = document.querySelectorAll('#pets .pet-card').length;
 }
 
-// A?ade una ficha respetando el m?ximo de pacientes por registro.
+// Añade una ficha respetando el máximo de pacientes por registro.
 function addPet() {
     const container = document.querySelector('#pets');
     if (container.children.length >= 50) return;
@@ -438,7 +443,7 @@ function addPet() {
     renumberPets();
 }
 
-// Valida y registra una familia con sus mascotas en una operaci?n.
+// Valida y registra una familia con sus mascotas en una operación.
 async function registrar() {
     app.innerHTML =
         title(
@@ -556,7 +561,7 @@ async function dashboard(token) {
     bindCitaButtons();
 }
 
-// Consulta la agenda y actualiza sus estados sin perder la paginaci?n.
+// Consulta la agenda y actualiza sus estados sin perder la paginación.
 async function citas(token) {
     let rows = [],
         next = 1,
@@ -571,7 +576,7 @@ async function citas(token) {
             `<button onclick="location.hash='agendar'">＋ Nueva cita</button>`,
         ) + '<section class="panel" id="appointments-list"></section>';
 
-    // Solicita y presenta resultados de la secci?n con control de paginaci?n.
+    // Solicita y presenta resultados de la sección con control de paginación.
     async function load(refresh = false) {
         if (busy) return;
         busy = true;
@@ -679,7 +684,7 @@ async function appointmentForm(c = {}) {
         )}${area('motivo', 'Motivo de consulta *', c.motivo, 'required maxlength="200"')}${area('observaciones', 'Observaciones', c.observaciones)}</div>${submit(c.id ? 'Guardar cambios' : 'Registrar cita')}</form>`;
 
     let seq = 0;
-    // Carga s?lo las mascotas del propietario seleccionado e ignora respuestas antiguas.
+    // Carga solo las mascotas del propietario seleccionado e ignora respuestas antiguas.
     async function chooseOwner(id, label, petId = '') {
         const stamp = ++seq;
         document.querySelector('#appointment [name=cliente_id]').value = id;
@@ -734,7 +739,7 @@ async function appointmentForm(c = {}) {
     );
 }
 
-// Combina selecci?n exacta de propietario con b?squeda libre de pacientes.
+// Combina selección exacta de propietario con búsqueda libre de pacientes.
 async function consultar(token) {
     app.innerHTML =
         title(
@@ -748,7 +753,7 @@ async function consultar(token) {
         selectedOwner = '',
         loadSequence = 0;
 
-    // Solicita y presenta resultados de la secci?n con control de paginaci?n.
+    // Solicita y presenta resultados de la sección con control de paginación.
     async function load(append = false) {
         const stamp = ++loadSequence,
             q = document.querySelector('#patient-search').value;
@@ -932,7 +937,7 @@ async function editPet(id) {
     };
 }
 
-// Lista y administra profesionales de la cl?nica.
+// Lista y administra profesionales de la clínica.
 async function veterinarios(token) {
     const d = await api('cargar-datos-agenda/');
     if (token !== generation) return;
@@ -946,7 +951,7 @@ async function veterinarios(token) {
         ) +
         `<section class="panel">${table(['Profesional', 'Especialidad', 'Teléfono', ''], vetCache.map((v) => `<tr><td><strong>${esc(v.nombre)} ${esc(v.apellido)}</strong></td><td>${esc(v.especialidad)}</td><td>${esc(v.telefono)}</td><td><button class="small secondary" data-vet="${v.id}">Editar</button></td></tr>`).join(''))}</section>`;
 
-    // Prepara el formulario del veterinario y su eliminaci?n protegida.
+    // Prepara el formulario del veterinario y su eliminación protegida.
     function edit(v = {}) {
         openModal(
             'Datos del veterinario',
@@ -989,7 +994,7 @@ async function veterinarios(token) {
     );
 }
 
-// Selecciona el paciente cuyo historial se consultar?.
+// Selecciona el paciente cuyo historial se consultará.
 async function vacunacion(token) {
     const d = await api('mascotas-selector/');
     if (token !== generation) return;
@@ -1079,7 +1084,7 @@ async function reportes(token) {
         ) +
         `<div class="stats"><article class="stat"><small>Ingresos cobrados</small><strong style="font-size:24px">${cop(s.total_ingresos)}</strong></article><article class="stat"><small>Por cobrar</small><strong style="font-size:24px">${cop(s.total_pendiente)}</strong></article><article class="stat"><small>Facturas registradas</small><strong>${s.total_facturas}</strong></article><article class="stat"><small>Facturas pagadas</small><strong>${s.facturas_pagadas}</strong></article></div><section class="panel"><div class="panel-head"><h2>Registro de facturas</h2>${select('filtro', 'Estado', [['', 'Todos'], ...['Pendiente', 'Pagada', 'Cancelada'].map((v) => [v, v])])}</div><div id="invoices-table"></div><p class="helper">Estos documentos no constituyen facturas electrónicas autorizadas por la DIAN.</p></section>`;
 
-    // Filtra y pagina facturas conservando las filas anteriores al cargar m?s.
+    // Filtra y pagina facturas conservando las filas anteriores al cargar más.
     async function loadInvoices(append = false) {
         const state = document.querySelector('[name=filtro]').value;
         const d = await api(
@@ -1135,7 +1140,7 @@ async function reportes(token) {
         newInvoice().catch((e) => toast(e.message, true));
 }
 
-// A?ade una l?nea de servicio a la factura.
+// Añade una línea de servicio a la factura.
 function addService() {
     document
         .querySelector('#services')
@@ -1145,7 +1150,7 @@ function addService() {
         );
 }
 
-// Muestra la estimaci?n de subtotal, descuentos e impuestos.
+// Muestra la estimación de subtotal, descuentos e impuestos.
 function updateTotal() {
     const form = document.querySelector('#invoice-form');
     if (!form) return;
@@ -1161,7 +1166,7 @@ function updateTotal() {
     document.querySelector('#invoice-total').textContent = cop(total);
 }
 
-// Reutiliza las tres opciones v?lidas de m?todo de pago.
+// Reutiliza las tres opciones válidas de método de pago.
 function paymentMethodField(value = 'Transferencia') {
     return select(
         'metodo_pago',
@@ -1269,6 +1274,7 @@ async function correos(token) {
         ) +
         `<section class="panel"><div class="panel-head"><h2>Últimas notificaciones</h2><div class="actions"><button id="process-mail" ${!d.correo?.configurada || !d.pendientes ? 'disabled' : ''}>Procesar pendientes</button><button class="secondary" id="refresh-mail">Actualizar</button></div></div><p class="helper" id="mail-status" role="status">${esc(d.correo?.diagnostico || '')}</p>${table(['Cita', 'Creada', 'Estado', 'Intentos', 'Diagnóstico', ''], d.notificaciones.map((n) => `<tr><td>#C${n.cita_id}</td><td>${esc(n.creada)}</td><td>${badge(n.estado)}</td><td>${n.intentos}</td><td>${esc(n.error || '—')}</td><td>${n.estado === 'Fallida' ? `<form id="retry-${n.id}">${submit('Reintentar')}</form>` : ''}</td></tr>`).join(''))}<p class="helper">Los mensajes “Sin correo” y “Demostración” no se envían. Los fallidos pueden reintentarse después de corregir la configuración.</p></section>`;
     document.querySelector('#refresh-mail').onclick = navigate;
+    // Muestra el avance del envío y conserva la pantalla si aparece un error.
     async function process() {
         const button = document.querySelector('#process-mail');
         button.disabled = true;
@@ -1316,7 +1322,7 @@ const pages = {
     correos,
 };
 
-// Cambia de pesta?a, cancela temporizadores y descarta respuestas obsoletas.
+// Cambia de pestaña, cancela temporizadores y descarta respuestas obsoletas.
 async function navigate() {
     clearInterval(pageRefreshTimer);
     ownerSearchCleanup();

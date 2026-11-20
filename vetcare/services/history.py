@@ -1,4 +1,4 @@
-# Consulta del historial legado sin recalcular evaluaciones.
+# Permite consultar los antecedentes de adopción conservados de versiones anteriores.
 """Consulta protegida de antecedentes anteriores al catálogo público actual."""
 
 from ..http import page

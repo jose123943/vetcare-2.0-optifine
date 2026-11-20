@@ -1,3 +1,4 @@
+# Comprueba la configuración de Gmail sin enviar mensajes a destinatarios reales.
 """Configuración y autenticación de Gmail sin enviar a buzones externos."""
 
 import io
@@ -21,11 +22,13 @@ from vetcare.services.mail import (
 )
 
 
+# Agrupa las comprobaciones del asistente y la conexión segura con Gmail.
 class GmailTests(unittest.TestCase):
+    # Prepara datos ficticios de Gmail para comprobar su configuración.
     def values(self):
         return gmail_values("sender@example.invalid", "abcd efgh ijkl mnop")
 
-    # Comprueba la regresi?n de private configuration preserves database and signing key.
+    # Comprueba que configurar Gmail conserve la conexión SQL y la firma de sesiones.
     def test_private_configuration_preserves_database_and_signing_key(self):
         with tempfile.TemporaryDirectory(prefix="vetcare_gmail_") as directory:
             path = Path(directory) / ".env"
@@ -45,13 +48,13 @@ class GmailTests(unittest.TestCase):
                 values["DEFAULT_FROM_EMAIL"], "VetCare <sender@example.invalid>"
             )
 
-    # Comprueba la regresi?n de incomplete password is rejected.
+    # Comprueba que se rechacen contraseñas de aplicación incompletas.
     def test_incomplete_password_is_rejected(self):
         for password in ("", "*", "regular-short", "a" * 17):
             with self.assertRaises(MailConfigurationError):
                 gmail_values("sender@example.invalid", password)
 
-    # Comprueba la regresi?n de missing account fails before network.
+    # Comprueba que se detecte una cuenta ausente antes de contactar con Gmail.
     def test_missing_account_fails_before_network(self):
         values = self.values()
         values["EMAIL_HOST_USER"] = ""
@@ -63,7 +66,7 @@ class GmailTests(unittest.TestCase):
                 check_smtp_connection()
             factory.assert_not_called()
 
-    # Comprueba la regresi?n de rejects insecure or inconsistent gmail transport.
+    # Comprueba que Gmail use una combinación válida de puerto, cifrado y remitente.
     def test_rejects_insecure_or_inconsistent_gmail_transport(self):
         for changed in [
             {"EMAIL_USE_TLS": "false"},
@@ -75,7 +78,7 @@ class GmailTests(unittest.TestCase):
                 with self.assertRaises(MailConfigurationError):
                     smtp_settings()
 
-    # Comprueba la regresi?n de authentication check uses tls and never sends.
+    # Comprueba el acceso cifrado a Gmail sin enviar mensajes.
     def test_authentication_check_uses_tls_and_never_sends(self):
         server = MagicMock()
         server.noop.return_value = (250, b"OK")
@@ -99,7 +102,7 @@ class GmailTests(unittest.TestCase):
                 [c[0] for c in server.method_calls].index("login"),
             )
 
-    # Comprueba la regresi?n de diagnostics hide provider responses.
+    # Comprueba que los diagnósticos no muestren datos privados del proveedor.
     def test_diagnostics_hide_provider_responses(self):
         private = "sensitive-provider-detail@example.invalid"
         for error in [
@@ -115,7 +118,7 @@ class GmailTests(unittest.TestCase):
             mail_error(smtplib.SMTPAuthenticationError(535, b"bad")),
         )
 
-    # Comprueba la regresi?n de assistant does not save credentials rejected by google.
+    # Comprueba que el asistente no guarde credenciales rechazadas por Google.
     def test_assistant_does_not_save_credentials_rejected_by_google(self):
         with tempfile.TemporaryDirectory(prefix="vetcare_gmail_") as directory:
             root = Path(directory)
@@ -147,7 +150,7 @@ class GmailTests(unittest.TestCase):
             self.assertEqual(path.read_bytes(), before)
             self.assertNotIn("abcdefghijklmnop", output.getvalue())
 
-    # Comprueba la regresi?n de assistant saves only after authentication succeeds.
+    # Comprueba que Gmail se guarde únicamente después de validar el acceso.
     def test_assistant_saves_only_after_authentication_succeeds(self):
         with tempfile.TemporaryDirectory(prefix="vetcare_gmail_") as directory:
             root = Path(directory)
@@ -157,6 +160,7 @@ class GmailTests(unittest.TestCase):
             )
             output = io.StringIO()
 
+            # Comprueba que las credenciales todavía no estén guardadas al validar el acceso.
             def verify_before_save():
                 self.assertNotIn(
                     "EMAIL_HOST_PASSWORD", dotenv_values(path, interpolate=False)

@@ -1,7 +1,7 @@
-// Buscador compartido de propietarios con rat?n y teclado.
+// Comparte el buscador de propietarios entre la consulta de pacientes y la agenda.
 'use strict';
 let ownerSearchCleanup = () => {};
-// Conecta un desplegable accesible, b?squeda libre y selecci?n de propietario.
+// Conecta un desplegable accesible, búsqueda libre y selección de propietario.
 function bindOwnerSearch(input, box, onSelect, onInput = () => {}) {
     ownerSearchCleanup();
     const controller = new AbortController(),
@@ -17,7 +17,7 @@ function bindOwnerSearch(input, box, onSelect, onInput = () => {}) {
     box.setAttribute('role', 'listbox');
     box.setAttribute('aria-label', 'Propietarios registrados');
     box.hidden = true;
-    // Cierra la lista y limpia su selecci?n accesible.
+    // Cierra la lista y limpia su selección accesible.
     function hide() {
         box.hidden = true;
         input.setAttribute('aria-expanded', 'false');
@@ -36,7 +36,7 @@ function bindOwnerSearch(input, box, onSelect, onInput = () => {}) {
             button.scrollIntoView({ block: 'nearest' });
         }
     }
-    // Aplica un propietario e invalida b?squedas pendientes.
+    // Aplica un propietario e invalida búsquedas pendientes.
     async function choose(index) {
         const owner = owners[index];
         if (!owner) return;

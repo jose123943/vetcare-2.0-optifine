@@ -1,3 +1,4 @@
+# Inicia la web local o el proceso de correo usando el entorno Python del proyecto.
 param([switch]$Correo, [int]$Puerto = 8000)
 # Ejecuta siempre desde el proyecto y evita generar cachés Python locales nuevas.
 $ErrorActionPreference = 'Stop'

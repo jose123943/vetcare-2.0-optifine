@@ -1,4 +1,4 @@
-# Administraci?n de cuentas y revocaci?n de sus sesiones.
+# Administra las cuentas del equipo y revoca sesiones cuando cambian sus permisos.
 from datetime import UTC, datetime
 
 from ..db import insert, update

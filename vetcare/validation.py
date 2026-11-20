@@ -1,8 +1,10 @@
+# Comprueba que los datos recibidos tengan el formato y los valores permitidos.
 import re
 from datetime import date, time
 from decimal import Decimal, InvalidOperation
 
 
+# Representa un error que puede explicarse al usuario de forma controlada.
 class Problem(Exception):
     # Representa un error previsto con mensaje seguro y estado HTTP.
     def __init__(self, message, status=400):

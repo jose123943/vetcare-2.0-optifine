@@ -1,4 +1,4 @@
-# Clientes, mascotas, profesionales, agenda e historial cl?nico.
+# Gestiona propietarios, pacientes, veterinarios, citas, vacunas y tratamientos.
 import json
 import uuid
 from datetime import UTC, datetime, time, timedelta
@@ -19,6 +19,7 @@ from ..validation import (
 )
 from .mail import notification_state
 
+# Reconoce también los estados antiguos al leer historiales de citas.
 ACTIVE = ("Pendiente", "Programada", "Confirmada")
 
 
@@ -27,7 +28,9 @@ def NOW():
     return datetime.now(ZoneInfo("America/Bogota"))
 
 
+# Reúne paciente y propietario en una consulta para no buscarlos fila por fila.
 PETS = "SELECT m.*,c.nombre AS propietario_nombre,c.apellido AS propietario_apellido,c.telefono,c.email FROM mascota m JOIN cliente c ON c.id_cliente=m.cliente_id"
+# Comparte los datos de cita, paciente, cliente y profesional entre agenda y facturación.
 APPOINTMENTS = """SELECT a.*,m.nombre AS mascota,c.id_cliente AS cliente_id,CONCAT(c.nombre,' ',c.apellido) AS cliente,
  CONCAT(e.nombre,' ',e.apellido) AS veterinario FROM cita a JOIN mascota m ON m.id_mascota=a.mascota_id
  JOIN cliente c ON c.id_cliente=m.cliente_id JOIN veterinario v ON v.id_veterinario=a.veterinario_id

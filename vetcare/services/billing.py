@@ -1,4 +1,4 @@
-# Facturas, servicios, importes Decimal y estado de pago.
+# Calcula y guarda facturas, sus servicios y los estados de pago.
 from decimal import Decimal
 
 from ..db import insert, update
@@ -12,8 +12,10 @@ from .clinic import (
     complete_finished_appointments,
 )
 
+# Usa las mismas opciones en el registro, la actualización y los documentos de pago.
 PAYMENT_METHODS = ("Transferencia", "Efectivo", "Tarjeta")
 
+# Reúne la factura con su cliente y paciente para consultar el detalle y generar el PDF.
 INVOICES = """SELECT f.*,CONCAT(c.nombre,' ',c.apellido) AS cliente,c.nombre,c.apellido,c.documento,c.email,c.telefono,
  a.fecha AS cita_fecha,a.motivo AS cita_motivo,m.nombre AS mascota_nombre,m.especie,m.raza
  FROM factura f JOIN cliente c ON c.id_cliente=f.cliente_id JOIN cita a ON a.id_cita=f.cita_id JOIN mascota m ON m.id_mascota=a.mascota_id"""

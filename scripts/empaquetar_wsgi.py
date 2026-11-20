@@ -1,3 +1,4 @@
+# Crea paquetes ZIP del proyecto y comprueba que no incluyan secretos.
 """Distribuye código verificando exclusiones y secretos; nunca publica un servicio."""
 
 import json
@@ -8,6 +9,7 @@ from pathlib import Path
 from dotenv import dotenv_values
 
 ROOT = Path(__file__).resolve().parent.parent
+# Solo estas carpetas y archivos pueden entrar en los paquetes compartidos.
 DIRECTORIES = {"frontend", "vetcare", "sql", "scripts", "tests", "docs", ".github"}
 FILES = {
     "run.py",

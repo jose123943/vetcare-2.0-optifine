@@ -1,3 +1,4 @@
+# Indica qué archivos privados, temporales o generados deben quedar fuera de Git.
 .env
 .env.*
 !.env.example
@@ -17,3 +18,6 @@ private_backups/
 *.dump
 dist/
 build/
+# Capturas y PDF de pruebas: se generan al ejecutar los recorridos del navegador.
+docs/evidencias/*.png
+docs/evidencias/*.pdf

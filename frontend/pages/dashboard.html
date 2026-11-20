@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- Pantalla principal que reúne las pestañas de gestión de la veterinaria. -->
 
 <html lang="es">
     <!-- Metadatos de la pantalla y hojas de estilo locales. -->
@@ -15,7 +16,7 @@
     </head>
 
     <body data-screen="dashboard" data-user="">
-        <!-- Navegaci?n entre m?dulos y acceso al cierre de sesi?n. -->
+        <!-- Navegación entre módulos y acceso al cierre de sesión. -->
         <aside class="sidebar">
             <a href="#dashboard" class="brand"
                 ><span class="brand-mark">✚</span
@@ -92,12 +93,12 @@
                 ><span class="online"><i></i> Conectado a VetCare</span>
             </header>
 
-            <!-- Contenido principal que utiliza el m?dulo de esta pantalla. -->
+            <!-- JavaScript carga aquí la pestaña elegida sin recargar toda la aplicación. -->
 
             <main id="app" tabindex="-1" aria-live="polite">
                 <p>Cargando tu espacio de trabajo…</p>
             </main>
-            <!-- Informaci?n de cierre y contexto del servicio. -->
+            <!-- Información de cierre y contexto del servicio. -->
             <footer class="app-footer">
                 VetCare · Un mejor cuidado empieza con una buena gestión.
             </footer>
@@ -105,7 +106,7 @@
 
         <div id="toasts" role="status" aria-live="polite"></div>
 
-        <!-- Formulario o detalle modal, separado del contenido principal. -->
+        <!-- Los formularios y detalles de registros comparten esta ventana de diálogo. -->
 
         <dialog id="modal" aria-labelledby="modal-title">
             <div class="modal-head">
@@ -117,7 +118,7 @@
             <div id="modal-content"></div>
         </dialog>
 
-        <!-- Inicio de sesi?n, CSRF y carga de los m?dulos JavaScript necesarios. -->
+        <!-- Inicio de sesión, CSRF y carga de los módulos JavaScript necesarios. -->
 
         <script src="/static/js/bootstrap.js" defer></script>
     </body>

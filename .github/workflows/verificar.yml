@@ -1,9 +1,10 @@
-# Comprueba el código sin credenciales de Railway ni envíos a usuarios.
+# Comprueba el código y la construcción de la imagen al actualizar GitHub.
 name: Verificar VetCare
 on: [push, pull_request, workflow_dispatch]
 permissions:
   contents: read
 jobs:
+  # Revisa dependencias, configuración y sintaxis sin utilizar la base operativa.
   python:
     runs-on: ubuntu-latest
     strategy:
@@ -26,6 +27,7 @@ jobs:
           python scripts/build_assets.py
       - name: Comprobar sintaxis del frontend
         run: find frontend/assets/js tests/browser -type f \( -name '*.js' -o -name '*.cjs' \) -exec node --check {} \;
+  # Comprueba que la imagen de producción se pueda construir antes de publicarla.
   imagen:
     runs-on: ubuntu-latest
     steps:

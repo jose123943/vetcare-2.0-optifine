@@ -1,9 +1,11 @@
+# Actualiza el inventario de funciones Python de la guía vetcare-funciones.md.
 """Actualiza el inventario técnico de vetcare-funciones.md a partir del código."""
 
 import ast
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+# Mantiene las explicaciones de las funciones que aparecerán en la guía técnica.
 DESCRIPTIONS = {
     "application": {
         "Application.__init__": "Crea el pool, el mapa de rutas y el tratamiento del proxy según el entorno.",
@@ -92,6 +94,7 @@ DESCRIPTIONS = {
     },
     "clinic": {
         "NOW": "Obtiene fecha/hora de la clínica en America/Bogota.",
+        "appointment_order": "Ordena primero las citas de hoy y futuras; después muestra el historial desde la más reciente.",
         "pet_data": "Serializa una mascota con propietario y datos de contacto para las vistas administrativas.",
         "owner": "Serializa los campos de un cliente.",
         "time_value": "Normaliza el TIME de MySQL a una hora Python.",
@@ -176,10 +179,13 @@ DESCRIPTIONS = {
         "smtp_connection": "Abre SMTP con TLS/SSL y autentica cuando corresponde; cierra la conexión al terminar.",
         "check_smtp_connection": "Comprueba SMTP y autenticación mediante NOOP, sin enviar mensajes.",
         "mail_error": "Traduce errores conocidos a diagnósticos seguros sin respuestas privadas del proveedor.",
+        "configuration_status": "Explica qué configuración de correo falta sin revelar sus valores privados.",
         "list_messages": "Consulta estados e intentos de las notificaciones recientes.",
+        "process_pending": "Procesa un correo pendiente dentro de una petición web autorizada.",
         "retry": "Devuelve una notificación fallida a Pendiente para un nuevo intento.",
         "make_message": "Construye el mensaje MIME con texto y HTML escapado a partir del contexto guardado.",
         "smtp_send": "Entrega el mensaje al servidor SMTP y detecta destinatarios rechazados.",
+        "claim_message": "Reserva un mensaje pendiente para que otro proceso no lo envíe al mismo tiempo.",
         "deliver_one": "Reclama una notificación con SKIP LOCKED, envía fuera de la transacción y guarda aceptación o fallo.",
     },
     "pdf": {

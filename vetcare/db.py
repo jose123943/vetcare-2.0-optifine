@@ -1,4 +1,4 @@
-# Pool SQL por proceso, consultas parametrizadas y control de transacciones.
+# Reutiliza conexiones MySQL y permite guardar cambios completos o revertirlos si fallan.
 import os
 import queue
 import time
@@ -8,6 +8,7 @@ import pymysql
 from pymysql.cursors import DictCursor
 
 
+# Administra un grupo reutilizable de conexiones con MySQL.
 class Database:
     """Pool por proceso. Nunca reenvía SQL tras una conexión perdida."""
 
@@ -116,6 +117,7 @@ class Database:
                     item[0].close()
 
 
+# Ofrece consultas y transacciones sobre una conexión reservada.
 class SQL:
     # Envuelve una conexión y comienza su contador de consultas.
     def __init__(self, connection):

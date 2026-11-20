@@ -1,3 +1,4 @@
+# Crea el archivo privado de conexión local si todavía no existe.
 """Configuración local privada. No imprime contraseñas ni sobrescribe un .env existente."""
 
 import getpass
@@ -10,10 +11,12 @@ from dotenv import set_key
 
 from vetcare.config import ROOT
 
+# Conserva la configuración existente para no sustituir credenciales válidas.
 path = ROOT / ".env"
 if path.exists():
     print(".env ya existe. Se conserva su configuración privada.")
     raise SystemExit(0)
+# Solicita los datos públicos de conexión y recibe la contraseña mediante entrada oculta.
 values = {}
 for key, label in [
     ("MYSQLHOST", "Host público de Railway (Connect)"),
@@ -31,6 +34,7 @@ if not values["MYSQLPASSWORD"]:
     raise SystemExit("No se guardó: falta MYSQLPASSWORD.")
 if not values["MYSQLPORT"].isdigit():
     raise SystemExit("El puerto debe ser numérico.")
+# Guarda una copia privada de la plantilla y genera la clave que protege las sesiones.
 path.write_text((ROOT / ".env.example").read_text(encoding="utf-8"), encoding="utf-8")
 for key, value in {**values, "VETCARE_SECRET_KEY": secrets.token_urlsafe(48)}.items():
     set_key(path, key, value)

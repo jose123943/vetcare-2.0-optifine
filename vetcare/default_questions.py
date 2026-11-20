@@ -1,7 +1,8 @@
-# Definici?n inicial y versionada de la encuesta de adopci?n.
+# Define las preguntas y los puntos de la encuesta inicial de adopción.
 """Encuesta orientativa, no instrumento científico. Todas las opciones son editables por versión."""
 
 # Preguntas sin prejuicio por ingresos, tipo de vivienda o experiencia previa.
+# Los criterios y sus pesos forman la encuesta inicial; las versiones posteriores se guardan en MySQL.
 DEFAULTS = [
     (
         "Disponibilidad de tiempo",

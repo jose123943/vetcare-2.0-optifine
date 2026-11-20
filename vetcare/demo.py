@@ -1,4 +1,4 @@
-# Limpieza administrativa y generaci?n expl?cita de datos ficticios.
+# Prepara datos ficticios o limpia datos operativos cuando se solicita expresamente.
 """Datos ficticios de formación; limpieza transaccional autorizada por el operador."""
 
 import hashlib
@@ -13,6 +13,7 @@ from werkzeug.datastructures import MultiDict
 from .db import insert
 from .services import adoptions, billing, clinic
 
+# Se limpian primero los registros dependientes para respetar las relaciones entre tablas.
 OPERATIONAL_TABLES = (
     "adopciones_entrega",
     "adopciones_revision",
@@ -36,6 +37,7 @@ OPERATIONAL_TABLES = (
     "django_session",
     "vc_login_bucket",
 )
+# Conserva cuentas y cuestionarios necesarios para seguir usando la aplicación después de limpiar.
 CONFIGURATION_TABLES = {
     "adopciones_cuestionario",
     "adopciones_criterio",

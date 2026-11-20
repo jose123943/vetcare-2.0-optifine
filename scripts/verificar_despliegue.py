@@ -1,3 +1,4 @@
+# Revisa los archivos de publicación; --con-base también comprueba MySQL.
 """Revisa estructura y despliegue; la comprobación opcional de MySQL es sólo lectura."""
 
 import argparse

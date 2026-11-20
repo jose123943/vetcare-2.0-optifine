@@ -1,3 +1,4 @@
+// Recorre el catálogo, la encuesta y la entrega de una adopción en el navegador de pruebas.
 const { chromium } = require(process.env.VETCARE_PLAYWRIGHT_MODULE);
 
 const fs = require('fs'),
@@ -5,7 +6,9 @@ const fs = require('fs'),
     path = require('path'),
     assert = require('node:assert/strict');
 
+// Abre Edge con datos de prueba y conserva los errores para comprobar el recorrido.
 (async () => {
+    // Ejecuta el navegador sin abrir ventanas para el usuario.
     const browser = await chromium.launch({
         executablePath:
             'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
@@ -183,6 +186,7 @@ const fs = require('fs'),
     );
 
     assert.deepEqual(errors, []);
+    // Resume el resultado del recorrido para facilitar la revisión.
     console.log(
         'Adopciones E2E: catálogo escritorio/tableta/móvil, encuesta, resultado, revisión, autorización y entrega: OK.',
     );

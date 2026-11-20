@@ -1,4 +1,4 @@
-# Comandos de arranque y administraci?n; nunca se imprimen credenciales.
+# Permite iniciar VetCare y ejecutar sus tareas de revisión, respaldo y mantenimiento.
 """Comandos independientes del framework anterior. Nunca imprimen credenciales."""
 
 import argparse
@@ -81,7 +81,7 @@ def main():
         level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s"
     )
     if args.command == "serve":
-        # Servidor local: crea la aplicaci?n y mantiene el monitor mientras est? abierto.
+        # Servidor local: crea la aplicación y mantiene el monitor mientras está abierto.
         from waitress import serve
 
         from vetcare.application import create_app
@@ -105,7 +105,7 @@ def main():
             stop_monitor(monitor)
             app.database.close()
     elif args.command == "migrate":
-        # Aplica s?lo estructura pendiente; no limpia los datos operativos.
+        # Aplica solo estructura pendiente; no limpia los datos operativos.
         from vetcare.migrations import migrate
 
         migrate(database)
@@ -125,7 +125,7 @@ def main():
                 logging.error("Worker: %s", type(exc).__name__)
                 time.sleep(5)
     elif args.command == "create-admin":
-        # Alta interactiva con contrase?a oculta y validaciones previas.
+        # Alta interactiva con contraseña oculta y validaciones previas.
         from vetcare.security import hasher
 
         username = input("Usuario nuevo: ").strip()

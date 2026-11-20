@@ -1,4 +1,4 @@
-# Variables de entorno y par?metros de ejecuci?n validados antes del arranque.
+# Carga y valida la configuración privada antes de iniciar la aplicación.
 import hashlib
 import os
 import secrets
@@ -20,6 +20,7 @@ def session_run_id():
     return os.getenv("_VETCARE_SESSION_RUN_ID") or secrets.token_hex(32)
 
 
+# Mantiene la configuración que comparten los módulos del servidor.
 @dataclass
 class Config:
     root: Path = ROOT

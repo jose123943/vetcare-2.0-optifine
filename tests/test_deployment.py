@@ -1,3 +1,4 @@
+# Comprueba la configuración de publicación y los archivos públicos sin conectar a MySQL.
 """Configuración y recursos de producción; no necesita credenciales ni conexiones SQL."""
 
 import gzip
@@ -16,6 +17,7 @@ from vetcare.application import create_app
 from vetcare.config import Config
 
 
+# Agrupa las comprobaciones de archivos y configuración de publicación.
 class DeploymentTests(unittest.TestCase):
     # Prepara el entorno y los datos aislados requeridos por este grupo de pruebas.
     @classmethod
@@ -42,11 +44,11 @@ class DeploymentTests(unittest.TestCase):
     def tearDownClass(cls):
         cls.app.database.close()
 
-    # Comprueba la regresi?n de source paths and selective docker copy.
+    # Comprueba las rutas del proyecto y los archivos que se incluyen en Docker.
     def test_01_source_paths_and_selective_docker_copy(self):
         self.assertTrue(check_source()["referencias_estaticas_validas"])
 
-    # Comprueba la regresi?n de static plain and gzip are equivalent.
+    # Comprueba que un recurso comprimido tenga el mismo contenido que su original.
     def test_02_static_plain_and_gzip_are_equivalent(self):
         c = Client(self.app, Response)
         headers = {"X-Forwarded-Proto": "https"}
@@ -64,7 +66,7 @@ class DeploymentTests(unittest.TestCase):
         plain.close()
         compressed.close()
 
-    # Comprueba la regresi?n de gzip zero quality and development use source.
+    # Comprueba que se respete el navegador y el modo de desarrollo al comprimir.
     def test_03_gzip_zero_quality_and_development_use_source(self):
         response = Client(self.app, Response).get(
             "/static/js/example.js",
@@ -82,7 +84,7 @@ class DeploymentTests(unittest.TestCase):
         finally:
             dev.database.close()
 
-    # Comprueba la regresi?n de gzip etag revalidation and head.
+    # Comprueba la caché y las consultas de recursos sin descargar de nuevo su contenido.
     def test_04_gzip_etag_revalidation_and_head(self):
         c = Client(self.app, Response)
         headers = {"X-Forwarded-Proto": "https", "Accept-Encoding": "gzip"}
@@ -101,7 +103,7 @@ class DeploymentTests(unittest.TestCase):
         cached.close()
         head.close()
 
-    # Comprueba la regresi?n de static traversal and missing file are rejected.
+    # Comprueba que las rutas inválidas no permitan salir de la carpeta pública.
     def test_05_static_traversal_and_missing_file_are_rejected(self):
         c = Client(self.app, Response)
         for path in ["/static/../.env", "/static/js/missing.js"]:
@@ -109,7 +111,7 @@ class DeploymentTests(unittest.TestCase):
                 c.get(path, headers={"X-Forwarded-Proto": "https"}).status_code, 404
             )
 
-    # Comprueba la regresi?n de build is repeatable and only contains public text.
+    # Comprueba que generar recursos dos veces produzca el mismo resultado seguro.
     def test_06_build_is_repeatable_and_only_contains_public_text(self):
         before = (self.root / "build/static/js/example.js.gz").read_bytes()
         again = build_assets(self.root)
@@ -119,7 +121,7 @@ class DeploymentTests(unittest.TestCase):
         self.assertEqual(again, self.report)
         self.assertEqual(len(again["archivos"]), 1)
 
-    # Comprueba la regresi?n de invalid pool or port fails before connecting.
+    # Comprueba puertos y límites de conexiones antes de contactar con MySQL.
     def test_07_invalid_pool_or_port_fails_before_connecting(self):
         base = {
             "MYSQLHOST": "localhost",
@@ -141,7 +143,7 @@ class DeploymentTests(unittest.TestCase):
                     with self.assertRaises(RuntimeError):
                         Config.load()
 
-    # Comprueba la regresi?n de production media must be absolute worker does not need it.
+    # Comprueba la ruta de fotografías en producción y el arranque independiente del correo.
     def test_08_production_media_must_be_absolute_worker_does_not_need_it(self):
         base = {
             "MYSQLHOST": "localhost",
